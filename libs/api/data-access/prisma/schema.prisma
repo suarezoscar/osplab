@@ -1,0 +1,65 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+  output          = "../src/generated/prisma"
+}
+
+datasource db {
+  provider   = "postgresql"
+  extensions = [postgis]
+}
+
+model Province {
+  id     String @id @default(cuid())
+  name   String @unique
+  code   String @unique // "GA", "MD", "CT" …
+  cities City[]
+}
+
+model City {
+  id         String     @id @default(cuid())
+  name       String
+  provinceId String
+  province   Province   @relation(fields: [provinceId], references: [id])
+  pharmacies Pharmacy[]
+
+  @@unique([name, provinceId])
+}
+
+model Pharmacy {
+  id        String                                @id @default(cuid())
+  name      String
+  address   String
+  phone     String?
+  /// Tipo nativo PostGIS — se usa $queryRaw para consultas geoespaciales
+  location  Unsupported("geography(Point,4326)")?
+  cityId    String
+  city      City                                  @relation(fields: [cityId], references: [id])
+  schedules DutySchedule[]
+  createdAt DateTime                              @default(now())
+  updatedAt DateTime                              @updatedAt
+
+  @@index([cityId])
+}
+
+model DutySchedule {
+  id         String   @id @default(cuid())
+  pharmacyId String
+  pharmacy   Pharmacy @relation(fields: [pharmacyId], references: [id], onDelete: Cascade)
+  date       DateTime @db.Date
+  startTime  String // "09:00"
+  endTime    String // "21:00"
+  type       DutyType @default(REGULAR)
+  source     String? // URL de origen del scraping
+  createdAt  DateTime @default(now())
+
+  @@unique([pharmacyId, date])
+  @@index([date])
+}
+
+enum DutyType {
+  REGULAR
+  URGENT
+  HOLIDAY
+}
+

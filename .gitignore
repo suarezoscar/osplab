@@ -1,23 +1,20 @@
-# See https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files for more about ignoring files.
+# See https://docs.github.com/en/get-started/getting-everything-with-git/ignoring-files for more about ignoring files.
 
 # compiled output
-dist
-tmp
-out-tsc
+dist/
+tmp/
+out-tsc/
 
 # dependencies
-node_modules
+node_modules/
 
-# IDEs and editors
-/.idea
-.project
-.classpath
-.c9/
-*.launch
-.settings/
-*.sublime-workspace
+# JetBrains / WebStorm
+.idea/
+*.iml
+*.iws
+*.ipr
 
-# IDE - VSCode
+# IDE - VSCode (para compañeros de equipo que usen VSCode)
 .vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json
@@ -34,11 +31,28 @@ yarn-error.log
 testem.log
 /typings
 
+# Testing
+.jest-cache/
+jest_html_reporters.html
+
+# Environment variables — NUNCA subir credenciales
+.env
+.env.local
+.env.*.local
+
+# Prisma generated client (regenerar con: pnpm prisma:generate)
+libs/api/data-access/src/generated/
+
 # System Files
 .DS_Store
 Thumbs.db
 
+# Nx
 .nx/cache
 .nx/workspace-data
+.nx/polygraph
 .claude/worktrees
 .claude/settings.local.json
+
+# Angular
+.angular
