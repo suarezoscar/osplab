@@ -56,3 +56,10 @@ Thumbs.db
 
 # Angular
 .angular
+
+# AI tool caches / agent workspaces
+.agents/
+.codex/
+.gemini/
+.opencode/
+

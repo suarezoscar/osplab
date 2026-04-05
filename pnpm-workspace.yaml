@@ -4,3 +4,13 @@ autoInstallPeers: true
 ignoredBuiltDependencies:
   - '@prisma/engines'
   - prisma
+onlyBuiltDependencies:
+  - '@nestjs/core'
+  - '@parcel/watcher'
+  - '@swc/core'
+  - esbuild
+  - less
+  - lmdb
+  - msgpackr-extract
+  - nx
+  - unrs-resolver

@@ -3,13 +3,15 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
+    "dev": "pnpm db:start && pnpm wait-on tcp:5432 --timeout 30000 && pnpm prisma:generate && pnpm prisma:migrate:deploy && pnpm nx run-many -t serve --projects=api,web --parallel=2",
+    "dev:stop": "pnpm db:stop",
     "prisma:generate": "prisma generate --schema=libs/api/data-access/prisma/schema.prisma",
     "prisma:migrate:dev": "prisma migrate dev --config=prisma.config.ts",
     "prisma:migrate:deploy": "prisma migrate deploy --config=prisma.config.ts",
     "prisma:studio": "prisma studio --schema=libs/api/data-access/prisma/schema.prisma",
     "prisma:db:push": "prisma db push --config=prisma.config.ts",
-    "db:start": "docker-compose up -d",
-    "db:stop": "docker-compose down"
+    "db:start": "docker compose up -d",
+    "db:stop": "docker compose down"
   },
   "private": true,
   "devDependencies": {
@@ -52,6 +54,7 @@
     "tslib": "^2.3.0",
     "typescript": "~5.9.2",
     "typescript-eslint": "^8.40.0",
+    "wait-on": "^9.0.4",
     "webpack-cli": "^5.1.4"
   },
   "dependencies": {
