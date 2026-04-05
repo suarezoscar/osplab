@@ -12,6 +12,10 @@ export interface PharmacyDto {
   city: string;
   province: string;
   distance?: number; // metros, calculado por PostGIS
+  startTime?: string; // "09:00"
+  endTime?: string;   // "21:00"
+  lat?: number;
+  lng?: number;
 }
 
 export interface DutyScheduleDto {

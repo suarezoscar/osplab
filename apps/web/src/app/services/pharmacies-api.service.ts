@@ -7,17 +7,16 @@ import type { PharmacyDto, NearbyPharmaciesQuery } from '@farmacias-guardia/shar
 export class PharmaciesApiService {
   private readonly http = inject(HttpClient);
 
-  findNearby(query: NearbyPharmaciesQuery): Observable<PharmacyDto[]> {
+  findNearest(query: NearbyPharmaciesQuery): Observable<PharmacyDto | null> {
     let params = new HttpParams()
       .set('lat', query.lat.toString())
-      .set('lng', query.lng.toString())
-      .set('radiusMeters', (query.radiusMeters ?? 5000).toString());
+      .set('lng', query.lng.toString());
 
     if (query.date) {
       params = params.set('date', query.date);
     }
 
-    return this.http.get<PharmacyDto[]>('/api/pharmacies/nearby', { params });
+    return this.http.get<PharmacyDto | null>('/api/pharmacies/nearest', { params });
   }
 }
 

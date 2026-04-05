@@ -7,9 +7,9 @@ import { NearbyPharmaciesQueryDto } from './dto/nearby-pharmacies-query.dto';
 export class PharmaciesController {
   constructor(private readonly pharmaciesService: PharmaciesService) {}
 
-  @Get('nearby')
-  findNearby(@Query() query: NearbyPharmaciesQueryDto): Promise<PharmacyDto[]> {
-    return this.pharmaciesService.findNearby(query);
+  @Get('nearest')
+  findNearest(@Query() query: NearbyPharmaciesQueryDto): Promise<PharmacyDto | null> {
+    return this.pharmaciesService.findNearest(query);
   }
 }
 
