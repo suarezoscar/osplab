@@ -18,8 +18,8 @@ RUN pnpm install --frozen-lockfile
 # 3. Copiar el código fuente completo
 COPY . .
 
-# 4. Generar el cliente Prisma
-RUN pnpm prisma:generate
+# 4. Generar el cliente Prisma (URL dummy — solo genera código, no conecta a BD)
+RUN DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy" pnpm prisma:generate
 
 # 5. Build de la API con Nx (webpack → dist/apps/farmacias-api/)
 RUN pnpm nx build farmacias-api
