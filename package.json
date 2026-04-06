@@ -20,11 +20,17 @@
     "prisma:db:push": "prisma db push --config=prisma.config.ts",
     "db:start": "docker compose up -d",
     "db:stop": "docker compose down",
-    "prepare": "husky"
+    "test": "pnpm nx run-many -t test",
+    "test:web": "pnpm nx test web",
+    "test:api": "pnpm nx test api",
+    "test:coverage": "pnpm nx run-many -t test -- --coverage",
+    "test:affected": "pnpm nx affected -t test"
   },
   "private": true,
   "packageManager": "pnpm@10.33.0",
   "devDependencies": {
+    "@analogjs/vite-plugin-angular": "^2.4.0",
+    "@analogjs/vitest-angular": "^2.4.0",
     "@angular-devkit/core": "~21.2.0",
     "@angular-devkit/schematics": "~21.2.0",
     "@angular/build": "~21.2.0",
@@ -48,6 +54,8 @@
     "@swc/core": "~1.15.5",
     "@swc/helpers": "~0.5.18",
     "@tailwindcss/postcss": "^4.2.2",
+    "@testing-library/angular": "^19.2.1",
+    "@testing-library/user-event": "^14.6.1",
     "@types/cheerio": "^1.0.0",
     "@types/node": "20.19.9",
     "@types/pg": "^8.20.0",
@@ -59,6 +67,7 @@
     "eslint": "^9.8.0",
     "eslint-config-prettier": "^10.0.0",
     "husky": "^9.1.7",
+    "jsdom": "^29.0.1",
     "lint-staged": "^16.4.0",
     "nx": "22.6.4",
     "postcss": "^8.5.8",
@@ -73,7 +82,8 @@
     "vite-tsconfig-paths": "^6.1.1",
     "vitest": "^4.1.2",
     "wait-on": "^9.0.4",
-    "webpack-cli": "^5.1.4"
+    "webpack-cli": "^5.1.4",
+    "zone.js": "^0.16.1"
   },
   "dependencies": {
     "@angular/common": "~21.2.0",

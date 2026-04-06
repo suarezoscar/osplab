@@ -27,10 +27,10 @@ import {
   RefreshIconComponent,
   SpinnerIconComponent,
 } from './icons/icons';
-import { AddressSearchComponent } from './components/address-search.component';
-import { LoadingSkeletonComponent } from './components/loading-skeleton.component';
-import { PharmacyCardComponent } from './components/pharmacy-card.component';
-import { WelcomeStateComponent } from './components/welcome-state.component';
+import { AddressSearchComponent } from './components/address-search/address-search.component';
+import { LoadingSkeletonComponent } from './components/loading-skeleton/loading-skeleton.component';
+import { PharmacyCardComponent } from './components/pharmacy-card/pharmacy-card.component';
+import { WelcomeStateComponent } from './components/welcome-state/welcome-state.component';
 
 @Component({
   selector: 'app-home',

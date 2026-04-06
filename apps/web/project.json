@@ -59,6 +59,22 @@
       },
       "defaultConfiguration": "development"
     },
+    "test": {
+      "executor": "nx:run-commands",
+      "outputs": ["{workspaceRoot}/coverage/apps/web"],
+      "options": {
+        "command": "vitest run --config apps/web/vitest.config.ts",
+        "cwd": "{workspaceRoot}"
+      },
+      "configurations": {
+        "coverage": {
+          "command": "vitest run --config apps/web/vitest.config.ts --coverage"
+        },
+        "watch": {
+          "command": "vitest --config apps/web/vitest.config.ts"
+        }
+      }
+    },
     "lint": {
       "executor": "@nx/eslint:lint"
     },

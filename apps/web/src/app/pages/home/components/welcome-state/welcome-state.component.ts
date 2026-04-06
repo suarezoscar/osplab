@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { PharmacyIllustrationComponent } from '../icons/icons';
+import { PharmacyIllustrationComponent } from '../../icons/icons';
 
 @Component({
   selector: 'app-welcome-state',

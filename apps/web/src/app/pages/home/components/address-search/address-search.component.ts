@@ -1,6 +1,6 @@
 import { Component, input, output } from '@angular/core';
-import type { GeocodingSuggestion } from '../../../services/geocoding.service';
-import { PinIconComponent, SearchIconComponent, SpinnerIconComponent } from '../icons/icons';
+import type { GeocodingSuggestion } from '../../../../services/geocoding.service';
+import { PinIconComponent, SearchIconComponent, SpinnerIconComponent } from '../../icons/icons';
 
 @Component({
   selector: 'app-address-search',

@@ -6,7 +6,7 @@ import {
   HouseIconComponent,
   PhoneIconComponent,
   StarIconComponent,
-} from '../icons/icons';
+} from '../../icons/icons';
 
 @Component({
   selector: 'app-pharmacy-card',
