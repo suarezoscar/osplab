@@ -53,7 +53,8 @@ jobs:
 
       - name: Commit formatting fixes
         if: steps.prettier_check.outcome == 'failure'
-        uses: stefanzweifel/git-auto-commit-action@v5
+        # Pinado a SHA para evitar ataques de supply chain en acciones de terceros
+        uses: stefanzweifel/git-auto-commit-action@b863ae1933cb653a53c021fe36dbb774e1fb9403 # v5
         with:
           commit_message: 'style: auto-fix Prettier formatting'
           commit_user_name: 'github-actions[bot]'
@@ -73,6 +74,8 @@ jobs:
   test:
     name: Lint & Unit tests (affected)
     runs-on: ubuntu-latest
+    permissions:
+      contents: read # solo lectura del código
 
     steps:
       - name: Checkout
@@ -88,11 +91,15 @@ jobs:
         if: github.event_name == 'push'
         run: echo "NX_BASE=HEAD~1" >> $GITHUB_ENV
 
+      # FIX: script injection — usar variable de entorno en lugar de interpolar
+      # ${{ github.base_ref }} directamente en shell (podría contener comandos)
       - name: Configurar NX_BASE (pull_request)
         if: github.event_name == 'pull_request'
+        env:
+          BASE_REF: ${{ github.base_ref }}
         run: |
-          git fetch origin ${{ github.base_ref }}
-          echo "NX_BASE=origin/${{ github.base_ref }}" >> $GITHUB_ENV
+          git fetch origin "$BASE_REF"
+          echo "NX_BASE=origin/$BASE_REF" >> $GITHUB_ENV
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
@@ -107,6 +114,10 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Generate Prisma Client
+        env:
+          # prisma generate no conecta a la BD pero prisma.config.ts valida que
+          # DATABASE_URL esté definida. Usamos una URL ficticia solo para este paso.
+          DATABASE_URL: postgresql://ci:ci@localhost:5432/ci
         run: pnpm prisma:generate
 
       - name: Restore Nx cache
@@ -130,6 +141,9 @@ jobs:
   security:
     name: Security audit
     runs-on: ubuntu-latest
+    permissions:
+      contents: read # lectura del historial para gitleaks
+      security-events: write # para subir resultados SARIF al Security dashboard
 
     steps:
       - name: Checkout
@@ -149,13 +163,12 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      # Falla si hay vulnerabilidades HIGH o CRITICAL en dependencias de producción
       - name: Dependency vulnerability audit
         run: pnpm audit --audit-level=high --prod
 
-      # Escanea el código en busca de secretos accidentalmente commiteados
+      # Pinado a SHA para evitar ataques de supply chain
       - name: Scan for secrets (Gitleaks)
-        uses: gitleaks/gitleaks-action@v2
+        uses: gitleaks/gitleaks-action@dcedce43c6f43de0b836d1fe38946645c9c638dc # v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
