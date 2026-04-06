@@ -2,28 +2,29 @@
   [class]="articleClass()"
   [style.animation-delay]="animationDelay()"
   [attr.aria-label]="rankLabel() + ': ' + pharmacy().name">
-  <!-- Badge "La más cercana" — solo tarjeta 0 -->
+  <!-- ── Franja ámbar "La más cercana" — solo primera tarjeta ────── -->
   @if (isFirst()) {
-    <div class="flex items-center gap-2 px-5 pt-4 pb-2">
+    <div class="bg-linear-to-r from-amber-500 to-amber-400 px-4 py-2 flex items-center gap-2">
       <span
-        class="inline-flex items-center gap-1.5 bg-amber-50 text-amber-700 text-xs font-bold px-3 py-1 rounded-full border border-amber-200 tracking-wide">
-        <icon-star />
-        La más cercana
+        class="shrink-0 w-5 h-5 rounded-full bg-amber-900/20 text-amber-900 text-xs font-extrabold flex items-center justify-center">
+        1
       </span>
+      <icon-star class="shrink-0 text-amber-800" />
+      <span class="text-amber-900 text-xs font-bold tracking-widest uppercase">La más cercana</span>
     </div>
   }
 
-  <!-- Cabecera -->
+  <!-- ── Cabecera ──────────────────────────────────────────────────── -->
   <div [class]="headerClass()">
     <div class="flex-1 min-w-0">
       <div class="flex items-center gap-2.5 mb-1">
-        <span [class]="rankBadgeClass()" aria-hidden="true">{{ index() + 1 }}</span>
+        @if (!isFirst()) {
+          <span [class]="rankBadgeClass()" aria-hidden="true">{{ index() + 1 }}</span>
+        }
         <h2 [class]="nameClass()">{{ pharmacy().name }}</h2>
       </div>
       @if (pharmacy().ownerName) {
-        <p class="text-green-200 text-xs leading-snug italic pl-9 -mt-0.5 truncate">
-          {{ pharmacy().ownerName }}
-        </p>
+        <p [class]="ownerClass()">{{ pharmacy().ownerName }}</p>
       }
       <p [class]="cityLineClass()">{{ pharmacy().city }}, {{ pharmacy().province }}</p>
     </div>
@@ -32,12 +33,12 @@
     @if (pharmacy().distance !== undefined) {
       <div [class]="distanceBadgeClass()">
         <p [class]="distanceTextClass()">{{ formatDistance(pharmacy().distance) }}</p>
-        <p class="text-green-100 text-xs mt-0.5">de ti</p>
+        <p [class]="distanceSubtitleClass()">de ti</p>
       </div>
     }
   </div>
 
-  <!-- Cuerpo -->
+  <!-- ── Cuerpo ────────────────────────────────────────────────────── -->
   <div class="px-5 py-4 flex flex-col gap-3.5">
     <!-- Dirección -->
     <div class="flex gap-3 items-start">

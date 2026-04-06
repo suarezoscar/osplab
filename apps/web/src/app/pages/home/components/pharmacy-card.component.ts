@@ -28,20 +28,19 @@ export class PharmacyCardComponent {
 
   readonly articleClass = computed(() =>
     this.isFirst()
-      ? 'animate-card-enter animate-glow-once pharmacy-card-primary bg-white rounded-3xl overflow-hidden border-2 border-green-200/60 transition-all duration-300 hover:scale-[1.01]'
+      ? 'animate-card-enter animate-glow-once pharmacy-card-primary bg-white rounded-3xl overflow-hidden border-2 border-amber-200/70 transition-all duration-300 hover:scale-[1.01]'
       : 'animate-card-enter bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-md hover:shadow-lg transition-all duration-300',
   );
 
   readonly headerClass = computed(() =>
     this.isFirst()
-      ? 'bg-linear-to-br from-green-800 to-green-700 text-white px-5 py-4 flex items-start justify-between gap-3'
+      ? 'bg-linear-to-br from-green-950 to-green-800 text-white px-5 py-4 flex items-start justify-between gap-3'
       : 'bg-linear-to-br from-green-700 to-green-600 text-white px-5 py-4 flex items-start justify-between gap-3',
   );
 
-  readonly rankBadgeClass = computed(() =>
-    this.isFirst()
-      ? 'shrink-0 w-7 h-7 rounded-full bg-amber-400 text-amber-900 text-xs font-extrabold flex items-center justify-center shadow-sm'
-      : 'shrink-0 w-6 h-6 rounded-full bg-white/20 text-white text-xs font-bold flex items-center justify-center',
+  readonly rankBadgeClass = computed(
+    () =>
+      'shrink-0 w-6 h-6 rounded-full bg-white/20 text-white text-xs font-bold flex items-center justify-center',
   );
 
   readonly nameClass = computed(() =>
@@ -52,16 +51,28 @@ export class PharmacyCardComponent {
 
   readonly distanceBadgeClass = computed(() =>
     this.isFirst()
-      ? 'shrink-0 bg-white/25 rounded-xl px-3 py-2 text-center min-w-17'
+      ? 'shrink-0 bg-amber-400 rounded-xl px-3 py-2 text-center min-w-17'
       : 'shrink-0 bg-white/15 rounded-xl px-2.5 py-1.5 text-center min-w-15',
   );
 
   readonly distanceTextClass = computed(() =>
-    this.isFirst() ? 'text-2xl font-extrabold leading-none' : 'text-lg font-extrabold leading-none',
+    this.isFirst()
+      ? 'text-2xl font-extrabold leading-none text-amber-900'
+      : 'text-lg font-extrabold leading-none',
+  );
+
+  readonly distanceSubtitleClass = computed(() =>
+    this.isFirst() ? 'text-amber-800 text-xs mt-0.5' : 'text-green-100 text-xs mt-0.5',
   );
 
   readonly cityLineClass = computed(() =>
-    this.isFirst() ? 'text-green-100 text-sm pl-9 mt-0.5' : 'text-green-100 text-xs pl-8 mt-0.5',
+    this.isFirst() ? 'text-green-300 text-sm mt-0.5' : 'text-green-100 text-xs pl-8 mt-0.5',
+  );
+
+  readonly ownerClass = computed(() =>
+    this.isFirst()
+      ? 'text-green-300 text-xs leading-snug italic mt-0.5 truncate'
+      : 'text-green-200 text-xs leading-snug italic pl-9 -mt-0.5 truncate',
   );
 
   formatDistance(meters: number | undefined): string {
