@@ -3,6 +3,14 @@
  * This is only a minimal backend to get started.
  */
 
+// Carga .env en desarrollo local (Node.js 22 nativo, sin @nestjs/config)
+// En producción las vars de entorno ya están inyectadas por Docker/CI.
+try {
+  process.loadEnvFile('.env');
+} catch {
+  // .env no existe → entorno de producción o CI, se ignora
+}
+
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import helmet from 'helmet';

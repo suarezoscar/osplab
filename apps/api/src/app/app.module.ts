@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
@@ -11,7 +10,6 @@ import { AdminController } from './admin/admin.controller';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
     ScheduleModule.forRoot(),
     // Rate limiting global: max 60 req / minuto por IP
     ThrottlerModule.forRoot([{ ttl: 60_000, limit: 60 }]),
