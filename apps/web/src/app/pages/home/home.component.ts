@@ -1,5 +1,6 @@
-import { Component, inject, signal, OnDestroy } from '@angular/core';
+import { Component, inject, signal, OnDestroy, ElementRef, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import {
   Subject,
   Subscription,
@@ -18,13 +19,16 @@ import type { PharmacyDto } from '@farmacias-guardia/shared-interfaces';
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, RouterLink],
   templateUrl: './home.component.html',
 })
 export class HomeComponent implements OnDestroy {
   private readonly pharmaciesApi = inject(PharmaciesApiService);
   private readonly geo = inject(GeolocationService);
   private readonly geocoding = inject(GeocodingService);
+
+  /** Referencia al panel de resultados para scroll automático */
+  private readonly resultsPanel = viewChild<ElementRef<HTMLElement>>('resultsPanel');
 
   // ── Estado principal ──────────────────────────────────────────────────────
   readonly results = signal<PharmacyDto[]>([]);
@@ -124,6 +128,13 @@ export class HomeComponent implements OnDestroy {
         this.results.set(list);
         this.searched.set(true);
         this.loading.set(false);
+        // Scroll suave al panel de resultados
+        setTimeout(() => {
+          this.resultsPanel()?.nativeElement.scrollIntoView({
+            behavior: 'smooth',
+            block: 'nearest',
+          });
+        }, 80);
       },
       error: () => {
         this.error.set('Error al conectar con el servidor. ¿Está el API en marcha?');
@@ -139,4 +150,9 @@ export class HomeComponent implements OnDestroy {
   }
 
   readonly badges: string[] = ['🥇', '🥈', '🥉'];
+
+  /** Texto accesible para el rank de cada farmacia */
+  rankLabel(i: number): string {
+    return ['La más cercana', 'Segunda más cercana', 'Tercera más cercana'][i] ?? '';
+  }
 }
