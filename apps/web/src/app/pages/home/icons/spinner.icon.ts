@@ -1,0 +1,21 @@
+import { Component, input } from '@angular/core';
+
+@Component({
+  selector: 'icon-spinner',
+  template: `
+    <svg
+      class="animate-spin"
+      [attr.width]="size()"
+      [attr.height]="size()"
+      fill="none"
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+    >
+      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+    </svg>
+  `,
+})
+export class SpinnerIconComponent {
+  size = input<number>(20);
+}

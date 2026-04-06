@@ -86,6 +86,15 @@
   animation: glow-once 2s ease-out 0.7s 1 forwards;
 }
 
+/* ── Cuando una tarjeta tiene ambas clases se deben combinar las
+      animaciones, si no animate-glow-once sobreescribe card-enter
+      y la tarjeta queda con opacity:0 para siempre ────────────── */
+.animate-card-enter.animate-glow-once {
+  animation:
+    card-enter 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards,
+    glow-once 2s ease-out 0.7s 1 forwards;
+}
+
 /* ── Primary pharmacy card ───────────────────────────────────────────── */
 .pharmacy-card-primary {
   box-shadow:

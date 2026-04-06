@@ -1,0 +1,100 @@
+<article
+  [class]="articleClass()"
+  [style.animation-delay]="animationDelay()"
+  [attr.aria-label]="rankLabel() + ': ' + pharmacy().name">
+  <!-- ── Franja ámbar "La más cercana" — solo primera tarjeta ────── -->
+  @if (isFirst()) {
+    <div class="bg-linear-to-r from-amber-500 to-amber-400 px-4 py-2 flex items-center gap-2">
+      <span
+        class="shrink-0 w-5 h-5 rounded-full bg-amber-900/20 text-amber-900 text-xs font-extrabold flex items-center justify-center">
+        1
+      </span>
+      <icon-star class="shrink-0 text-amber-800" />
+      <span class="text-amber-900 text-xs font-bold tracking-widest uppercase">La más cercana</span>
+    </div>
+  }
+
+  <!-- ── Cabecera ──────────────────────────────────────────────────── -->
+  <div [class]="headerClass()">
+    <div class="flex-1 min-w-0">
+      <div class="flex items-center gap-2.5 mb-1">
+        @if (!isFirst()) {
+          <span [class]="rankBadgeClass()" aria-hidden="true">{{ index() + 1 }}</span>
+        }
+        <h2 [class]="nameClass()">{{ pharmacy().name }}</h2>
+      </div>
+      @if (pharmacy().ownerName) {
+        <p [class]="ownerClass()">{{ pharmacy().ownerName }}</p>
+      }
+      <p [class]="cityLineClass()">{{ pharmacy().city }}, {{ pharmacy().province }}</p>
+    </div>
+
+    <!-- Distancia -->
+    @if (pharmacy().distance !== undefined) {
+      <div [class]="distanceBadgeClass()">
+        <p [class]="distanceTextClass()">{{ formatDistance(pharmacy().distance) }}</p>
+        <p [class]="distanceSubtitleClass()">de ti</p>
+      </div>
+    }
+  </div>
+
+  <!-- ── Cuerpo ────────────────────────────────────────────────────── -->
+  <div class="px-5 py-4 flex flex-col gap-3.5">
+    <!-- Dirección -->
+    <div class="flex gap-3 items-start">
+      <span class="shrink-0 mt-0.5 text-green-600">
+        <icon-house />
+      </span>
+      <div>
+        <p class="text-xs font-semibold uppercase text-gray-400 tracking-wide">Dirección</p>
+        <p class="text-gray-800 font-medium mt-0.5 leading-snug">{{ pharmacy().address }}</p>
+      </div>
+    </div>
+
+    <!-- Horario -->
+    @if (pharmacy().startTime && pharmacy().endTime) {
+      <div class="flex gap-3 items-start">
+        <span class="shrink-0 mt-0.5 text-green-600">
+          <icon-clock />
+        </span>
+        <div>
+          <p class="text-xs font-semibold uppercase text-gray-400 tracking-wide">Horario de guardia</p>
+          <p class="text-gray-800 font-medium mt-0.5">
+            @if (pharmacy().startTime === pharmacy().endTime) {
+              <span class="inline-flex items-center gap-1.5 text-green-700 font-semibold">
+                <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse inline-block" aria-hidden="true"></span>
+                Guardia 24 horas
+              </span>
+            } @else {
+              {{ pharmacy().startTime }} – {{ pharmacy().endTime }}
+            }
+          </p>
+        </div>
+      </div>
+    }
+
+    <!-- Botones acción -->
+    <div class="flex gap-2.5 mt-0.5">
+      @if (pharmacy().lat && pharmacy().lng) {
+        <a
+          [href]="'https://www.google.com/maps/dir/?api=1&destination=' + pharmacy().lat + ',' + pharmacy().lng"
+          target="_blank"
+          rel="noopener noreferrer"
+          [attr.aria-label]="'Cómo llegar a ' + pharmacy().name + ' en Google Maps'"
+          class="flex-1 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold py-3 rounded-xl transition-all duration-200 shadow-sm hover:shadow-md text-sm hover:scale-[1.02]">
+          <icon-directions />
+          Cómo llegar
+        </a>
+      }
+      @if (pharmacy().phone) {
+        <a
+          [href]="'tel:' + pharmacy().phone"
+          [attr.aria-label]="'Llamar a ' + pharmacy().name + ': ' + pharmacy().phone"
+          class="flex-1 flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 active:bg-green-800 text-white font-semibold py-3 rounded-xl transition-all duration-200 shadow-sm hover:shadow-md text-sm hover:scale-[1.02]">
+          <icon-phone />
+          {{ pharmacy().phone }}
+        </a>
+      }
+    </div>
+  </div>
+</article>
