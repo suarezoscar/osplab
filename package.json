@@ -5,6 +5,8 @@
   "scripts": {
     "seed:cofourense": "jiti scripts/seed-cofourense.ts",
     "seed:cofpontevedra": "jiti scripts/seed-cofpontevedra.ts",
+    "seed:coflugo": "jiti scripts/seed-coflugo.ts",
+    "seed:all": "pnpm seed:cofourense && pnpm seed:cofpontevedra && pnpm seed:coflugo",
     "dev": "pnpm db:start && pnpm wait-on tcp:5432 --timeout 30000 && pnpm prisma:generate && pnpm prisma:migrate:deploy && pnpm nx run-many -t serve --projects=api,web --parallel=2",
     "dev:stop": "pnpm db:stop",
     "prisma:generate": "prisma generate --schema=libs/api/data-access/prisma/schema.prisma",

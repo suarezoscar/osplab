@@ -7,7 +7,7 @@ import type { PharmacyDto, NearbyPharmaciesQuery } from '@farmacias-guardia/shar
 export class PharmaciesApiService {
   private readonly http = inject(HttpClient);
 
-  findNearest(query: NearbyPharmaciesQuery): Observable<PharmacyDto | null> {
+  findNearest(query: NearbyPharmaciesQuery): Observable<PharmacyDto[]> {
     let params = new HttpParams()
       .set('lat', query.lat.toString())
       .set('lng', query.lng.toString());
@@ -16,7 +16,6 @@ export class PharmaciesApiService {
       params = params.set('date', query.date);
     }
 
-    return this.http.get<PharmacyDto | null>('/api/pharmacies/nearest', { params });
+    return this.http.get<PharmacyDto[]>('/api/pharmacies/nearest', { params });
   }
 }
-

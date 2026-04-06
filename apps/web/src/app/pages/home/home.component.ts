@@ -1,6 +1,6 @@
 import { Component, inject, signal, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Subject, Subscription, debounceTime, distinctUntilChanged, filter, switchMap } from 'rxjs';
+import { Subject, Subscription, catchError, debounceTime, distinctUntilChanged, filter, of, switchMap } from 'rxjs';
 import { PharmaciesApiService } from '../../services/pharmacies-api.service';
 import { GeolocationService } from '../../services/geolocation.service';
 import { GeocodingService, type GeocodingSuggestion } from '../../services/geocoding.service';
@@ -18,7 +18,7 @@ export class HomeComponent implements OnDestroy {
   private readonly geocoding = inject(GeocodingService);
 
   // ── Estado principal ──────────────────────────────────────────────────────
-  readonly nearest = signal<PharmacyDto | null>(null);
+  readonly results = signal<PharmacyDto[]>([]);
   readonly loading = signal(false);
   readonly error = signal<string | null>(null);
   readonly searched = signal(false);
@@ -41,12 +41,14 @@ export class HomeComponent implements OnDestroy {
       filter((q) => q.trim().length >= 3),
       switchMap((q) => {
         this.loadingSuggestions.set(true);
-        return this.geocoding.search(q);
+        return this.geocoding.search(q).pipe(
+          catchError(() => of([])),
+        );
       }),
     ).subscribe({
-      next: (results) => {
-        this.suggestions.set(results);
-        this.showSuggestions.set(results.length > 0);
+      next: (res) => {
+        this.suggestions.set(res);
+        this.showSuggestions.set(res.length > 0);
         this.loadingSuggestions.set(false);
       },
       error: () => {
@@ -89,7 +91,7 @@ export class HomeComponent implements OnDestroy {
   async searchByGeo(): Promise<void> {
     this.loading.set(true);
     this.error.set(null);
-    this.nearest.set(null);
+    this.results.set([]);
     this.clearSearch();
 
     try {
@@ -106,11 +108,11 @@ export class HomeComponent implements OnDestroy {
   private findNearest(lat: number, lng: number): void {
     this.loading.set(true);
     this.error.set(null);
-    this.nearest.set(null);
+    this.results.set([]);
 
     this.pharmaciesApi.findNearest({ lat, lng }).subscribe({
-      next: (result) => {
-        this.nearest.set(result);
+      next: (list) => {
+        this.results.set(list);
         this.searched.set(true);
         this.loading.set(false);
       },
@@ -122,12 +124,10 @@ export class HomeComponent implements OnDestroy {
   }
 
   formatDistance(meters: number | undefined): string {
-    if (meters === undefined) return '';
-    return meters < 1000 ? `${meters} m` : `${(meters / 1000).toFixed(1)} km`;
+    if (meters == null) return '';
+    if (meters < 1000) return `${Math.round(meters)} m`;
+    return `${(meters / 1000).toFixed(1)} km`;
   }
+
+  readonly badges: string[] = ['🥇', '🥈', '🥉'];
 }
-
-
-
-
-

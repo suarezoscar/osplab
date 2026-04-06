@@ -31,7 +31,6 @@ export interface DutyScheduleDto {
 export interface NearbyPharmaciesQuery {
   lat: number;
   lng: number;
-  radiusMeters?: number; // default: 5000
   date?: string; // ISO date, default: hoy
 }
 

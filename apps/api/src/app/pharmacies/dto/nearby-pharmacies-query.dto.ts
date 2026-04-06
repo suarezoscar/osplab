@@ -15,14 +15,6 @@ export class NearbyPharmaciesQueryDto {
   lng!: number;
 
   @IsOptional()
-  @IsNumber()
-  @Min(100)
-  @Max(50000)
-  @Type(() => Number)
-  radiusMeters?: number = 5000;
-
-  @IsOptional()
   @IsString()
   date?: string; // ISO date "2024-01-15", default: hoy
 }
-

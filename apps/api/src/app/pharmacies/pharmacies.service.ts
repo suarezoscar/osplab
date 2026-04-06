@@ -7,12 +7,15 @@ import { NearbyPharmaciesQueryDto } from './dto/nearby-pharmacies-query.dto';
 export class PharmaciesService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findNearest(query: NearbyPharmaciesQueryDto): Promise<PharmacyDto | null> {
-    const { lat, lng, radiusMeters = 50000, date } = query;
+  /**
+   * Devuelve las 3 farmacias de guardia más cercanas a las coordenadas dadas,
+   * sin límite de radio — siempre encuentra algo si hay datos en la BD.
+   */
+  async findNearest(query: NearbyPharmaciesQueryDto): Promise<PharmacyDto[]> {
+    const { lat, lng, date } = query;
     const targetDate = date ? new Date(date) : new Date();
     targetDate.setHours(0, 0, 0, 0);
 
-    // Consulta geoespacial con PostGIS — devuelve SOLO la más cercana
     const results = await this.prisma.$queryRaw<
       Array<{
         id: string;
@@ -28,41 +31,60 @@ export class PharmaciesService {
         lng: number;
       }>
     >`
-      SELECT
-        p.id,
-        p.name,
-        p.address,
-        p.phone,
-        c.name  AS city_name,
-        pr.name AS province_name,
-        ds."startTime" AS start_time,
-        ds."endTime"   AS end_time,
-        ST_Y(p.location::geometry) AS lat,
-        ST_X(p.location::geometry) AS lng,
-        ST_Distance(
-          p.location::geography,
-          ST_SetSRID(ST_MakePoint(${lng}, ${lat}), 4326)::geography
-        ) AS distance_meters
-      FROM "Pharmacy" p
-      INNER JOIN "City"         c  ON c.id  = p."cityId"
-      INNER JOIN "Province"     pr ON pr.id = c."provinceId"
-      INNER JOIN "DutySchedule" ds ON ds."pharmacyId" = p.id
-      WHERE
-        p.location IS NOT NULL
-        AND ST_DWithin(
-          p.location::geography,
-          ST_SetSRID(ST_MakePoint(${lng}, ${lat}), 4326)::geography,
-          ${radiusMeters}
-        )
-        AND ds.date = ${targetDate}
+      WITH candidates AS (
+        SELECT
+          p.id,
+          p.name,
+          p.address,
+          p.phone,
+          c.name  AS city_name,
+          pr.name AS province_name,
+          ds."startTime" AS start_time,
+          ds."endTime"   AS end_time,
+          ST_Y(p.location::geometry) AS lat,
+          ST_X(p.location::geometry) AS lng,
+          ST_Distance(
+            p.location::geography,
+            ST_SetSRID(ST_MakePoint(${lng}, ${lat}), 4326)::geography
+          ) AS distance_meters,
+          -- Clave de deduplicación: teléfono si existe, si no coordenadas redondeadas a 3 decimales
+          COALESCE(
+            p.phone,
+            CONCAT(
+              ROUND(ST_Y(p.location::geometry)::numeric, 3), ',',
+              ROUND(ST_X(p.location::geometry)::numeric, 3)
+            )
+          ) AS dedup_key,
+          ROW_NUMBER() OVER (
+            PARTITION BY COALESCE(
+              p.phone,
+              CONCAT(
+                ROUND(ST_Y(p.location::geometry)::numeric, 3), ',',
+                ROUND(ST_X(p.location::geometry)::numeric, 3)
+              )
+            )
+            ORDER BY ST_Distance(
+              p.location::geography,
+              ST_SetSRID(ST_MakePoint(${lng}, ${lat}), 4326)::geography
+            ) ASC
+          ) AS rn
+        FROM "Pharmacy" p
+        INNER JOIN "City"         c  ON c.id  = p."cityId"
+        INNER JOIN "Province"     pr ON pr.id = c."provinceId"
+        INNER JOIN "DutySchedule" ds ON ds."pharmacyId" = p.id
+        WHERE
+          p.location IS NOT NULL
+          AND ds.date = ${targetDate}
+      )
+      SELECT id, name, address, phone, city_name, province_name,
+             start_time, end_time, lat, lng, distance_meters
+      FROM candidates
+      WHERE rn = 1
       ORDER BY distance_meters ASC
-      LIMIT 1
+      LIMIT 3
     `;
 
-    if (results.length === 0) return null;
-
-    const row = results[0];
-    return {
+    return results.map((row) => ({
       id: row.id,
       name: row.name,
       address: row.address,
@@ -74,7 +96,6 @@ export class PharmaciesService {
       endTime: row.end_time,
       lat: row.lat,
       lng: row.lng,
-    };
+    }));
   }
 }
-

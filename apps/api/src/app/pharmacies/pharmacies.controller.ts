@@ -8,8 +8,7 @@ export class PharmaciesController {
   constructor(private readonly pharmaciesService: PharmaciesService) {}
 
   @Get('nearest')
-  findNearest(@Query() query: NearbyPharmaciesQueryDto): Promise<PharmacyDto | null> {
+  findNearest(@Query() query: NearbyPharmaciesQueryDto): Promise<PharmacyDto[]> {
     return this.pharmaciesService.findNearest(query);
   }
 }
-
