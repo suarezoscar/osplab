@@ -6,7 +6,7 @@
  */
 
 import { PrismaPg } from '@prisma/adapter-pg';
-import { PrismaClient } from '../libs/api/data-access/src/generated/prisma';
+import { PrismaClient } from '../libs/farmacias/data-access/src/generated/prisma';
 import axios from 'axios';
 import {
   buildCoflugoUrl,
@@ -14,7 +14,7 @@ import {
   COFLUGO_MUNICIPIOS,
   COFLUGO_PROVINCE,
   COFLUGO_PROVINCE_CODE,
-} from '../libs/api/scraper/src/lib/parsers/coflugo.parser';
+} from '../libs/farmacias/scraper/src/lib/parsers/coflugo.parser';
 
 // ─── Conexión a BD ───────────────────────────────────────────────────────────
 const DATABASE_URL = process.env['DATABASE_URL'];

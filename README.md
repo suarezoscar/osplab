@@ -1,6 +1,11 @@
-# Farmacias de Guardia 💊
+# OSPLab 🧪
 
-Aplicación web que muestra las **farmacias de guardia más cercanas** a tu ubicación en Galicia (España), obteniendo los datos directamente de los colegios oficiales de farmacéuticos.
+**Suite de herramientas open source orientadas al ciudadano.**
+
+| Proyecto             | Dominio                                              | Estado    |
+| -------------------- | ---------------------------------------------------- | --------- |
+| Farmacias de Guardia | [farmacias.osplab.dev](https://farmacias.osplab.dev) | ✅ Activo |
+| Landing / Portal     | [osplab.dev](https://osplab.dev)                     | ✅ Activo |
 
 ---
 
@@ -34,7 +39,7 @@ Edita `.env` y rellena al menos:
 pnpm install
 ```
 
-### 3. Arrancar todo (BD + API + Web)
+### 3. Arrancar todo (BD + API + Web farmacias)
 
 ```sh
 pnpm dev
@@ -46,7 +51,13 @@ Este comando:
 2. Espera a que la BD esté lista
 3. Genera el cliente Prisma
 4. Aplica las migraciones
-5. Arranca API (`localhost:3000`) y Web (`localhost:4200`) en paralelo
+5. Arranca API (`localhost:3000`) y Web de farmacias (`localhost:4200`) en paralelo
+
+Para la landing page:
+
+```sh
+pnpm nx serve landing
+```
 
 Para parar la base de datos:
 
@@ -64,11 +75,11 @@ pnpm dev:stop
 # Todos los tests
 pnpm nx run-many -t test
 
-# Solo el API
-pnpm nx test api
+# Solo el API de farmacias
+pnpm nx test farmacias-api
 
 # Solo el scraper
-pnpm nx test api-scraper
+pnpm nx test farmacias-scraper
 ```
 
 ### Formato (Prettier)
@@ -87,7 +98,7 @@ pnpm prisma:migrate:deploy  # aplicar migraciones en producción
 pnpm prisma:studio          # abrir Prisma Studio
 ```
 
-### Seeds (carga manual de datos)
+### Seeds (carga manual de datos — proyecto farmacias)
 
 ```sh
 pnpm seed:all           # todos los COFs
@@ -107,7 +118,7 @@ curl -X POST http://localhost:3000/api/admin/scrape/cofourense \
 
 ---
 
-## Endpoints del API
+## Endpoints del API (Farmacias)
 
 | Método | Ruta                              | Descripción                         |
 | ------ | --------------------------------- | ----------------------------------- |
@@ -144,25 +155,27 @@ El pipeline de GitHub Actions se ejecuta en cada push/PR a `main`:
 | Job           | Qué comprueba                                                               |
 | ------------- | --------------------------------------------------------------------------- |
 | ✅ `format`   | Código formateado con Prettier                                              |
-| ✅ `test`     | 99 tests unitarios pasan                                                    |
+| ✅ `test`     | Tests unitarios pasan                                                       |
 | ✅ `security` | Sin CVEs HIGH/CRITICAL en producción · Sin secretos en el código (Gitleaks) |
 
 ---
 
-## Estructura del proyecto
+## Estructura del monorepo
 
 ```
 apps/
-  api/       → NestJS API
-  web/       → Angular SPA
+  landing/           → Angular SPA · osplab.dev (portal principal)
+  farmacias-api/     → NestJS API   · farmacias.osplab.dev/api
+  farmacias-api-e2e/ → Tests e2e del API de farmacias
+  farmacias-web/     → Angular SPA  · farmacias.osplab.dev
 libs/
-  api/
-    data-access/  → Prisma + migraciones
-    scraper/      → Scrapers + parsers (COFOurense, COFPontevedra, COFLugo)
+  farmacias/
+    data-access/  → Prisma + migraciones (PostgreSQL + PostGIS)
+    scraper/      → Scrapers + parsers (COFOurense, COFPontevedra, COFLugo, COFC)
+    web/
+      ui/         → Componentes UI reutilizables del proyecto farmacias
   shared/
     interfaces/   → Tipos compartidos (Nest ↔ Angular)
-  web/
-    ui/           → Componentes UI reutilizables
 ```
 
 Para más detalles sobre la arquitectura, ver [ARCHITECT.md](./ARCHITECT.md).

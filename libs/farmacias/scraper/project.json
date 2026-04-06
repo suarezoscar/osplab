@@ -1,0 +1,28 @@
+{
+  "name": "farmacias-scraper",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/farmacias/scraper/src",
+  "projectType": "library",
+  "tags": ["type:feature", "scope:farmacias"],
+  "targets": {
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "outputs": ["{workspaceRoot}/coverage/libs/farmacias/scraper"],
+      "options": {
+        "command": "vitest run --config libs/farmacias/scraper/vitest.config.ts",
+        "cwd": "{workspaceRoot}"
+      },
+      "configurations": {
+        "coverage": {
+          "command": "vitest run --coverage --config libs/farmacias/scraper/vitest.config.ts"
+        },
+        "watch": {
+          "command": "vitest --config libs/farmacias/scraper/vitest.config.ts"
+        }
+      }
+    }
+  }
+}

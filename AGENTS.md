@@ -1,4 +1,14 @@
-# Contexto para el Agente de IA
+# Contexto para el Agente de IA — OSPLab
+
+## Visión del Proyecto
+
+**OSPLab** es un monorepo Nx que alberga una suite de herramientas open source para la ciudadanía.
+Cada herramienta vive bajo un subdominio de `osplab.dev`.
+
+| Proyecto             | Dominio                | Apps Nx                           |
+| -------------------- | ---------------------- | --------------------------------- |
+| Portal principal     | `osplab.dev`           | `landing`                         |
+| Farmacias de Guardia | `farmacias.osplab.dev` | `farmacias-web` + `farmacias-api` |
 
 ## Reglas de Codificación
 
@@ -13,6 +23,16 @@
   - Inyección de dependencias estricta.
 - **Nx:**
   - No permitas importaciones cruzadas prohibidas. Respeta los `tags` de las librerías.
+  - `scope:farmacias` no puede importar `scope:osplab` y viceversa. Solo pueden compartir `scope:shared`.
+
+## Convención de Path Aliases
+
+```
+@osplab/farmacias-data-access  → libs/farmacias/data-access
+@osplab/farmacias-scraper      → libs/farmacias/scraper
+@osplab/farmacias-web-ui       → libs/farmacias/web/ui
+@osplab/shared-interfaces      → libs/shared/interfaces
+```
 
 ## Lógica de Negocio Crítica
 
@@ -25,6 +45,7 @@
 - Configurar el esquema de Prisma con soporte para tipos `Geography`.
 - Implementar el primer scraper para el SERGAS (Galicia).
 - Crear el componente de mapa en Angular usando `@angular/google-maps` o Leaflet.
+- Añadir más proyectos al portal `osplab.dev` a medida que se desarrollen.
 
 <!-- nx configuration start-->
 <!-- Leave the start & end comments to automatically receive updates. -->

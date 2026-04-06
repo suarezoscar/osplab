@@ -1,4 +1,16 @@
-# Arquitectura del Sistema: Farmacias de Guardia
+# Arquitectura del Sistema: OSPLab
+
+## Visión General
+
+OSPLab es un monorepo Nx que alberga una suite de herramientas open source para la ciudadanía.
+Cada herramienta vive en su propio subdominio bajo `osplab.dev`.
+
+| Proyecto             | Dominio                | Apps Nx                           |
+| -------------------- | ---------------------- | --------------------------------- |
+| Portal principal     | `osplab.dev`           | `landing`                         |
+| Farmacias de Guardia | `farmacias.osplab.dev` | `farmacias-web` + `farmacias-api` |
+
+---
 
 ## Stack Tecnológico
 
@@ -20,23 +32,37 @@
 
 ```
 apps/
-  api/          → API REST NestJS (puerto 3000)
-  api-e2e/      → Tests end-to-end del API (Jest)
-  web/          → SPA Angular (puerto 4200)
+  landing/           → SPA Angular (osplab.dev — portal, puerto 4300)
+  farmacias-api/     → API REST NestJS (farmacias.osplab.dev, puerto 3000)
+  farmacias-api-e2e/ → Tests end-to-end del API de farmacias (Jest)
+  farmacias-web/     → SPA Angular (farmacias.osplab.dev, puerto 4200)
 
 libs/
-  api/
+  farmacias/
     data-access/ → PrismaService + cliente generado + migraciones
-    scraper/     → Scrapers (COFOurense, COFPontevedra, COFLugo) + parsers
+    scraper/     → Scrapers (COFOurense, COFPontevedra, COFLugo, COFC) + parsers
+    web/
+      ui/        → Componentes presentacionales de farmacias (Tailwind)
   shared/
     interfaces/  → DTOs e interfaces TypeScript compartidas (Nest ↔ Angular)
-  web/
-    ui/          → Componentes presentacionales reutilizables (Tailwind)
 ```
+
+### Convención de Tags Nx
+
+| Tag                | Significado                             |
+| ------------------ | --------------------------------------- |
+| `scope:farmacias`  | Código exclusivo del proyecto Farmacias |
+| `scope:osplab`     | Código del portal/landing principal     |
+| `scope:shared`     | Código compartible entre proyectos      |
+| `type:app`         | Aplicación desplegable                  |
+| `type:data-access` | Acceso a base de datos                  |
+| `type:feature`     | Lógica de negocio (scrapers, etc.)      |
+| `type:ui`          | Componentes de interfaz                 |
+| `type:util`        | Utilidades y tipos                      |
 
 ---
 
-## Modelo de Datos (Prisma / PostGIS)
+## Modelo de Datos (Prisma / PostGIS) — proyecto farmacias
 
 ```
 Province ──< City ──< Pharmacy ──< DutySchedule
@@ -53,7 +79,7 @@ ocurre **en la base de datos**, no en el cliente.
 
 ---
 
-## Flujo de Datos
+## Flujo de Datos — proyecto farmacias
 
 ```
 Fuentes oficiales (COF*)
@@ -68,7 +94,7 @@ Fuentes oficiales (COF*)
 [GET /api/pharmacies/nearest?lat=X&lng=Y]
         │
         ▼
-[Angular SPA]  ←  Geolocalización / Nominatim geocoding
+[Angular SPA — farmacias.osplab.dev]  ←  Geolocalización / Nominatim geocoding
 ```
 
 1. **Scrapers**: cada COF tiene su servicio (`CofourenseScraperService`, etc.) con

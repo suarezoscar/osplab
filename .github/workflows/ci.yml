@@ -56,6 +56,7 @@ jobs:
   test:
     name: Lint & Unit tests (affected)
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     permissions:
       contents: read
 

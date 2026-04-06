@@ -1,0 +1,13 @@
+{
+  "name": "farmacias-web-ui",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/farmacias/web/ui/src",
+  "prefix": "lib",
+  "projectType": "library",
+  "tags": ["type:ui", "scope:farmacias"],
+  "targets": {
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    }
+  }
+}

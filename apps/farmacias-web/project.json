@@ -1,0 +1,82 @@
+{
+  "name": "farmacias-web",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "prefix": "app",
+  "sourceRoot": "apps/farmacias-web/src",
+  "tags": ["type:app", "scope:farmacias"],
+  "targets": {
+    "build": {
+      "executor": "@angular/build:application",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/apps/farmacias-web",
+        "browser": "apps/farmacias-web/src/main.ts",
+        "tsConfig": "apps/farmacias-web/tsconfig.app.json",
+        "assets": [
+          { "glob": "**/*", "input": "apps/farmacias-web/public" },
+          { "glob": "**/*", "input": "assets", "output": "assets" }
+        ],
+        "styles": ["apps/farmacias-web/src/styles.css"]
+      },
+      "configurations": {
+        "production": {
+          "budgets": [
+            { "type": "initial", "maximumWarning": "500kb", "maximumError": "1mb" },
+            { "type": "anyComponentStyle", "maximumWarning": "4kb", "maximumError": "8kb" }
+          ],
+          "outputHashing": "all"
+        },
+        "development": {
+          "optimization": false,
+          "extractLicenses": false,
+          "sourceMap": true
+        }
+      },
+      "defaultConfiguration": "production"
+    },
+    "serve": {
+      "continuous": true,
+      "executor": "@angular/build:dev-server",
+      "options": {
+        "port": 4300
+      },
+      "configurations": {
+        "production": {
+          "buildTarget": "farmacias-web:build:production",
+          "port": 4300
+        },
+        "development": {
+          "buildTarget": "farmacias-web:build:development",
+          "proxyConfig": "apps/farmacias-web/proxy.conf.json",
+          "port": 4300
+        }
+      },
+      "defaultConfiguration": "development"
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "outputs": ["{workspaceRoot}/coverage/apps/farmacias-web"],
+      "options": {
+        "command": "vitest run --config apps/farmacias-web/vitest.config.ts",
+        "cwd": "{workspaceRoot}"
+      },
+      "configurations": {
+        "coverage": {
+          "command": "vitest run --config apps/farmacias-web/vitest.config.ts --coverage"
+        },
+        "watch": { "command": "vitest --config apps/farmacias-web/vitest.config.ts" }
+      }
+    },
+    "lint": { "executor": "@nx/eslint:lint" },
+    "serve-static": {
+      "continuous": true,
+      "executor": "@nx/web:file-server",
+      "options": {
+        "buildTarget": "farmacias-web:build",
+        "staticFilePath": "dist/apps/farmacias-web/browser",
+        "spa": true
+      }
+    }
+  }
+}

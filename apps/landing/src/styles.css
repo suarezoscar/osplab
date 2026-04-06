@@ -1,0 +1,53 @@
+@import 'tailwindcss';
+
+/* You can add global styles to this file, and also import other style files */
+
+/* landing global styles */
+
+body {
+  background-color: #040d18;
+  background-image: radial-gradient(ellipse 90% 55% at 50% -5%, #0c2a50 0%, transparent 65%);
+  min-height: 100vh;
+}
+
+/* ── Logo animations ─────────────────────────────────────────────────── */
+@keyframes logo-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-16px) scale(0.93);
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+@keyframes logo-float {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-9px);
+  }
+}
+
+@keyframes logo-glow-pulse {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 0px #1a4a80);
+  }
+  50% {
+    filter: drop-shadow(0 6px 22px #1d5fa080);
+  }
+}
+
+.logo-animate {
+  animation:
+    logo-enter 0.75s cubic-bezier(0.16, 1, 0.3, 1) both,
+    logo-float 5s ease-in-out 0.75s infinite,
+    logo-glow-pulse 5s ease-in-out 0.75s infinite;
+  will-change: transform, filter;
+}

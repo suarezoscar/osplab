@@ -7,14 +7,14 @@
  */
 
 import { PrismaPg } from '@prisma/adapter-pg';
-import { PrismaClient } from '../libs/api/data-access/src/generated/prisma';
+import { PrismaClient } from '../libs/farmacias/data-access/src/generated/prisma';
 import axios from 'axios';
 import {
   buildCofourenseUrl,
   parseCofourenseResponse,
   COFOURENSE_PROVINCE,
   COFOURENSE_PROVINCE_CODE,
-} from '../libs/api/scraper/src/lib/parsers/cofourense.parser';
+} from '../libs/farmacias/scraper/src/lib/parsers/cofourense.parser';
 
 // ─── Conexión a BD ───────────────────────────────────────────────────────────
 const DATABASE_URL = process.env['DATABASE_URL'];
