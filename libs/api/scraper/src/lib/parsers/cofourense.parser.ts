@@ -110,6 +110,21 @@ export function resolvePharmacyName(nombreFiscal: string, nombre: string): strin
   return fiscal || nombre?.trim() || 'Farmacia desconocida';
 }
 
+/**
+ * Devuelve el nombre del titular solo cuando existe un nombre_fiscal distinto.
+ * Si no hay nombre_fiscal, el `name` ya ES el titular → ownerName sería redundante.
+ *
+ * Ejemplo: nombre_fiscal="FARMACIA GARCÍA", nombre="María García López"
+ *   → ownerName = "María García López"
+ * Ejemplo: nombre_fiscal="", nombre="Carlos Pérez Gómez"
+ *   → ownerName = undefined  (el name ya muestra al titular)
+ */
+export function resolveOwnerName(nombreFiscal: string, nombre: string): string | undefined {
+  const fiscal = nombreFiscal?.trim();
+  const owner = nombre?.trim();
+  return fiscal && owner ? owner : undefined;
+}
+
 // ──────────────────────────────────────────────────────────────────────────────
 // Parser principal
 // ──────────────────────────────────────────────────────────────────────────────
@@ -175,6 +190,7 @@ export function parseCofourenseResponse(
 
         const pharmacy = {
           name: resolvePharmacyName(item.nombre_fiscal, item.nombre),
+          ownerName: resolveOwnerName(item.nombre_fiscal, item.nombre),
           address: contacto.direccion.trim(),
           phone: contacto.telefono?.replace(/\D/g, '').slice(0, 9) || undefined,
           cityName: (contacto.municipio || contacto.localidad || COFOURENSE_PROVINCE).trim(),

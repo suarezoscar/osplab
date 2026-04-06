@@ -1,5 +1,7 @@
 export interface ScrapedPharmacy {
   name: string;
+  /** Nombre del titular/propietario cuando la fuente lo distingue del nombre comercial. */
+  ownerName?: string;
   address: string;
   phone?: string;
   cityName: string;

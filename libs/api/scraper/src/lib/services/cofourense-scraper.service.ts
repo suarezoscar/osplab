@@ -124,9 +124,11 @@ export class CofourenseScraperService {
           where: { id: pharmacyId },
           update: {
             phone: schedule.pharmacy.phone ?? undefined,
+            ownerName: schedule.pharmacy.ownerName ?? undefined,
           },
           create: {
             name: schedule.pharmacy.name,
+            ownerName: schedule.pharmacy.ownerName,
             address: schedule.pharmacy.address,
             phone: schedule.pharmacy.phone,
             cityId: city.id,

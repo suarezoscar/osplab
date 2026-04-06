@@ -156,9 +156,13 @@ async function upsertSchedules(
 
       const pharmacy = await prisma.pharmacy.upsert({
         where: { id: existing?.id ?? 'new' },
-        update: { phone: s.pharmacy.phone ?? undefined },
+        update: {
+          phone: s.pharmacy.phone ?? undefined,
+          ownerName: s.pharmacy.ownerName ?? undefined,
+        },
         create: {
           name: s.pharmacy.name,
+          ownerName: s.pharmacy.ownerName,
           address: s.pharmacy.address,
           phone: s.pharmacy.phone,
           cityId: city.id,
