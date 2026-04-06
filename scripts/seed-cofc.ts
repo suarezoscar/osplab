@@ -8,6 +8,7 @@
 import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '../libs/api/data-access/src/generated/prisma';
 import axios from 'axios';
+import * as cheerio from 'cheerio';
 import {
   COFC_API_URL,
   COFC_MUNICIPIOS,
@@ -44,8 +45,33 @@ const HEADERS = {
     'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
   'X-Requested-With': 'XMLHttpRequest',
   Accept: 'application/json, text/plain, */*',
-  Referer: 'https://www.cofc.es/farmacia',
+  Referer: 'https://www.cofc.es/farmacia/index',
 };
+
+// ─── Session antiforgery ──────────────────────────────────────────────────────
+async function fetchSession(): Promise<{ token: string; cookie: string } | null> {
+  try {
+    const resp = await axios.get<string>(COFC_API_URL, {
+      headers: {
+        'User-Agent': HEADERS['User-Agent'],
+        Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+      },
+      timeout: 15_000,
+    });
+    const $ = cheerio.load(resp.data);
+    const token = $('input[name="__RequestVerificationToken"]').first().val() as string;
+    if (!token) {
+      console.error('❌  No se encontró __RequestVerificationToken en la página de COFC');
+      return null;
+    }
+    const setCookies = (resp.headers['set-cookie'] as string[] | undefined) ?? [];
+    const cookie = setCookies.map((c) => c.split(';')[0]).join('; ');
+    return { token, cookie };
+  } catch (err) {
+    console.error(`❌  Error al obtener sesión COFC: ${(err as Error).message}`);
+    return null;
+  }
+}
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
 async function main() {
@@ -64,6 +90,15 @@ async function main() {
   log(`📅 Fecha: ${dateStr}`);
   log(`📋 Municipios a consultar: ${COFC_MUNICIPIOS.length}`);
 
+  // Obtener token antiforgery (requerido por ASP.NET MVC)
+  log('🔑 Obteniendo sesión antiforgery...');
+  const session = await fetchSession();
+  if (!session) {
+    console.error('❌  No se pudo obtener la sesión. Abortando.');
+    return;
+  }
+  log('✅ Sesión obtenida');
+
   // Upsert provincia
   const province = await prisma.province.upsert({
     where: { code: COFC_PROVINCE_CODE },
@@ -81,10 +116,14 @@ async function main() {
     try {
       const { data: responseData } = await axios.post<unknown>(
         COFC_API_URL,
-        `IdPoblacionFiltro=${municipio.id}&EsBusquedaGuardias=true&FechaBusqueda=${encodeURIComponent(dateStr)}`,
+        `IdPoblacionFiltro=${municipio.id}&FechaBusqueda=${encodeURIComponent(dateStr)}&LatitudFiltro=0&LongitudFiltro=0&__RequestVerificationToken=${encodeURIComponent(session.token)}`,
         {
           timeout: 15_000,
-          headers: { ...HEADERS, 'Content-Type': 'application/x-www-form-urlencoded' },
+          headers: {
+            ...HEADERS,
+            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+            Cookie: session.cookie,
+          },
         },
       );
       data = responseData;

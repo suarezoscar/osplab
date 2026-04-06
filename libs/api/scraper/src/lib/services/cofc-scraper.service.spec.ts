@@ -89,11 +89,19 @@ describe('CofcScraperService', () => {
   });
 
   describe('scrapeForDate', () => {
+    const mockSessionHtml =
+      '<html><body><input name="__RequestVerificationToken" type="hidden" value="test-token-abc" /></body></html>';
+
     it('llama a axios.post para cada municipio y guarda turnos en BD', async () => {
+      vi.spyOn(axios, 'get').mockResolvedValue({
+        data: mockSessionHtml,
+        headers: { 'set-cookie': ['.AspNetCore.Antiforgery=cookie-val; Path=/'] },
+      });
       vi.spyOn(axios, 'post').mockResolvedValue({ data: fixtureData });
 
       await service.scrapeForDate(new Date('2026-04-06T00:00:00'));
 
+      expect(axios.get).toHaveBeenCalledTimes(1);
       expect(axios.post).toHaveBeenCalledTimes(1);
       expect(axios.post).toHaveBeenCalledWith(
         expect.stringContaining('cofc.es'),
@@ -105,18 +113,33 @@ describe('CofcScraperService', () => {
       expect(prisma.dutySchedule.upsert).toHaveBeenCalled();
     });
 
+    it('cancela si fetchSession falla', async () => {
+      vi.spyOn(axios, 'get').mockRejectedValue(new Error('timeout'));
+
+      await expect(service.scrapeForDate(new Date('2026-04-06T00:00:00'))).resolves.not.toThrow();
+      expect(prisma.dutySchedule.upsert).not.toHaveBeenCalled();
+    });
+
     it('continúa si un municipio falla (fallo silencioso)', async () => {
+      vi.spyOn(axios, 'get').mockResolvedValue({
+        data: mockSessionHtml,
+        headers: { 'set-cookie': ['.AspNetCore.Antiforgery=cookie-val; Path=/'] },
+      });
       vi.spyOn(axios, 'post').mockRejectedValueOnce(new Error('timeout'));
 
       await expect(service.scrapeForDate(new Date('2026-04-06T00:00:00'))).resolves.not.toThrow();
     });
 
     it('no llama a prisma si la respuesta no tiene farmacias', async () => {
+      vi.spyOn(axios, 'get').mockResolvedValue({
+        data: mockSessionHtml,
+        headers: { 'set-cookie': ['.AspNetCore.Antiforgery=cookie-val; Path=/'] },
+      });
       vi.spyOn(axios, 'post').mockResolvedValue({
         data: {
           formulario: '<div>Sin resultados</div>',
           listadoTodas: [],
-          municipio: 'A Coruña',
+          nombrePoblacion: 'A Coruña',
           esBusquedaGuardias: true,
         },
       });
@@ -129,6 +152,12 @@ describe('CofcScraperService', () => {
 
   describe('upsertSchedules (via scrapeForDate)', () => {
     it('llama a $executeRaw cuando la farmacia tiene coordenadas', async () => {
+      const mockSessionHtml =
+        '<html><body><input name="__RequestVerificationToken" type="hidden" value="test-token-abc" /></body></html>';
+      vi.spyOn(axios, 'get').mockResolvedValue({
+        data: mockSessionHtml,
+        headers: { 'set-cookie': ['.AspNetCore.Antiforgery=cookie-val; Path=/'] },
+      });
       vi.spyOn(axios, 'post').mockResolvedValue({ data: fixtureData });
 
       await service.scrapeForDate(new Date('2026-04-06T00:00:00'));

@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import axios from 'axios';
+import * as cheerio from 'cheerio';
 import { PrismaService } from '@farmacias-guardia/api-data-access';
 import type { ScrapedDutySchedule } from '../interfaces/scraper.interfaces';
 import {
@@ -22,8 +23,13 @@ const COMMON_HEADERS = {
   /** Requerido por el servidor ASP.NET MVC para devolver JSON en lugar de HTML completo */
   'X-Requested-With': 'XMLHttpRequest',
   Accept: 'application/json, text/plain, */*',
-  Referer: 'https://www.cofc.es/farmacia',
+  Referer: 'https://www.cofc.es/farmacia/index',
 };
+
+interface CofcSession {
+  token: string;
+  cookie: string;
+}
 
 @Injectable()
 export class CofcScraperService {
@@ -47,9 +53,15 @@ export class CofcScraperService {
   async scrapeForDate(targetDate: Date): Promise<void> {
     this.logger.debug(`📋 COF A Coruña: ${COFC_MUNICIPIOS.length} municipio(s) a consultar`);
 
+    const session = await this.fetchSession();
+    if (!session) {
+      this.logger.warn('⚠️ COF A Coruña: no se pudo obtener sesión antiforgery, scraping cancelado');
+      return;
+    }
+
     let totalSaved = 0;
     for (const municipio of COFC_MUNICIPIOS) {
-      const saved = await this.scrapeMunicipio(municipio, targetDate);
+      const saved = await this.scrapeMunicipio(municipio, targetDate, session);
       totalSaved += saved;
       await sleep(REQUEST_DELAY_MS);
     }
@@ -59,9 +71,42 @@ export class CofcScraperService {
 
   // ── Métodos privados ──────────────────────────────────────────────────────
 
+  /**
+   * Obtiene el token antiforgery y la cookie de sesión haciendo un GET inicial.
+   * La API de COFC es ASP.NET MVC y requiere CSRF token en cada POST.
+   */
+  private async fetchSession(): Promise<CofcSession | null> {
+    try {
+      const resp = await axios.get<string>(COFC_API_URL, {
+        headers: {
+          'User-Agent': COMMON_HEADERS['User-Agent'],
+          Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        },
+        timeout: 15_000,
+      });
+
+      const $ = cheerio.load(resp.data);
+      const token = $('input[name="__RequestVerificationToken"]').first().val() as string;
+
+      if (!token) {
+        this.logger.warn('⚠️ COFC: no se encontró __RequestVerificationToken en la página');
+        return null;
+      }
+
+      const setCookies = (resp.headers['set-cookie'] as string[] | undefined) ?? [];
+      const cookie = setCookies.map((c) => c.split(';')[0]).join('; ');
+
+      return { token, cookie };
+    } catch (err) {
+      this.logger.warn(`⚠️ COFC: error al obtener sesión — ${(err as Error).message}`);
+      return null;
+    }
+  }
+
   private async scrapeMunicipio(
     municipio: { id: number; nombre: string },
     targetDate: Date,
+    session: CofcSession,
   ): Promise<number> {
     const dateStr = formatDateForCofc(targetDate);
     const sourceUrl = `${COFC_API_URL}?IdPoblacionFiltro=${municipio.id}&fecha=${dateStr}`;
@@ -70,12 +115,13 @@ export class CofcScraperService {
     try {
       const response = await axios.post<unknown>(
         COFC_API_URL,
-        `IdPoblacionFiltro=${municipio.id}&EsBusquedaGuardias=true&FechaBusqueda=${encodeURIComponent(dateStr)}`,
+        `IdPoblacionFiltro=${municipio.id}&FechaBusqueda=${encodeURIComponent(dateStr)}&LatitudFiltro=0&LongitudFiltro=0&__RequestVerificationToken=${encodeURIComponent(session.token)}`,
         {
           timeout: 15_000,
           headers: {
             ...COMMON_HEADERS,
-            'Content-Type': 'application/x-www-form-urlencoded',
+            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+            Cookie: session.cookie,
           },
         },
       );
