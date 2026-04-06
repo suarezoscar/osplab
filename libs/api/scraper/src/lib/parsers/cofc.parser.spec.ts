@@ -207,4 +207,3 @@ describe('parseCofcResponse', () => {
     expect(parseCofcResponse('cadena aleatoria', municipio, targetDate, url)).toEqual([]);
   });
 });
-

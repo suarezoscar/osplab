@@ -16,10 +16,7 @@ vi.mock('../parsers/cofc.parser', async (importOriginal) => {
 });
 
 const fixtureData = JSON.parse(
-  fs.readFileSync(
-    path.join(__dirname, '../parsers/__fixtures__/cofc-response.json'),
-    'utf8',
-  ),
+  fs.readFileSync(path.join(__dirname, '../parsers/__fixtures__/cofc-response.json'), 'utf8'),
 );
 
 type PrismaMock = {
@@ -101,7 +98,9 @@ describe('CofcScraperService', () => {
       expect(axios.post).toHaveBeenCalledWith(
         expect.stringContaining('cofc.es'),
         expect.stringContaining('IdPoblacionFiltro=2137'),
-        expect.objectContaining({ headers: expect.objectContaining({ 'X-Requested-With': 'XMLHttpRequest' }) }),
+        expect.objectContaining({
+          headers: expect.objectContaining({ 'X-Requested-With': 'XMLHttpRequest' }),
+        }),
       );
       expect(prisma.dutySchedule.upsert).toHaveBeenCalled();
     });
@@ -114,7 +113,12 @@ describe('CofcScraperService', () => {
 
     it('no llama a prisma si la respuesta no tiene farmacias', async () => {
       vi.spyOn(axios, 'post').mockResolvedValue({
-        data: { formulario: '<div>Sin resultados</div>', listadoTodas: [], municipio: 'A Coruña', esBusquedaGuardias: true },
+        data: {
+          formulario: '<div>Sin resultados</div>',
+          listadoTodas: [],
+          municipio: 'A Coruña',
+          esBusquedaGuardias: true,
+        },
       });
 
       await service.scrapeForDate(new Date('2026-04-06T00:00:00'));
@@ -133,4 +137,3 @@ describe('CofcScraperService', () => {
     });
   });
 });
-
