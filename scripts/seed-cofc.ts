@@ -6,7 +6,7 @@
  */
 
 import { PrismaPg } from '@prisma/adapter-pg';
-import { PrismaClient } from '../libs/api/data-access/src/generated/prisma';
+import { PrismaClient } from '../libs/farmacias/data-access/src/generated/prisma';
 import axios from 'axios';
 import * as cheerio from 'cheerio';
 import {
@@ -16,8 +16,8 @@ import {
   COFC_PROVINCE_CODE,
   formatDateForCofc,
   parseCofcResponse,
-} from '../libs/api/scraper/src/lib/parsers/cofc.parser';
-import type { ScrapedDutySchedule } from '../libs/api/scraper/src/lib/interfaces/scraper.interfaces';
+} from '../libs/farmacias/scraper/src/lib/parsers/cofc.parser';
+import type { ScrapedDutySchedule } from '../libs/farmacias/scraper/src/lib/interfaces/scraper.interfaces';
 
 // ─── BD ───────────────────────────────────────────────────────────────────────
 const DATABASE_URL = process.env['DATABASE_URL'];
