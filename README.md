@@ -23,7 +23,7 @@
 
 ```sh
 git clone <repo-url>
-cd farmacia-guardia
+cd osplab
 cp .env.example .env
 ```
 
