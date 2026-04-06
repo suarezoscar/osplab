@@ -14,7 +14,7 @@ import {
   parseCofourenseResponse,
   COFOURENSE_PROVINCE,
   COFOURENSE_PROVINCE_CODE,
-} from '../libs/api/scraper/src';
+} from '../libs/api/scraper/src/lib/parsers/cofourense.parser';
 
 // ─── Conexión a BD ───────────────────────────────────────────────────────────
 const DATABASE_URL =

@@ -1,4 +1,4 @@
-import type { ScrapedDutySchedule, ScrapedPharmacy } from '../interfaces/scraper.interfaces';
+import type { ScrapedDutySchedule } from '../interfaces/scraper.interfaces';
 
 // ──────────────────────────────────────────────────────────────────────────────
 // Constantes del endpoint
@@ -85,7 +85,7 @@ export function parseCoordinates(
 ): { lat: number; lng: number } | null {
   try {
     // El string tiene formato "[lat,lon]"
-    const match = raw?.trim().match(/^\[\s*(-?[\d.]+)\s*,\s*(-?[\d.]+)\s*\]$/);
+    const match = raw?.trim().match(/^\[\s*(-?[\d.]+)\s*,\s*(-?[\d.]+)\s*]$/);
     if (!match) return null;
 
     const lat = parseFloat(match[1]);
@@ -167,7 +167,7 @@ export function parseCofourenseResponse(
         // Coordenadas (opcionales — validadas)
         const coords = parseCoordinates(contacto.coordenadas);
 
-        const pharmacy: ScrapedPharmacy = {
+        const pharmacy = {
           name: resolvePharmacyName(item.nombre_fiscal, item.nombre),
           address: contacto.direccion.trim(),
           phone: contacto.telefono?.replace(/\D/g, '').slice(0, 9) || undefined,
