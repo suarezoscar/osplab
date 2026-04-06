@@ -2,6 +2,7 @@ export { ScraperModule } from './lib/scraper.module';
 export { CofourenseScraperService } from './lib/services/cofourense-scraper.service';
 export { CofpontevedraScraperService } from './lib/services/cofpontevedra-scraper.service';
 export { CoflugoScraperService } from './lib/services/coflugo-scraper.service';
+export { CofcScraperService } from './lib/services/cofc-scraper.service';
 export {
   parseCoflugoHtml,
   buildCoflugoUrl,
@@ -31,6 +32,17 @@ export {
   COFPONTEVEDRA_PROVINCE_CODE,
 } from './lib/parsers/cofpontevedra.parser';
 export type { CofpontevedraMunicipio } from './lib/parsers/cofpontevedra.parser';
+export {
+  parseCofcResponse,
+  formatDateForCofc,
+  buildCofcCoordsMap,
+  parseCofcSchedule,
+  COFC_API_URL,
+  COFC_PROVINCE,
+  COFC_PROVINCE_CODE,
+  COFC_MUNICIPIOS,
+} from './lib/parsers/cofc.parser';
+export type { CofcApiResponse, CofcMapItem } from './lib/parsers/cofc.parser';
 export type {
   ScrapedDutySchedule,
   ScrapedPharmacy,

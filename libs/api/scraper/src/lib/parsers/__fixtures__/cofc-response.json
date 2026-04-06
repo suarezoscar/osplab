@@ -1,0 +1,11 @@
+{
+  "formulario": "<div class='busqueda-farmacias'><div class='item row'><div class='titulo'><span>FARMACIA CORUÑA CENTRO</span></div><div class='info-contacto row'><div><span>Rúa Real, 45, 15003 A Coruña</span></div><div><strong>981123456</strong></div></div><div class='info-horario'><span>De 09:30 h. a 22:00 h.</span></div><div class='info-contacto-mas'>Diurno</div></div><div class='item row'><div class='titulo'><span>FARMACIA MONTE ALTO</span></div><div class='info-contacto row'><div><span>Rúa Caballeros, 12, 15002 A Coruña</span></div><div><strong>981234567</strong></div></div><div class='info-horario'><span>De 22:00 h. a 09:30 h.</span></div><div class='info-contacto-mas'>Nocturno</div></div><div class='item row'><div class='titulo'><span>FARMACIA 24H RIAZOR</span></div><div class='info-contacto row'><div><span>Avda. Pedro Barrié de la Maza, 1, 15004 A Coruña</span></div><div><strong>981345678</strong></div></div><div class='info-horario'><span>Guardia 24 horas</span></div><div class='info-contacto-mas'>24h</div></div></div>",
+  "listadoTodas": [
+    { "lat": 43.3709, "lng": -8.3959, "titulo": "FARMACIA CORUÑA CENTRO", "id": 1001 },
+    { "lat": 43.3580, "lng": -8.4050, "titulo": "FARMACIA MONTE ALTO", "id": 1002 },
+    { "lat": 43.3645, "lng": -8.4200, "titulo": "FARMACIA 24H RIAZOR", "id": 1003 }
+  ],
+  "municipio": "A Coruña",
+  "esBusquedaGuardias": true
+}
+

@@ -3,12 +3,16 @@ import { SkipThrottle } from '@nestjs/throttler';
 import {
   CofourenseScraperService,
   CofpontevedraScraperService,
+  CoflugoScraperService,
+  CofcScraperService,
 } from '@farmacias-guardia/api-scraper';
 import { AdminApiKeyGuard } from './admin-api-key.guard';
 
 /**
  * POST /api/admin/scrape/cofourense
  * POST /api/admin/scrape/cofpontevedra
+ * POST /api/admin/scrape/coflugo
+ * POST /api/admin/scrape/cofc
  *
  * Protegidos por AdminApiKeyGuard (cabecera X-Admin-Key).
  * SkipThrottle porque estas rutas son llamadas sólo por el propio cron/admin.
@@ -20,6 +24,8 @@ export class AdminController {
   constructor(
     private readonly cofourenseScraper: CofourenseScraperService,
     private readonly cofpontevedraScraper: CofpontevedraScraperService,
+    private readonly coflugoScraper: CoflugoScraperService,
+    private readonly cofcScraper: CofcScraperService,
   ) {}
 
   @Post('scrape/cofourense')
@@ -34,5 +40,19 @@ export class AdminController {
   async triggerCofpontevedraScrape(): Promise<{ message: string }> {
     this.cofpontevedraScraper.scrapeToday().catch(() => void 0);
     return { message: 'Scraping de COF Pontevedra iniciado en background' };
+  }
+
+  @Post('scrape/coflugo')
+  @HttpCode(HttpStatus.ACCEPTED)
+  async triggerCoflugoScrape(): Promise<{ message: string }> {
+    this.coflugoScraper.scrapeToday().catch(() => void 0);
+    return { message: 'Scraping de COF Lugo iniciado en background' };
+  }
+
+  @Post('scrape/cofc')
+  @HttpCode(HttpStatus.ACCEPTED)
+  async triggerCofcScrape(): Promise<{ message: string }> {
+    this.cofcScraper.scrapeToday().catch(() => void 0);
+    return { message: 'Scraping de COF A Coruña iniciado en background' };
   }
 }

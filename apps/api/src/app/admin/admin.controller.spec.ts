@@ -6,12 +6,22 @@ import { AdminController } from './admin.controller';
 import { AdminApiKeyGuard } from './admin-api-key.guard';
 import { CofourenseScraperService } from '@farmacias-guardia/api-scraper';
 import { CofpontevedraScraperService } from '@farmacias-guardia/api-scraper';
+import { CoflugoScraperService } from '@farmacias-guardia/api-scraper';
+import { CofcScraperService } from '@farmacias-guardia/api-scraper';
 
 const mockCofourense: Partial<CofourenseScraperService> = {
   scrapeToday: vi.fn().mockResolvedValue(undefined),
 };
 
 const mockCofpontevedra: Partial<CofpontevedraScraperService> = {
+  scrapeToday: vi.fn().mockResolvedValue(undefined),
+};
+
+const mockCoflugo: Partial<CoflugoScraperService> = {
+  scrapeToday: vi.fn().mockResolvedValue(undefined),
+};
+
+const mockCofc: Partial<CofcScraperService> = {
   scrapeToday: vi.fn().mockResolvedValue(undefined),
 };
 
@@ -22,6 +32,8 @@ async function buildApp(overrideGuard = true): Promise<INestApplication> {
     providers: [
       { provide: CofourenseScraperService, useValue: mockCofourense },
       { provide: CofpontevedraScraperService, useValue: mockCofpontevedra },
+      { provide: CoflugoScraperService, useValue: mockCoflugo },
+      { provide: CofcScraperService, useValue: mockCofc },
     ],
   });
 
@@ -83,6 +95,44 @@ describe('AdminController', () => {
       await request(app.getHttpServer()).post('/admin/scrape/cofpontevedra');
       await new Promise((r) => setTimeout(r, 10));
       expect(mockCofpontevedra.scrapeToday).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('POST /admin/scrape/coflugo', () => {
+    it('responde 202 Accepted', async () => {
+      const res = await request(app.getHttpServer()).post('/admin/scrape/coflugo');
+
+      expect(res.status).toBe(HttpStatus.ACCEPTED);
+      expect(res.body.message).toContain('Lugo');
+    });
+
+    it('invoca scrapeToday en background', async () => {
+      await request(app.getHttpServer()).post('/admin/scrape/coflugo');
+      await new Promise((r) => setTimeout(r, 10));
+      expect(mockCoflugo.scrapeToday).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('POST /admin/scrape/cofc', () => {
+    it('responde 202 Accepted', async () => {
+      const res = await request(app.getHttpServer()).post('/admin/scrape/cofc');
+
+      expect(res.status).toBe(HttpStatus.ACCEPTED);
+      expect(res.body.message).toContain('Coruña');
+    });
+
+    it('invoca scrapeToday en background', async () => {
+      await request(app.getHttpServer()).post('/admin/scrape/cofc');
+      await new Promise((r) => setTimeout(r, 10));
+      expect(mockCofc.scrapeToday).toHaveBeenCalledTimes(1);
+    });
+
+    it('no propaga el error si scrapeToday rechaza', async () => {
+      (mockCofc.scrapeToday as Mock).mockRejectedValueOnce(new Error('scraping failed'));
+
+      const res = await request(app.getHttpServer()).post('/admin/scrape/cofc');
+
+      expect(res.status).toBe(HttpStatus.ACCEPTED);
     });
   });
 });
