@@ -7,10 +7,7 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 
 const fixtureItems = JSON.parse(
-  fs.readFileSync(
-    path.join(__dirname, '../parsers/__fixtures__/cofpontevedra-items.json'),
-    'utf8',
-  ),
+  fs.readFileSync(path.join(__dirname, '../parsers/__fixtures__/cofpontevedra-items.json'), 'utf8'),
 );
 
 const mockMunicipios = [
@@ -19,20 +16,20 @@ const mockMunicipios = [
 ];
 
 type PrismaMock = {
-  province:     { upsert: Mock };
-  city:         { upsert: Mock };
-  pharmacy:     { upsert: Mock; findFirst: Mock };
+  province: { upsert: Mock };
+  city: { upsert: Mock };
+  pharmacy: { upsert: Mock; findFirst: Mock };
   dutySchedule: { upsert: Mock; deleteMany: Mock };
-  $executeRaw:  Mock;
+  $executeRaw: Mock;
 };
 
 function makePrismaMock(): PrismaMock {
   return {
-    province:     { upsert: vi.fn() },
-    city:         { upsert: vi.fn() },
-    pharmacy:     { upsert: vi.fn(), findFirst: vi.fn() },
+    province: { upsert: vi.fn() },
+    city: { upsert: vi.fn() },
+    pharmacy: { upsert: vi.fn(), findFirst: vi.fn() },
     dutySchedule: { upsert: vi.fn(), deleteMany: vi.fn() },
-    $executeRaw:  vi.fn(),
+    $executeRaw: vi.fn(),
   };
 }
 
@@ -43,15 +40,30 @@ describe('CofpontevedraScraperService', () => {
   beforeEach(() => {
     prisma = makePrismaMock();
     prisma.province.upsert.mockResolvedValue({ id: 'prov-1', name: 'Pontevedra', code: 'PO' });
-    prisma.city.upsert.mockResolvedValue({ id: 'city-1', name: 'Pontevedra', provinceId: 'prov-1' });
+    prisma.city.upsert.mockResolvedValue({
+      id: 'city-1',
+      name: 'Pontevedra',
+      provinceId: 'prov-1',
+    });
     prisma.pharmacy.findFirst.mockResolvedValue(null);
     prisma.pharmacy.upsert.mockResolvedValue({
-      id: 'ph-1', name: 'Test', address: 'Test', phone: null, cityId: 'city-1',
-      createdAt: new Date(), updatedAt: new Date(),
+      id: 'ph-1',
+      name: 'Test',
+      address: 'Test',
+      phone: null,
+      cityId: 'city-1',
+      createdAt: new Date(),
+      updatedAt: new Date(),
     });
     prisma.dutySchedule.upsert.mockResolvedValue({
-      id: 'ds-1', pharmacyId: 'ph-1', date: new Date(),
-      startTime: '09:00', endTime: '22:00', type: 'REGULAR', source: null, createdAt: new Date(),
+      id: 'ds-1',
+      pharmacyId: 'ph-1',
+      date: new Date(),
+      startTime: '09:00',
+      endTime: '22:00',
+      type: 'REGULAR',
+      source: null,
+      createdAt: new Date(),
     });
     prisma.dutySchedule.deleteMany.mockResolvedValue({ count: 0 });
     prisma.$executeRaw.mockResolvedValue(1);
@@ -104,9 +116,7 @@ describe('CofpontevedraScraperService', () => {
         .mockResolvedValueOnce({ data: mockMunicipios })
         .mockResolvedValue({ data: 'html inesperado' });
 
-      await expect(
-        service.scrapeForDate(new Date('2026-04-06T00:00:00')),
-      ).resolves.not.toThrow();
+      await expect(service.scrapeForDate(new Date('2026-04-06T00:00:00'))).resolves.not.toThrow();
     });
   });
 });

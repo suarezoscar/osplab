@@ -28,9 +28,15 @@ const adapter = new PrismaPg({ connectionString: DATABASE_URL });
 const prisma = new PrismaClient({ adapter } as never);
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-function log(msg: string)     { console.log(`  ${msg}`); }
-function section(t: string)   { console.log(`\n${'─'.repeat(55)}\n${t}\n${'─'.repeat(55)}`); }
-function sleep(ms: number)    { return new Promise<void>((r) => setTimeout(r, ms)); }
+function log(msg: string) {
+  console.log(`  ${msg}`);
+}
+function section(t: string) {
+  console.log(`\n${'─'.repeat(55)}\n${t}\n${'─'.repeat(55)}`);
+}
+function sleep(ms: number) {
+  return new Promise<void>((r) => setTimeout(r, ms));
+}
 
 const HEADERS = {
   'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36',
@@ -45,7 +51,7 @@ async function main() {
   await prisma.$connect();
   log('✅ Conectado a PostgreSQL');
 
-  const now   = new Date();
+  const now = new Date();
   const today = new Date(now);
   today.setHours(0, 0, 0, 0);
 
@@ -82,7 +88,10 @@ async function main() {
       const { data } = await axios.post(
         `${COFPONTEVEDRA_GUARDIA_URL}?`,
         `search_idmunicipio=${municipio.id}&search_fecha=${dateStr}`,
-        { timeout: 10_000, headers: { ...HEADERS, 'Content-Type': 'application/x-www-form-urlencoded' } },
+        {
+          timeout: 10_000,
+          headers: { ...HEADERS, 'Content-Type': 'application/x-www-form-urlencoded' },
+        },
       );
       items = data;
     } catch {
@@ -102,7 +111,7 @@ async function main() {
     log(`  📋 ${municipio.nombre.padEnd(30)} ${schedules.length} farmacia(s)`);
 
     const { saved, skipped } = await upsertSchedules(schedules, province.id);
-    totalSaved   += saved;
+    totalSaved += saved;
     totalSkipped += skipped;
 
     await sleep(150);
@@ -127,7 +136,8 @@ async function upsertSchedules(
   schedules: ScrapedDutySchedule[],
   provinceId: string,
 ): Promise<{ saved: number; skipped: number }> {
-  let saved = 0, skipped = 0;
+  let saved = 0,
+    skipped = 0;
 
   for (const s of schedules) {
     try {
@@ -145,7 +155,12 @@ async function upsertSchedules(
       const pharmacy = await prisma.pharmacy.upsert({
         where: { id: existing?.id ?? 'new' },
         update: { phone: s.pharmacy.phone ?? undefined },
-        create: { name: s.pharmacy.name, address: s.pharmacy.address, phone: s.pharmacy.phone, cityId: city.id },
+        create: {
+          name: s.pharmacy.name,
+          address: s.pharmacy.address,
+          phone: s.pharmacy.phone,
+          cityId: city.id,
+        },
       });
 
       if (s.pharmacy.lat != null && s.pharmacy.lng != null) {
@@ -159,7 +174,13 @@ async function upsertSchedules(
       await prisma.dutySchedule.upsert({
         where: { pharmacyId_date: { pharmacyId: pharmacy.id, date: s.date } },
         update: { startTime: s.startTime, endTime: s.endTime, source: s.sourceUrl },
-        create: { pharmacyId: pharmacy.id, date: s.date, startTime: s.startTime, endTime: s.endTime, source: s.sourceUrl },
+        create: {
+          pharmacyId: pharmacy.id,
+          date: s.date,
+          startTime: s.startTime,
+          endTime: s.endTime,
+          source: s.sourceUrl,
+        },
       });
 
       saved++;
@@ -173,6 +194,8 @@ async function upsertSchedules(
 }
 
 main()
-  .catch((err) => { console.error('\n❌ Error fatal:', err.message); process.exit(1); })
+  .catch((err) => {
+    console.error('\n❌ Error fatal:', err.message);
+    process.exit(1);
+  })
   .finally(() => prisma.$disconnect());
-

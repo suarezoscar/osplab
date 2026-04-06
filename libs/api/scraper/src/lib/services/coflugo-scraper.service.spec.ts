@@ -8,8 +8,7 @@ import * as path from 'node:path';
 
 // Reducir COFLUGO_MUNICIPIOS a 2 entradas para evitar sleep acumulado (64×200ms = 12.8s)
 vi.mock('../parsers/coflugo.parser', async (importOriginal) => {
-  const original =
-    await importOriginal<typeof import('../parsers/coflugo.parser')>();
+  const original = await importOriginal<typeof import('../parsers/coflugo.parser')>();
   return {
     ...original,
     COFLUGO_MUNICIPIOS: [
@@ -83,15 +82,9 @@ describe('CoflugoScraperService', () => {
 
     service = new CoflugoScraperService(prisma as unknown as PrismaService);
     // Silenciar logs del servicio en tests
-    vi.spyOn(service['logger'] as Logger, 'log').mockImplementation(
-      () => undefined,
-    );
-    vi.spyOn(service['logger'] as Logger, 'warn').mockImplementation(
-      () => undefined,
-    );
-    vi.spyOn(service['logger'] as Logger, 'debug').mockImplementation(
-      () => undefined,
-    );
+    vi.spyOn(service['logger'] as Logger, 'log').mockImplementation(() => undefined);
+    vi.spyOn(service['logger'] as Logger, 'warn').mockImplementation(() => undefined);
+    vi.spyOn(service['logger'] as Logger, 'debug').mockImplementation(() => undefined);
   });
 
   afterEach(() => vi.clearAllMocks());
@@ -116,9 +109,7 @@ describe('CoflugoScraperService', () => {
         .mockRejectedValueOnce(new Error('timeout'))
         .mockResolvedValue({ data: fixtureHtml });
 
-      await expect(
-        service.scrapeForDate(new Date('2026-04-06T00:00:00')),
-      ).resolves.not.toThrow();
+      await expect(service.scrapeForDate(new Date('2026-04-06T00:00:00'))).resolves.not.toThrow();
     });
 
     it('no llama a prisma si el HTML no contiene .farmacias', async () => {

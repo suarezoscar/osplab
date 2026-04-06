@@ -64,9 +64,7 @@ export class CofourenseScraperService {
       });
       data = response.data;
     } catch (err) {
-      this.logger.warn(
-        `⚠️  No se pudo consultar la API de COF Ourense: ${(err as Error).message}`,
-      );
+      this.logger.warn(`⚠️  No se pudo consultar la API de COF Ourense: ${(err as Error).message}`);
       return; // Fallo silencioso
     }
 
@@ -80,18 +78,14 @@ export class CofourenseScraperService {
       return;
     }
 
-    this.logger.debug(
-      `📋 COF Ourense: ${schedules.length} farmacias de guardia encontradas`,
-    );
+    this.logger.debug(`📋 COF Ourense: ${schedules.length} farmacias de guardia encontradas`);
     await this.upsertSchedules(schedules);
   }
 
   /**
    * Guarda los turnos en la BD usando upsert (no duplica ni corrompe datos).
    */
-  private async upsertSchedules(
-    schedules: ScrapedDutySchedule[],
-  ): Promise<void> {
+  private async upsertSchedules(schedules: ScrapedDutySchedule[]): Promise<void> {
     // Asegurar que la comunidad autónoma / provincia existe
     const provinceRecord = await this.prisma.province.upsert({
       where: { code: COFOURENSE_PROVINCE_CODE },
@@ -183,20 +177,14 @@ export class CofourenseScraperService {
       }
     }
 
-    this.logger.log(
-      `💾 COF Ourense: ${saved} turnos guardados, ${skipped} omitidos`,
-    );
+    this.logger.log(`💾 COF Ourense: ${saved} turnos guardados, ${skipped} omitidos`);
   }
 
   /**
    * Busca el ID de una farmacia por nombre+dirección+ciudad.
    * Retorna un ID ficticio si no existe (para que upsert use el create).
    */
-  private async findPharmacyId(
-    name: string,
-    address: string,
-    cityId: string,
-  ): Promise<string> {
+  private async findPharmacyId(name: string, address: string, cityId: string): Promise<string> {
     const existing = await this.prisma.pharmacy.findFirst({
       where: { name, address, cityId },
       select: { id: true },
@@ -204,5 +192,3 @@ export class CofourenseScraperService {
     return existing?.id ?? 'new';
   }
 }
-
-

@@ -3,6 +3,8 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "seed:cofourense": "jiti scripts/seed-cofourense.ts",
     "seed:cofpontevedra": "jiti scripts/seed-cofpontevedra.ts",
     "seed:coflugo": "jiti scripts/seed-coflugo.ts",

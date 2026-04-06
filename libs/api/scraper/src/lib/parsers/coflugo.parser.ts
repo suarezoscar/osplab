@@ -130,15 +130,11 @@ export function parseCoflugoOnclick(
  *   "Guardia diurna de 9:30 a 22:00 horas"
  *   "Guardia nocturna de 22:00 a 9:30 horas"
  */
-export function parseCoflugoScheduleType(
-  tipo: string,
-): { startTime: string; endTime: string } {
+export function parseCoflugoScheduleType(tipo: string): { startTime: string; endTime: string } {
   const lower = tipo.toLowerCase();
 
   // Intentar extraer horas explícitas: "de HH:MM a HH:MM"
-  const timeMatch = lower.match(
-    /de\s+(\d{1,2}(?::\d{2})?)\s*a\s+(\d{1,2}(?::\d{2})?)/,
-  );
+  const timeMatch = lower.match(/de\s+(\d{1,2}(?::\d{2})?)\s*a\s+(\d{1,2}(?::\d{2})?)/);
   if (timeMatch) {
     const pad = (t: string) => {
       const parts = t.split(':');
@@ -198,10 +194,7 @@ export function parseCoflugoHtml(
         // ── Dirección ────────────────────────────────────────────────────────
         // El <p> puede contener <br> y texto suelto, normalizamos los saltos
         const addressPEl = container.find('p:nth-of-type(2)');
-        const address = addressPEl
-          .text()
-          .replace(/\s+/g, ' ')
-          .trim();
+        const address = addressPEl.text().replace(/\s+/g, ' ').trim();
 
         if (!address) return;
 
@@ -213,11 +206,9 @@ export function parseCoflugoHtml(
           undefined;
 
         // ── Tipo de guardia / horario ────────────────────────────────────────
-        const scheduleType = container
-          .find('span[style*="color:green"]')
-          .first()
-          .text()
-          .trim();
+        // Usamos [style*="green"] para ser resilientes ante variaciones de
+        // formato CSS inline (ej: "color:green" vs "color: green").
+        const scheduleType = container.find('span[style*="green"]').first().text().trim();
 
         const { startTime, endTime } = parseCoflugoScheduleType(scheduleType);
 
@@ -241,7 +232,3 @@ export function parseCoflugoHtml(
     return [];
   }
 }
-
-
-
-

@@ -16,13 +16,9 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@farmacias-guardia/api-data-access": [
-        "libs/api/data-access/src/index.ts"
-      ],
+      "@farmacias-guardia/api-data-access": ["libs/api/data-access/src/index.ts"],
       "@farmacias-guardia/api-scraper": ["libs/api/scraper/src/index.ts"],
-      "@farmacias-guardia/shared-interfaces": [
-        "libs/shared/interfaces/src/index.ts"
-      ],
+      "@farmacias-guardia/shared-interfaces": ["libs/shared/interfaces/src/index.ts"],
       "@farmacias-guardia/web-ui": ["libs/web/ui/src/index.ts"]
     }
   },

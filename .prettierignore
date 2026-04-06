@@ -1,6 +1,20 @@
 # Add files here to ignore them from prettier formatting
+# Build outputs
 /dist
 /coverage
+
+# Nx cache
 /.nx/cache
 /.nx/workspace-data
+
+# Angular
 .angular
+
+# Prisma generated client
+libs/api/data-access/src/generated/
+
+# Lockfiles (managed by pnpm)
+pnpm-lock.yaml
+
+# Misc
+*.min.js

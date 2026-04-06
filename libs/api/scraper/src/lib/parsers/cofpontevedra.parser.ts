@@ -5,9 +5,9 @@ import type { ScrapedDutySchedule, ScrapedPharmacy } from '../interfaces/scraper
 // ──────────────────────────────────────────────────────────────────────────────
 
 export const COFPONTEVEDRA_MUNICIPIOS_URL = 'https://farmacias.cofpo.org/municipios.php';
-export const COFPONTEVEDRA_GUARDIA_URL    = 'https://farmacias.cofpo.org/farmaciasguardia.php';
+export const COFPONTEVEDRA_GUARDIA_URL = 'https://farmacias.cofpo.org/farmaciasguardia.php';
 
-export const COFPONTEVEDRA_PROVINCE      = 'Pontevedra';
+export const COFPONTEVEDRA_PROVINCE = 'Pontevedra';
 export const COFPONTEVEDRA_PROVINCE_CODE = 'PO';
 
 // ──────────────────────────────────────────────────────────────────────────────
@@ -26,13 +26,13 @@ interface CofpontevedraItem {
   nombre: string;
   direccion: string;
   telefono: string;
-  tipo: string;           // "Diurno" | "Nocturno"
+  tipo: string; // "Diurno" | "Nocturno"
   longitud: string;
   latitud: string;
   idmunicipio: string;
   municipio: string;
-  fecha: string;          // "YYYY-MM-DD"
-  observaciones: string;  // "De 9:30 h. a 22 h."
+  fecha: string; // "YYYY-MM-DD"
+  observaciones: string; // "De 9:30 h. a 22 h."
 }
 
 // ──────────────────────────────────────────────────────────────────────────────
@@ -62,9 +62,7 @@ function toIsoDate(date: Date): string {
  */
 export function parseObservaciones(obs: string): { start: string; end: string } | null {
   if (!obs) return null;
-  const match = obs.match(
-    /de\s+(\d{1,2}(?::\d{2})?)\s*h[^a]*a\s+(\d{1,2}(?::\d{2})?)\s*h/i,
-  );
+  const match = obs.match(/de\s+(\d{1,2}(?::\d{2})?)\s*h[^a]*a\s+(\d{1,2}(?::\d{2})?)\s*h/i);
   if (!match) return null;
 
   const pad = (t: string) => {
@@ -89,12 +87,12 @@ export function resolveTimeRange(
   }
 
   // Fallback por tipo
-  const hasDiurno   = tipos.some((t) => t.toLowerCase() === 'diurno');
+  const hasDiurno = tipos.some((t) => t.toLowerCase() === 'diurno');
   const hasNocturno = tipos.some((t) => t.toLowerCase() === 'nocturno');
 
   if (hasDiurno && hasNocturno) return { startTime: '09:00', endTime: '09:00' }; // 24h
-  if (hasNocturno)              return { startTime: '22:00', endTime: '09:00' };
-  return                               { startTime: '09:00', endTime: '22:00' }; // Diurno
+  if (hasNocturno) return { startTime: '22:00', endTime: '09:00' };
+  return { startTime: '09:00', endTime: '22:00' }; // Diurno
 }
 
 // ──────────────────────────────────────────────────────────────────────────────
@@ -144,17 +142,15 @@ export function parseCofpontevedraItems(
       try {
         const first = entries[0];
 
-        const tipos       = entries.map((e) => e.tipo);
-        const observ      = entries.map((e) => e.observaciones ?? '');
+        const tipos = entries.map((e) => e.tipo);
+        const observ = entries.map((e) => e.observaciones ?? '');
         const { startTime, endTime } = resolveTimeRange(tipos, observ);
 
         // Coordenadas
         const lat = parseFloat(first.latitud);
         const lng = parseFloat(first.longitud);
         const validCoords =
-          !isNaN(lat) && !isNaN(lng) &&
-          lat >= -90 && lat <= 90 &&
-          lng >= -180 && lng <= 180;
+          !isNaN(lat) && !isNaN(lng) && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180;
 
         const pharmacy: ScrapedPharmacy = {
           name: first.nombre.trim(),
@@ -176,4 +172,3 @@ export function parseCofpontevedraItems(
     return [];
   }
 }
-

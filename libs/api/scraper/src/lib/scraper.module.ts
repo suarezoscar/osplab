@@ -10,4 +10,3 @@ import { CoflugoScraperService } from './services/coflugo-scraper.service';
   exports: [CofourenseScraperService, CofpontevedraScraperService, CoflugoScraperService],
 })
 export class ScraperModule {}
-

@@ -40,9 +40,7 @@ describe('cleanOldSchedules', () => {
 
     await cleanOldSchedules(prisma as unknown as PrismaService, logger, 'COF Test');
 
-    expect(logger.log).toHaveBeenCalledWith(
-      expect.stringContaining('5'),
-    );
+    expect(logger.log).toHaveBeenCalledWith(expect.stringContaining('5'));
   });
 
   it('no registra log si count === 0', async () => {
@@ -60,8 +58,6 @@ describe('cleanOldSchedules', () => {
       cleanOldSchedules(prisma as unknown as PrismaService, logger, 'COF Test'),
     ).resolves.toBeUndefined();
 
-    expect(logger.warn).toHaveBeenCalledWith(
-      expect.stringContaining('DB connection failed'),
-    );
+    expect(logger.warn).toHaveBeenCalledWith(expect.stringContaining('DB connection failed'));
   });
 });

@@ -18,7 +18,8 @@ import { cleanOldSchedules } from './schedule-cleanup.util';
 const REQUEST_DELAY_MS = 150;
 
 const COMMON_HEADERS = {
-  'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+  'User-Agent':
+    'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
   Accept: '*/*',
   Origin: 'https://cofpo.org',
   Referer: 'https://cofpo.org/',
@@ -112,9 +113,7 @@ export class CofpontevedraScraperService {
     const schedules = parseCofpontevedraItems(data, targetDate, sourceUrl);
     if (schedules.length === 0) return 0;
 
-    this.logger.debug(
-      `  📋 ${municipio.nombre}: ${schedules.length} farmacia(s) de guardia`,
-    );
+    this.logger.debug(`  📋 ${municipio.nombre}: ${schedules.length} farmacia(s) de guardia`);
     return this.upsertSchedules(schedules);
   }
 
@@ -141,7 +140,11 @@ export class CofpontevedraScraperService {
         });
 
         const existing = await this.prisma.pharmacy.findFirst({
-          where: { name: schedule.pharmacy.name, address: schedule.pharmacy.address, cityId: city.id },
+          where: {
+            name: schedule.pharmacy.name,
+            address: schedule.pharmacy.address,
+            cityId: city.id,
+          },
           select: { id: true },
         });
 
@@ -170,7 +173,11 @@ export class CofpontevedraScraperService {
 
         await this.prisma.dutySchedule.upsert({
           where: { pharmacyId_date: { pharmacyId: pharmacy.id, date: schedule.date } },
-          update: { startTime: schedule.startTime, endTime: schedule.endTime, source: schedule.sourceUrl },
+          update: {
+            startTime: schedule.startTime,
+            endTime: schedule.endTime,
+            source: schedule.sourceUrl,
+          },
           create: {
             pharmacyId: pharmacy.id,
             date: schedule.date,
@@ -195,4 +202,3 @@ export class CofpontevedraScraperService {
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
-

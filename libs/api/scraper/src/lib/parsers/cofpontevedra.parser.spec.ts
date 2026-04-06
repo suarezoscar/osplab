@@ -9,10 +9,7 @@ import {
 } from './cofpontevedra.parser';
 
 const fixtureItems = JSON.parse(
-  fs.readFileSync(
-    path.join(__dirname, '__fixtures__/cofpontevedra-items.json'),
-    'utf8',
-  ),
+  fs.readFileSync(path.join(__dirname, '__fixtures__/cofpontevedra-items.json'), 'utf8'),
 );
 
 // ─── formatDateForCofpo ───────────────────────────────────────────────────────
@@ -143,11 +140,7 @@ describe('parseCofpontevedraItems', () => {
   });
 
   it('retorna [] si no hay items para la fecha objetivo', () => {
-    const result = parseCofpontevedraItems(
-      fixtureItems,
-      new Date('2030-01-01T00:00:00'),
-      url,
-    );
+    const result = parseCofpontevedraItems(fixtureItems, new Date('2030-01-01T00:00:00'), url);
     expect(result).toEqual([]);
   });
 
@@ -156,4 +149,3 @@ describe('parseCofpontevedraItems', () => {
     expect(result[0].sourceUrl).toBe(url);
   });
 });
-

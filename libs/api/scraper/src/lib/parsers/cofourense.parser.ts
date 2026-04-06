@@ -8,8 +8,7 @@ import type { ScrapedDutySchedule } from '../interfaces/scraper.interfaces';
  * URL base de la API REST del Colegio Oficial de Farmacéuticos de Ourense.
  * Documentación informal: wp-json/vcomm/v1/farmacias/guardia
  */
-export const COFOURENSE_API_BASE =
-  'https://www.cofourense.es/wp-json/vcomm/v1/farmacias/guardia';
+export const COFOURENSE_API_BASE = 'https://www.cofourense.es/wp-json/vcomm/v1/farmacias/guardia';
 
 /** UUID estático requerido por la API (extraído del frontend de cofourense.es). */
 export const COFOURENSE_UUID = 'a1164f33-ede5-4b10-9745-5f327b641426';
@@ -37,15 +36,15 @@ interface CofHorario {
   tipo: string;
   color: string;
   hora_apertura: string; // "HH:MM:SS"
-  hora_cierre: string;   // "HH:MM:SS"
+  hora_cierre: string; // "HH:MM:SS"
   cierre_dia_siguiente: boolean;
 }
 
 interface CofFarmacia {
-  fecha: string;          // "YYYY-MM-DD"
+  fecha: string; // "YYYY-MM-DD"
   soe: string;
-  nombre: string;         // Nombre del farmacéutico titular
-  nombre_fiscal: string;  // Nombre fiscal de la farmacia (puede estar vacío)
+  nombre: string; // Nombre del farmacéutico titular
+  nombre_fiscal: string; // Nombre fiscal de la farmacia (puede estar vacío)
   zona_guardia: string;
   contactos_profesionales: CofContacto[];
   horarios: CofHorario[];
@@ -80,9 +79,7 @@ export function parseApiTime(raw: string): string | null {
  * Ejemplo válido:   "[42.415296,-6.987211]"
  * Ejemplo inválido: "[4.2188410,-779.9320]"
  */
-export function parseCoordinates(
-  raw: string,
-): { lat: number; lng: number } | null {
+export function parseCoordinates(raw: string): { lat: number; lng: number } | null {
   try {
     // El string tiene formato "[lat,lon]"
     const match = raw?.trim().match(/^\[\s*(-?[\d.]+)\s*,\s*(-?[\d.]+)\s*]$/);
@@ -108,10 +105,7 @@ export function parseCoordinates(
  * - Usa `nombre_fiscal` si no está vacío (ej: "FCIA. IGNACIO Y ESTELA...")
  * - Si está vacío, usa `nombre` (nombre del farmacéutico titular)
  */
-export function resolvePharmacyName(
-  nombreFiscal: string,
-  nombre: string,
-): string {
+export function resolvePharmacyName(nombreFiscal: string, nombre: string): string {
   const fiscal = nombreFiscal?.trim();
   return fiscal || nombre?.trim() || 'Farmacia desconocida';
 }
@@ -242,5 +236,3 @@ export function buildCofourenseUrl(date: Date): string {
 
   return `${COFOURENSE_API_BASE}?${params.toString()}`;
 }
-
-

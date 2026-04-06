@@ -44,7 +44,7 @@ export class GeocodingService {
         params: {
           q: query,
           format: 'json',
-          limit: '10',          // pedimos más para poder filtrar mejor
+          limit: '10', // pedimos más para poder filtrar mejor
           countrycodes: 'es',
           addressdetails: '1',
           'accept-language': 'es',
@@ -64,9 +64,12 @@ export class GeocodingService {
               groups.set(key, r);
             } else {
               // Preferir el resultado con tipo más específico, luego mayor importance
-              const newPriority  = ADDRESS_TYPE_PRIORITY[r.addresstype] ?? 0;
-              const curPriority  = ADDRESS_TYPE_PRIORITY[existing.addresstype] ?? 0;
-              if (newPriority > curPriority || (newPriority === curPriority && r.importance > existing.importance)) {
+              const newPriority = ADDRESS_TYPE_PRIORITY[r.addresstype] ?? 0;
+              const curPriority = ADDRESS_TYPE_PRIORITY[existing.addresstype] ?? 0;
+              if (
+                newPriority > curPriority ||
+                (newPriority === curPriority && r.importance > existing.importance)
+              ) {
                 groups.set(key, r);
               }
             }

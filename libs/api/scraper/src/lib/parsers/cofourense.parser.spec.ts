@@ -13,10 +13,7 @@ import {
 } from './cofourense.parser';
 
 const fixtureData: CofApiResponse = JSON.parse(
-  fs.readFileSync(
-    path.join(__dirname, '__fixtures__/cofourense-response.json'),
-    'utf8',
-  ),
+  fs.readFileSync(path.join(__dirname, '__fixtures__/cofourense-response.json'), 'utf8'),
 );
 
 // ─── parseApiTime ─────────────────────────────────────────────────────────────
@@ -140,7 +137,13 @@ describe('parseCofourenseResponse', () => {
   });
 
   it('retorna [] si informacion está vacío', () => {
-    expect(parseCofourenseResponse({ informacion: [], metadatos: { paginacion: { totalElementos: 0 } } }, targetDate, url)).toEqual([]);
+    expect(
+      parseCofourenseResponse(
+        { informacion: [], metadatos: { paginacion: { totalElementos: 0 } } },
+        targetDate,
+        url,
+      ),
+    ).toEqual([]);
   });
 
   it('omite items sin contactos_profesionales', () => {
@@ -153,7 +156,15 @@ describe('parseCofourenseResponse', () => {
           nombre_fiscal: '',
           zona_guardia: 'X',
           contactos_profesionales: [],
-          horarios: [{ tipo: 'diurna', color: 'green', hora_apertura: '09:00:00', hora_cierre: '22:00:00', cierre_dia_siguiente: false }],
+          horarios: [
+            {
+              tipo: 'diurna',
+              color: 'green',
+              hora_apertura: '09:00:00',
+              hora_cierre: '22:00:00',
+              cierre_dia_siguiente: false,
+            },
+          ],
         },
       ],
       metadatos: { paginacion: { totalElementos: 1 } },
@@ -190,4 +201,3 @@ describe('buildCofourenseUrl', () => {
     expect(url).toContain(COFOURENSE_UUID);
   });
 });
-

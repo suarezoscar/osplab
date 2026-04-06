@@ -30,4 +30,3 @@ export async function cleanOldSchedules(
     logger.warn(`⚠️  ${label}: error al limpiar turnos viejos — ${(err as Error).message}`);
   }
 }
-

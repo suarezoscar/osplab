@@ -33,9 +33,15 @@ const COMMON_HEADERS = {
 };
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
-function log(msg: string) { console.log(`  ${msg}`); }
-function section(title: string) { console.log(`\n${'─'.repeat(55)}\n${title}\n${'─'.repeat(55)}`); }
-function sleep(ms: number) { return new Promise((r) => setTimeout(r, ms)); }
+function log(msg: string) {
+  console.log(`  ${msg}`);
+}
+function section(title: string) {
+  console.log(`\n${'─'.repeat(55)}\n${title}\n${'─'.repeat(55)}`);
+}
+function sleep(ms: number) {
+  return new Promise((r) => setTimeout(r, ms));
+}
 
 // ─── Main ────────────────────────────────────────────────────────────────────
 async function main() {
@@ -95,7 +101,11 @@ async function main() {
         });
 
         const existing = await prisma.pharmacy.findFirst({
-          where: { name: schedule.pharmacy.name, address: schedule.pharmacy.address, cityId: city.id },
+          where: {
+            name: schedule.pharmacy.name,
+            address: schedule.pharmacy.address,
+            cityId: city.id,
+          },
           select: { id: true },
         });
 
@@ -123,7 +133,11 @@ async function main() {
 
         await prisma.dutySchedule.upsert({
           where: { pharmacyId_date: { pharmacyId: pharmacy.id, date: schedule.date } },
-          update: { startTime: schedule.startTime, endTime: schedule.endTime, source: schedule.sourceUrl },
+          update: {
+            startTime: schedule.startTime,
+            endTime: schedule.endTime,
+            source: schedule.sourceUrl,
+          },
           create: {
             pharmacyId: pharmacy.id,
             date: schedule.date,
@@ -171,4 +185,3 @@ main()
     process.exit(1);
   })
   .finally(() => prisma.$disconnect());
-

@@ -1,5 +1,8 @@
 import { Controller, Post, HttpCode, HttpStatus } from '@nestjs/common';
-import { CofourenseScraperService, CofpontevedraScraperService } from '@farmacias-guardia/api-scraper';
+import {
+  CofourenseScraperService,
+  CofpontevedraScraperService,
+} from '@farmacias-guardia/api-scraper';
 
 /**
  * POST /api/admin/scrape/cofourense
@@ -11,7 +14,6 @@ export class AdminController {
     private readonly cofourenseScraper: CofourenseScraperService,
     private readonly cofpontevedraScraper: CofpontevedraScraperService,
   ) {}
-
 
   @Post('scrape/cofourense')
   @HttpCode(HttpStatus.ACCEPTED)
@@ -27,5 +29,3 @@ export class AdminController {
     return { message: 'Scraping de COF Pontevedra iniciado en background' };
   }
 }
-
-

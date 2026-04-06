@@ -9,4 +9,3 @@ import { PharmaciesService } from './pharmacies.service';
   providers: [PharmaciesService],
 })
 export class PharmaciesModule {}
-

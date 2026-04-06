@@ -37,8 +37,7 @@ describe('AdminController', () => {
 
   describe('POST /admin/scrape/cofourense', () => {
     it('responde 202 Accepted', async () => {
-      const res = await request(app.getHttpServer())
-        .post('/admin/scrape/cofourense');
+      const res = await request(app.getHttpServer()).post('/admin/scrape/cofourense');
 
       expect(res.status).toBe(HttpStatus.ACCEPTED);
       expect(res.body.message).toContain('Ourense');
@@ -52,12 +51,9 @@ describe('AdminController', () => {
     });
 
     it('no propaga el error si scrapeToday rechaza', async () => {
-      (mockCofourense.scrapeToday as Mock).mockRejectedValueOnce(
-        new Error('scraping failed'),
-      );
+      (mockCofourense.scrapeToday as Mock).mockRejectedValueOnce(new Error('scraping failed'));
 
-      const res = await request(app.getHttpServer())
-        .post('/admin/scrape/cofourense');
+      const res = await request(app.getHttpServer()).post('/admin/scrape/cofourense');
 
       expect(res.status).toBe(HttpStatus.ACCEPTED);
     });
@@ -65,8 +61,7 @@ describe('AdminController', () => {
 
   describe('POST /admin/scrape/cofpontevedra', () => {
     it('responde 202 Accepted', async () => {
-      const res = await request(app.getHttpServer())
-        .post('/admin/scrape/cofpontevedra');
+      const res = await request(app.getHttpServer()).post('/admin/scrape/cofpontevedra');
 
       expect(res.status).toBe(HttpStatus.ACCEPTED);
       expect(res.body.message).toContain('Pontevedra');
@@ -79,4 +74,3 @@ describe('AdminController', () => {
     });
   });
 });
-

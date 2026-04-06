@@ -33,9 +33,7 @@ describe('PharmaciesController', () => {
     }).compile();
 
     app = module.createNestApplication();
-    app.useGlobalPipes(
-      new ValidationPipe({ transform: true, whitelist: true }),
-    );
+    app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true }));
     await app.init();
   });
 
@@ -56,8 +54,7 @@ describe('PharmaciesController', () => {
     });
 
     it('400 sin lat ni lng', async () => {
-      const res = await request(app.getHttpServer())
-        .get('/pharmacies/nearest');
+      const res = await request(app.getHttpServer()).get('/pharmacies/nearest');
 
       expect(res.status).toBe(400);
     });
@@ -105,4 +102,3 @@ describe('PharmaciesController', () => {
     });
   });
 });
-

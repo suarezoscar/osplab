@@ -84,16 +84,12 @@ export class CoflugoScraperService {
     const schedules = parseCoflugoHtml(html, municipio.nombre, targetDate, url);
     if (schedules.length === 0) return 0;
 
-    this.logger.debug(
-      `  📋 ${municipio.nombre}: ${schedules.length} farmacia(s) de guardia`,
-    );
+    this.logger.debug(`  📋 ${municipio.nombre}: ${schedules.length} farmacia(s) de guardia`);
 
     return this.upsertSchedules(schedules);
   }
 
-  private async upsertSchedules(
-    schedules: ScrapedDutySchedule[],
-  ): Promise<number> {
+  private async upsertSchedules(schedules: ScrapedDutySchedule[]): Promise<number> {
     const provinceRecord = await this.prisma.province.upsert({
       where: { code: COFLUGO_PROVINCE_CODE },
       update: {},
@@ -139,10 +135,7 @@ export class CoflugoScraperService {
         });
 
         // PostGIS location
-        if (
-          schedule.pharmacy.lat != null &&
-          schedule.pharmacy.lng != null
-        ) {
+        if (schedule.pharmacy.lat != null && schedule.pharmacy.lng != null) {
           await this.prisma.$executeRaw`
             UPDATE "Pharmacy"
             SET location = ST_SetSRID(
@@ -189,4 +182,3 @@ export class CoflugoScraperService {
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
-

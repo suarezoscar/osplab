@@ -31,4 +31,8 @@ export {
   COFPONTEVEDRA_PROVINCE_CODE,
 } from './lib/parsers/cofpontevedra.parser';
 export type { CofpontevedraMunicipio } from './lib/parsers/cofpontevedra.parser';
-export type { ScrapedDutySchedule, ScrapedPharmacy, ScraperResult } from './lib/interfaces/scraper.interfaces';
+export type {
+  ScrapedDutySchedule,
+  ScrapedPharmacy,
+  ScraperResult,
+} from './lib/interfaces/scraper.interfaces';

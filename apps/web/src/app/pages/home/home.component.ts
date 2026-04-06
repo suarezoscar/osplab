@@ -1,6 +1,15 @@
 import { Component, inject, signal, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Subject, Subscription, catchError, debounceTime, distinctUntilChanged, filter, of, switchMap } from 'rxjs';
+import {
+  Subject,
+  Subscription,
+  catchError,
+  debounceTime,
+  distinctUntilChanged,
+  filter,
+  of,
+  switchMap,
+} from 'rxjs';
 import { PharmaciesApiService } from '../../services/pharmacies-api.service';
 import { GeolocationService } from '../../services/geolocation.service';
 import { GeocodingService, type GeocodingSuggestion } from '../../services/geocoding.service';
@@ -35,27 +44,27 @@ export class HomeComponent implements OnDestroy {
   private readonly sub: Subscription;
 
   constructor() {
-    this.sub = this.searchInput$.pipe(
-      debounceTime(400),
-      distinctUntilChanged(),
-      filter((q) => q.trim().length >= 3),
-      switchMap((q) => {
-        this.loadingSuggestions.set(true);
-        return this.geocoding.search(q).pipe(
-          catchError(() => of([])),
-        );
-      }),
-    ).subscribe({
-      next: (res) => {
-        this.suggestions.set(res);
-        this.showSuggestions.set(res.length > 0);
-        this.loadingSuggestions.set(false);
-      },
-      error: () => {
-        this.suggestions.set([]);
-        this.loadingSuggestions.set(false);
-      },
-    });
+    this.sub = this.searchInput$
+      .pipe(
+        debounceTime(400),
+        distinctUntilChanged(),
+        filter((q) => q.trim().length >= 3),
+        switchMap((q) => {
+          this.loadingSuggestions.set(true);
+          return this.geocoding.search(q).pipe(catchError(() => of([])));
+        }),
+      )
+      .subscribe({
+        next: (res) => {
+          this.suggestions.set(res);
+          this.showSuggestions.set(res.length > 0);
+          this.loadingSuggestions.set(false);
+        },
+        error: () => {
+          this.suggestions.set([]);
+          this.loadingSuggestions.set(false);
+        },
+      });
   }
 
   ngOnDestroy(): void {

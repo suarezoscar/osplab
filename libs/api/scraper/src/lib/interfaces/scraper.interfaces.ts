@@ -24,4 +24,3 @@ export interface ScraperResult {
   errors: string[];
   scrapedAt: Date;
 }
-

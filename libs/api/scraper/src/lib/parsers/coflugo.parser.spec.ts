@@ -9,10 +9,7 @@ import {
   COFLUGO_PROVINCE,
 } from './coflugo.parser';
 
-const fixtureHtml = fs.readFileSync(
-  path.join(__dirname, '__fixtures__/coflugo.html'),
-  'utf8',
-);
+const fixtureHtml = fs.readFileSync(path.join(__dirname, '__fixtures__/coflugo.html'), 'utf8');
 
 // ─── buildCoflugoUrl ──────────────────────────────────────────────────────────
 
@@ -156,7 +153,9 @@ describe('parseCoflugoHtml', () => {
   });
 
   it('retorna [] con HTML sin .farmacias', () => {
-    expect(parseCoflugoHtml('<html><body><p>nada</p></body></html>', municipio, date, url)).toEqual([]);
+    expect(parseCoflugoHtml('<html><body><p>nada</p></body></html>', municipio, date, url)).toEqual(
+      [],
+    );
   });
 
   it('asigna el sourceUrl correcto', () => {
@@ -169,4 +168,3 @@ describe('parseCoflugoHtml', () => {
     expect(result[0].date).toBe(date);
   });
 });
-

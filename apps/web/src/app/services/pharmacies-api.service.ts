@@ -8,9 +8,7 @@ export class PharmaciesApiService {
   private readonly http = inject(HttpClient);
 
   findNearest(query: NearbyPharmaciesQuery): Observable<PharmacyDto[]> {
-    let params = new HttpParams()
-      .set('lat', query.lat.toString())
-      .set('lng', query.lng.toString());
+    let params = new HttpParams().set('lat', query.lat.toString()).set('lng', query.lng.toString());
 
     if (query.date) {
       params = params.set('date', query.date);

@@ -25,8 +25,12 @@ const adapter = new PrismaPg({ connectionString: DATABASE_URL });
 const prisma = new PrismaClient({ adapter } as never);
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
-function log(msg: string) { console.log(`  ${msg}`); }
-function section(title: string) { console.log(`\n${'─'.repeat(55)}\n${title}\n${'─'.repeat(55)}`); }
+function log(msg: string) {
+  console.log(`  ${msg}`);
+}
+function section(title: string) {
+  console.log(`\n${'─'.repeat(55)}\n${title}\n${'─'.repeat(55)}`);
+}
 
 // ─── Main ────────────────────────────────────────────────────────────────────
 async function main() {
@@ -88,7 +92,11 @@ async function main() {
 
       // Farmacia
       const existing = await prisma.pharmacy.findFirst({
-        where: { name: schedule.pharmacy.name, address: schedule.pharmacy.address, cityId: city.id },
+        where: {
+          name: schedule.pharmacy.name,
+          address: schedule.pharmacy.address,
+          cityId: city.id,
+        },
         select: { id: true },
       });
 
@@ -118,7 +126,11 @@ async function main() {
       // Turno de guardia
       await prisma.dutySchedule.upsert({
         where: { pharmacyId_date: { pharmacyId: pharmacy.id, date: schedule.date } },
-        update: { startTime: schedule.startTime, endTime: schedule.endTime, source: schedule.sourceUrl },
+        update: {
+          startTime: schedule.startTime,
+          endTime: schedule.endTime,
+          source: schedule.sourceUrl,
+        },
         create: {
           pharmacyId: pharmacy.id,
           date: schedule.date,
@@ -128,8 +140,13 @@ async function main() {
         },
       });
 
-      const coords = schedule.pharmacy.lat != null ? `📍 ${schedule.pharmacy.lat},${schedule.pharmacy.lng}` : '⚠️  sin coords';
-      log(`  💾 ${schedule.pharmacy.name.padEnd(35)} ${schedule.pharmacy.cityName.padEnd(25)} ${coords}`);
+      const coords =
+        schedule.pharmacy.lat != null
+          ? `📍 ${schedule.pharmacy.lat},${schedule.pharmacy.lng}`
+          : '⚠️  sin coords';
+      log(
+        `  💾 ${schedule.pharmacy.name.padEnd(35)} ${schedule.pharmacy.cityName.padEnd(25)} ${coords}`,
+      );
       saved++;
     } catch (err) {
       skipped++;
@@ -159,4 +176,3 @@ main()
     process.exit(1);
   })
   .finally(() => prisma.$disconnect());
-
