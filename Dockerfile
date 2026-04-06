@@ -38,9 +38,9 @@ WORKDIR /app
 # Copiar artefactos del build (incluye package.json generado por webpack)
 COPY --from=builder /workspace/dist/apps/farmacias-api/ ./
 
-# Instalar solo dependencias de producción desde el package.json generado
-# --no-frozen-lockfile porque el package.json es generado por webpack (difiere del lockfile del monorepo)
-RUN pnpm install --no-frozen-lockfile --prod
+# Instalar dependencias desde el package.json generado por webpack
+# (ya contiene solo las deps que la API necesita en runtime)
+RUN pnpm install --no-frozen-lockfile
 
 # Copiar el cliente Prisma generado (externalizado por webpack, necesario en runtime)
 COPY --from=builder /workspace/libs/farmacias/data-access/src/generated/ ./generated/
