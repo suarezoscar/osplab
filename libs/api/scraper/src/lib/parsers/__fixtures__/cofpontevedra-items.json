@@ -1,0 +1,55 @@
+[
+  {
+    "id": "101",
+    "nombre": "FARMACIA PONTEVEDRA CENTRO",
+    "direccion": "Rúa Michelena, 10",
+    "telefono": "986123456",
+    "tipo": "Diurno",
+    "longitud": "-8.6436",
+    "latitud": "42.4316",
+    "idmunicipio": "36038",
+    "municipio": "Pontevedra",
+    "fecha": "2026-04-06",
+    "observaciones": "De 9:30 h. a 22 h."
+  },
+  {
+    "id": "101",
+    "nombre": "FARMACIA PONTEVEDRA CENTRO",
+    "direccion": "Rúa Michelena, 10",
+    "telefono": "986123456",
+    "tipo": "Nocturno",
+    "longitud": "-8.6436",
+    "latitud": "42.4316",
+    "idmunicipio": "36038",
+    "municipio": "Pontevedra",
+    "fecha": "2026-04-06",
+    "observaciones": ""
+  },
+  {
+    "id": "202",
+    "nombre": "FARMACIA VIGO NORTE",
+    "direccion": "Gran Vía, 55",
+    "telefono": "986654321",
+    "tipo": "Diurno",
+    "longitud": "-8.7207",
+    "latitud": "42.2328",
+    "idmunicipio": "36057",
+    "municipio": "Vigo",
+    "fecha": "2026-04-06",
+    "observaciones": ""
+  },
+  {
+    "id": "303",
+    "nombre": "FARMACIA DE AYER",
+    "direccion": "Rúa Antiga, 1",
+    "telefono": "986000111",
+    "tipo": "Diurno",
+    "longitud": "-8.6000",
+    "latitud": "42.4000",
+    "idmunicipio": "36038",
+    "municipio": "Pontevedra",
+    "fecha": "2026-04-05",
+    "observaciones": ""
+  }
+]
+

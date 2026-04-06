@@ -4,6 +4,22 @@
   "sourceRoot": "apps/api/src",
   "projectType": "application",
   "targets": {
+    "test": {
+      "executor": "nx:run-commands",
+      "outputs": ["{workspaceRoot}/coverage/apps/api"],
+      "options": {
+        "command": "vitest run --config apps/api/vitest.config.ts",
+        "cwd": "{workspaceRoot}"
+      },
+      "configurations": {
+        "coverage": {
+          "command": "vitest run --coverage --config apps/api/vitest.config.ts"
+        },
+        "watch": {
+          "command": "vitest --config apps/api/vitest.config.ts"
+        }
+      }
+    },
     "build": {
       "executor": "nx:run-commands",
       "options": {

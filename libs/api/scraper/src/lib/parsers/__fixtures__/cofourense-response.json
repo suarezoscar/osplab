@@ -1,0 +1,94 @@
+{
+  "informacion": [
+    {
+      "fecha": "2026-04-06",
+      "soe": "OR001",
+      "nombre": "María García López",
+      "nombre_fiscal": "FARMACIA GARCÍA",
+      "zona_guardia": "Ourense Centro",
+      "contactos_profesionales": [
+        {
+          "direccion": "Rúa do Paseo, 15",
+          "provincia": "Ourense",
+          "municipio": "Ourense",
+          "localidad": "Ourense",
+          "codigo_postal": "32003",
+          "telefono": "988123456",
+          "coordenadas": "[42.3369,-7.8638]",
+          "nota": null
+        }
+      ],
+      "horarios": [
+        {
+          "tipo": "Guardia diurna",
+          "color": "green",
+          "hora_apertura": "09:00:00",
+          "hora_cierre": "22:00:00",
+          "cierre_dia_siguiente": false
+        }
+      ]
+    },
+    {
+      "fecha": "2026-04-06",
+      "soe": "OR002",
+      "nombre": "Carlos Pérez Gómez",
+      "nombre_fiscal": "",
+      "zona_guardia": "Ourense Norte",
+      "contactos_profesionales": [
+        {
+          "direccion": "Avenida de Santiago, 42",
+          "provincia": "Ourense",
+          "municipio": "Ourense",
+          "localidad": "Ourense",
+          "codigo_postal": "32005",
+          "telefono": "988654321",
+          "coordenadas": "[42.3500,-7.8700]",
+          "nota": null
+        }
+      ],
+      "horarios": [
+        {
+          "tipo": "Guardia nocturna",
+          "color": "blue",
+          "hora_apertura": "22:00:00",
+          "hora_cierre": "09:00:00",
+          "cierre_dia_siguiente": true
+        }
+      ]
+    },
+    {
+      "fecha": "2026-04-05",
+      "soe": "OR003",
+      "nombre": "Ana Rodríguez",
+      "nombre_fiscal": "FARMACIA RODRÍGUEZ",
+      "zona_guardia": "Ourense Sur",
+      "contactos_profesionales": [
+        {
+          "direccion": "Rúa Celso Emilio Ferreiro, 8",
+          "provincia": "Ourense",
+          "municipio": "Ourense",
+          "localidad": "Ourense",
+          "codigo_postal": "32001",
+          "telefono": "988999000",
+          "coordenadas": "[42.3200,-7.8500]",
+          "nota": null
+        }
+      ],
+      "horarios": [
+        {
+          "tipo": "Guardia diurna",
+          "color": "green",
+          "hora_apertura": "09:00:00",
+          "hora_cierre": "22:00:00",
+          "cierre_dia_siguiente": false
+        }
+      ]
+    }
+  ],
+  "metadatos": {
+    "paginacion": {
+      "totalElementos": 3
+    }
+  }
+}
+
