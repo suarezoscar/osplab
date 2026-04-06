@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [master]
   pull_request:
-    branches: [main]
+    branches: [master]
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -24,8 +24,6 @@ jobs:
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: 10
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -40,23 +38,34 @@ jobs:
         run: pnpm format:check
 
   # ────────────────────────────────────────────────────────────────────────────
-  # JOB 2 — Tests unitarios
+  # JOB 2 — Lint + Tests unitarios (solo proyectos afectados)
   # ────────────────────────────────────────────────────────────────────────────
   test:
-    name: Unit tests
+    name: Lint & Unit tests (affected)
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          # Necesario para que Nx affected pueda comparar con la base
+          # Historial completo necesario para que nx affected pueda comparar
           fetch-depth: 0
+
+      # Determina la base de comparación según el tipo de evento:
+      #   push a master  → compara con el commit anterior (HEAD~1)
+      #   pull_request   → compara con la rama destino (origin/master)
+      - name: Configurar NX_BASE (push)
+        if: github.event_name == 'push'
+        run: echo "NX_BASE=HEAD~1" >> $GITHUB_ENV
+
+      - name: Configurar NX_BASE (pull_request)
+        if: github.event_name == 'pull_request'
+        run: |
+          git fetch origin ${{ github.base_ref }}
+          echo "NX_BASE=origin/${{ github.base_ref }}" >> $GITHUB_ENV
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: 10
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -76,16 +85,11 @@ jobs:
             nx-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}-
             nx-${{ runner.os }}-
 
-      - name: Run all tests
-        run: pnpm nx run-many -t test --parallel=3
+      - name: Lint (affected)
+        run: pnpm nx affected -t lint --base=${{ env.NX_BASE }} --head=HEAD --parallel=3
 
-      - name: Upload coverage
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage
-          path: coverage/
-          retention-days: 7
+      - name: Test (affected)
+        run: pnpm nx affected -t test --base=${{ env.NX_BASE }} --head=HEAD --parallel=3 --no-coverage
 
   # ────────────────────────────────────────────────────────────────────────────
   # JOB 3 — Auditoría de seguridad (dependencias + secretos)
@@ -100,8 +104,6 @@ jobs:
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: 10
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -115,7 +117,6 @@ jobs:
       # Falla si hay vulnerabilidades HIGH o CRITICAL en dependencias directas
       - name: Dependency vulnerability audit
         run: pnpm audit --audit-level=high --prod
-        # --prod: ignora devDependencies (wait-on/lodash, nx/axios son dev)
 
       # Escanea el código en busca de secretos accidentalmente commiteados
       - name: Scan for secrets (Gitleaks)
