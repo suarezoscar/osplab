@@ -39,8 +39,9 @@ WORKDIR /app
 COPY --from=builder /workspace/dist/apps/farmacias-api/ ./
 
 # Instalar dependencias desde el package.json generado por webpack
-# (ya contiene solo las deps que la API necesita en runtime)
-RUN pnpm install --no-frozen-lockfile
+# + tslib (importHelpers de TypeScript, no incluido por webpack)
+# + pg (driver PostgreSQL, requerido por @prisma/adapter-pg)
+RUN pnpm install --no-frozen-lockfile && pnpm add tslib pg
 
 # Copiar el cliente Prisma generado (externalizado por webpack, necesario en runtime)
 COPY --from=builder /workspace/libs/farmacias/data-access/src/generated/ ./generated/
