@@ -86,3 +86,40 @@ jobs:
           name: coverage
           path: coverage/
           retention-days: 7
+
+  # ────────────────────────────────────────────────────────────────────────────
+  # JOB 3 — Auditoría de seguridad (dependencias + secretos)
+  # ────────────────────────────────────────────────────────────────────────────
+  security:
+    name: Security audit
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # Falla si hay vulnerabilidades HIGH o CRITICAL en dependencias directas
+      - name: Dependency vulnerability audit
+        run: pnpm audit --audit-level=high --prod
+        # --prod: ignora devDependencies (wait-on/lodash, nx/axios son dev)
+
+      # Escanea el código en busca de secretos accidentalmente commiteados
+      - name: Scan for secrets (Gitleaks)
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}

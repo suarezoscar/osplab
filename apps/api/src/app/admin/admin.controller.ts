@@ -1,14 +1,21 @@
-import { Controller, Post, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Post, HttpCode, HttpStatus, UseGuards } from '@nestjs/common';
+import { SkipThrottle } from '@nestjs/throttler';
 import {
   CofourenseScraperService,
   CofpontevedraScraperService,
 } from '@farmacias-guardia/api-scraper';
+import { AdminApiKeyGuard } from './admin-api-key.guard';
 
 /**
  * POST /api/admin/scrape/cofourense
  * POST /api/admin/scrape/cofpontevedra
+ *
+ * Protegidos por AdminApiKeyGuard (cabecera X-Admin-Key).
+ * SkipThrottle porque estas rutas son llamadas sólo por el propio cron/admin.
  */
 @Controller('admin')
+@UseGuards(AdminApiKeyGuard)
+@SkipThrottle()
 export class AdminController {
   constructor(
     private readonly cofourenseScraper: CofourenseScraperService,

@@ -1,98 +1,168 @@
-# FarmaciasGuardia
+# Farmacias de Guardia 💊
 
-<a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
+Aplicación web que muestra las **farmacias de guardia más cercanas** a tu ubicación en Galicia (España), obteniendo los datos directamente de los colegios oficiales de farmacéuticos.
 
-✨ Your new, shiny [Nx workspace](https://nx.dev) is ready ✨.
+---
 
-[Learn more about this workspace setup and its capabilities](https://nx.dev/getting-started/intro#learn-nx?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or run `npx nx graph` to visually explore what was created. Now, let's get you up to speed!
+## Requisitos previos
 
-## Run tasks
+- [Node.js](https://nodejs.org) 22+
+- [pnpm](https://pnpm.io) 10+
+- [Docker](https://www.docker.com) (para la base de datos local)
 
-To run tasks with Nx use:
+---
 
-```sh
-npx nx <target> <project-name>
-```
+## Puesta en marcha (desarrollo)
 
-For example:
-
-```sh
-npx nx build myproject
-```
-
-These targets are either [inferred automatically](https://nx.dev/concepts/inferred-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or defined in the `project.json` or `package.json` files.
-
-[More about running tasks in the docs &raquo;](https://nx.dev/features/run-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Add new projects
-
-While you could add new projects to your workspace manually, you might want to leverage [Nx plugins](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) and their [code generation](https://nx.dev/features/generate-code?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) feature.
-
-To install a new plugin you can use the `nx add` command. Here's an example of adding the React plugin:
+### 1. Clonar y configurar el entorno
 
 ```sh
-npx nx add @nx/react
+git clone <repo-url>
+cd farmacia-guardia
+cp .env.example .env
 ```
 
-Use the plugin's generator to create new projects. For example, to create a new React app or library:
+Edita `.env` y rellena al menos:
+
+- `DATABASE_URL` — connection string de PostgreSQL
+- `POSTGRES_PASSWORD` — contraseña de la BD (usada también por Docker Compose)
+- `ADMIN_API_KEY` — clave para los endpoints de administración (`openssl rand -hex 32`)
+
+### 2. Instalar dependencias
 
 ```sh
-# Generate an app
-npx nx g @nx/react:app demo
-
-# Generate a library
-npx nx g @nx/react:lib some-lib
+pnpm install
 ```
 
-You can use `npx nx list` to get a list of installed plugins. Then, run `npx nx list <plugin-name>` to learn about more specific capabilities of a particular plugin. Alternatively, [install Nx Console](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) to browse plugins and generators in your IDE.
-
-[Learn more about Nx plugins &raquo;](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) | [Browse the plugin registry &raquo;](https://nx.dev/plugin-registry?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Set up CI!
-
-### Step 1
-
-To connect to Nx Cloud, run the following command:
+### 3. Arrancar todo (BD + API + Web)
 
 ```sh
-npx nx connect
+pnpm dev
 ```
 
-Connecting to Nx Cloud ensures a [fast and scalable CI](https://nx.dev/ci/intro/why-nx-cloud?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) pipeline. It includes features such as:
+Este comando:
 
-- [Remote caching](https://nx.dev/ci/features/remote-cache?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task distribution across multiple machines](https://nx.dev/ci/features/distribute-task-execution?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Automated e2e test splitting](https://nx.dev/ci/features/split-e2e-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task flakiness detection and rerunning](https://nx.dev/ci/features/flaky-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+1. Levanta PostgreSQL + PostGIS con Docker Compose
+2. Espera a que la BD esté lista
+3. Genera el cliente Prisma
+4. Aplica las migraciones
+5. Arranca API (`localhost:3000`) y Web (`localhost:4200`) en paralelo
 
-### Step 2
-
-Use the following command to configure a CI workflow for your workspace:
+Para parar la base de datos:
 
 ```sh
-npx nx g ci-workflow
+pnpm dev:stop
 ```
 
-[Learn more about Nx on CI](https://nx.dev/ci/intro/ci-with-nx#ready-get-started-with-your-provider?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+---
 
-## Install Nx Console
+## Comandos útiles
 
-Nx Console is an editor extension that enriches your developer experience. It lets you run tasks, generate code, and improves code autocompletion in your IDE. It is available for VSCode and IntelliJ.
+### Testing
 
-[Install Nx Console &raquo;](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+```sh
+# Todos los tests
+pnpm nx run-many -t test
 
-## Useful links
+# Solo el API
+pnpm nx test api
 
-Learn more:
+# Solo el scraper
+pnpm nx test api-scraper
+```
 
-- [Learn more about this workspace setup](https://nx.dev/getting-started/intro#learn-nx?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Learn about Nx on CI](https://nx.dev/ci/intro/ci-with-nx?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Releasing Packages with Nx release](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [What are Nx plugins?](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+### Formato (Prettier)
 
-And join the Nx community:
+```sh
+pnpm format          # formatea todo el proyecto
+pnpm format:check    # solo comprueba (usado en CI)
+```
 
-- [Discord](https://go.nx.dev/community)
-- [Follow us on X](https://twitter.com/nxdevtools) or [LinkedIn](https://www.linkedin.com/company/nrwl)
-- [Our Youtube channel](https://www.youtube.com/@nxdevtools)
-- [Our blog](https://nx.dev/blog?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+### Prisma
+
+```sh
+pnpm prisma:generate        # regenerar el cliente Prisma
+pnpm prisma:migrate:dev     # crear una nueva migración
+pnpm prisma:migrate:deploy  # aplicar migraciones en producción
+pnpm prisma:studio          # abrir Prisma Studio
+```
+
+### Seeds (carga manual de datos)
+
+```sh
+pnpm seed:all           # todos los COFs
+pnpm seed:cofourense    # solo Ourense
+pnpm seed:cofpontevedra # solo Pontevedra
+pnpm seed:coflugo       # solo Lugo
+```
+
+### Scraping manual via API
+
+Los endpoints de admin requieren la cabecera `X-Admin-Key` con el valor de `ADMIN_API_KEY`:
+
+```sh
+curl -X POST http://localhost:3000/api/admin/scrape/cofourense \
+     -H "X-Admin-Key: <tu-clave>"
+```
+
+---
+
+## Endpoints del API
+
+| Método | Ruta                              | Descripción                         |
+| ------ | --------------------------------- | ----------------------------------- |
+| `GET`  | `/api/pharmacies/nearest`         | Farmacias de guardia más cercanas   |
+| `POST` | `/api/admin/scrape/cofourense`    | Lanza scraping de COF Ourense 🔒    |
+| `POST` | `/api/admin/scrape/cofpontevedra` | Lanza scraping de COF Pontevedra 🔒 |
+
+**Parámetros de `/api/pharmacies/nearest`:**
+
+| Parámetro | Tipo   | Obligatorio | Descripción                           |
+| --------- | ------ | ----------- | ------------------------------------- |
+| `lat`     | number | ✅          | Latitud (-90 a 90)                    |
+| `lng`     | number | ✅          | Longitud (-180 a 180)                 |
+| `date`    | string | ❌          | Fecha ISO `YYYY-MM-DD` (default: hoy) |
+
+> 🔒 Requiere cabecera `X-Admin-Key: <ADMIN_API_KEY>`
+
+---
+
+## Seguridad
+
+- **Helmet** — cabeceras HTTP de seguridad en todas las respuestas
+- **Rate limiting** — máximo 60 peticiones/minuto por IP
+- **CORS** — restringido al origen configurado en `CORS_ORIGIN`
+- **Endpoints admin protegidos** — requieren `X-Admin-Key`
+- **Credenciales nunca en el repo** — `.env` está en `.gitignore`
+
+---
+
+## CI/CD
+
+El pipeline de GitHub Actions se ejecuta en cada push/PR a `main`:
+
+| Job           | Qué comprueba                                                               |
+| ------------- | --------------------------------------------------------------------------- |
+| ✅ `format`   | Código formateado con Prettier                                              |
+| ✅ `test`     | 99 tests unitarios pasan                                                    |
+| ✅ `security` | Sin CVEs HIGH/CRITICAL en producción · Sin secretos en el código (Gitleaks) |
+
+---
+
+## Estructura del proyecto
+
+```
+apps/
+  api/       → NestJS API
+  web/       → Angular SPA
+libs/
+  api/
+    data-access/  → Prisma + migraciones
+    scraper/      → Scrapers + parsers (COFOurense, COFPontevedra, COFLugo)
+  shared/
+    interfaces/   → Tipos compartidos (Nest ↔ Angular)
+  web/
+    ui/           → Componentes UI reutilizables
+```
+
+Para más detalles sobre la arquitectura, ver [ARCHITECT.md](./ARCHITECT.md).

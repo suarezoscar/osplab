@@ -41,6 +41,9 @@ importers:
       '@nestjs/schedule':
         specifier: ^6.1.1
         version: 6.1.1(@nestjs/common@11.1.18(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.1.14)(rxjs@7.8.2))(@nestjs/core@11.1.18)
+      '@nestjs/throttler':
+        specifier: ^6.5.0
+        version: 6.5.0(@nestjs/common@11.1.18(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.1.14)(rxjs@7.8.2))(@nestjs/core@11.1.18)(reflect-metadata@0.1.14)
       '@prisma/adapter-pg':
         specifier: ^7.6.0
         version: 7.6.0
@@ -62,6 +65,9 @@ importers:
       class-validator:
         specifier: ^0.15.1
         version: 0.15.1
+      helmet:
+        specifier: ^8.1.0
+        version: 8.1.0
       pg:
         specifier: ^8.20.0
         version: 8.20.0
@@ -2155,6 +2161,13 @@ packages:
         optional: true
       '@nestjs/platform-express':
         optional: true
+
+  '@nestjs/throttler@6.5.0':
+    resolution: {integrity: sha512-9j0ZRfH0QE1qyrj9JjIRDz5gQLPqq9yVC2nHsrosDVAfI5HHw08/aUAWx9DZLSdQf4HDkmhTTEGLrRFHENvchQ==}
+    peerDependencies:
+      '@nestjs/common': ^7.0.0 || ^8.0.0 || ^9.0.0 || ^10.0.0 || ^11.0.0
+      '@nestjs/core': ^7.0.0 || ^8.0.0 || ^9.0.0 || ^10.0.0 || ^11.0.0
+      reflect-metadata: ^0.1.13 || ^0.2.0
 
   '@noble/hashes@1.4.0':
     resolution: {integrity: sha512-V1JJ1WTRUqHHrOSh597hURcMqVKVGL/ea3kv0gSnEdsEZ0/+VyPghM1lMNGc00z7CIQorSvbKpuJkxvuHbvdbg==}
@@ -5245,6 +5258,10 @@ packages:
   he@1.2.0:
     resolution: {integrity: sha512-F/1DnUGPopORZi0ni+CvrCgHQ5FyEAHRLSApuYWMmrbSwoN2Mn/7k+Gl38gJnR7yyDZk6WLXwiGod1JOWNDKGw==}
     hasBin: true
+
+  helmet@8.1.0:
+    resolution: {integrity: sha512-jOiHyAZsmnr8LqoPGmCjYAaiuWwjAPLgY8ZX2XrmHawt99/u1y6RgrZMTeoPfpUbV96HOalYgz1qzkRbw54Pmg==}
+    engines: {node: '>=18.0.0'}
 
   homedir-polyfill@1.0.3:
     resolution: {integrity: sha512-eSmmWE5bZTK2Nou4g0AI3zZ9rswp7GRKoKXS1BLUkvPviOqs4YTN1djQIqrXy9k5gEtdLPy86JjRwsNM9tnDcA==}
@@ -10511,6 +10528,12 @@ snapshots:
     optionalDependencies:
       '@nestjs/platform-express': 11.1.18(@nestjs/common@11.1.18(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.1.14)(rxjs@7.8.2))(@nestjs/core@11.1.18)
 
+  '@nestjs/throttler@6.5.0(@nestjs/common@11.1.18(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.1.14)(rxjs@7.8.2))(@nestjs/core@11.1.18)(reflect-metadata@0.1.14)':
+    dependencies:
+      '@nestjs/common': 11.1.18(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.1.14)(rxjs@7.8.2)
+      '@nestjs/core': 11.1.18(@nestjs/common@11.1.18(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.1.14)(rxjs@7.8.2))(@nestjs/platform-express@11.1.18)(reflect-metadata@0.1.14)(rxjs@7.8.2)
+      reflect-metadata: 0.1.14
+
   '@noble/hashes@1.4.0': {}
 
   '@npmcli/agent@4.0.0':
@@ -14047,6 +14070,8 @@ snapshots:
       function-bind: 1.1.2
 
   he@1.2.0: {}
+
+  helmet@8.1.0: {}
 
   homedir-polyfill@1.0.3:
     dependencies:

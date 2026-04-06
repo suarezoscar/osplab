@@ -5,12 +5,27 @@
 
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import helmet from 'helmet';
 import { AppModule } from './app/app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const globalPrefix = 'api';
   app.setGlobalPrefix(globalPrefix);
+
+  // ── Seguridad HTTP ────────────────────────────────────────────────────────
+  // Añade cabeceras de seguridad estándar (X-Frame-Options, HSTS, CSP, etc.)
+  app.use(helmet());
+
+  // CORS: solo permite el origen configurado; en desarrollo acepta localhost
+  const allowedOrigin = process.env['CORS_ORIGIN'] ?? 'http://localhost:4200';
+  app.enableCors({
+    origin: allowedOrigin,
+    methods: ['GET', 'POST'],
+    allowedHeaders: ['Content-Type', 'X-Admin-Key'],
+  });
+
+  // ── Validación global ─────────────────────────────────────────────────────
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -18,7 +33,7 @@ async function bootstrap() {
       transform: true,
     }),
   );
-  app.enableCors();
+
   const port = process.env['PORT'] || 3000;
   await app.listen(port);
   Logger.log(`🚀 Application is running on: http://localhost:${port}/${globalPrefix}`);

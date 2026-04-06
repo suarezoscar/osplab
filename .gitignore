@@ -39,6 +39,14 @@ jest_html_reporters.html
 .env
 .env.local
 .env.*.local
+.env.production
+.env.staging
+*.pem
+*.key
+*.p12
+*.pfx
+*.cer
+*.crt
 
 # Prisma generated client (regenerar con: pnpm prisma:generate)
 libs/api/data-access/src/generated/
