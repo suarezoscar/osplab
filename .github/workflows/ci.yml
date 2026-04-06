@@ -56,7 +56,7 @@ jobs:
   test:
     name: Lint & Unit tests (affected)
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 15
     permissions:
       contents: read
 
@@ -105,9 +105,13 @@ jobs:
             nx-${{ runner.os }}-
 
       - name: Lint (affected)
+        env:
+          NX_DAEMON: 'false'
         run: pnpm nx affected -t lint --base=${{ env.NX_BASE }} --head=HEAD --parallel=3
 
       - name: Test (affected)
+        env:
+          NX_DAEMON: 'false'
         run: pnpm nx affected -t test --base=${{ env.NX_BASE }} --head=HEAD --parallel=3 --no-coverage
 
   # ────────────────────────────────────────────────────────────────────────────

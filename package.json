@@ -51,6 +51,9 @@
     "lint:affected": "pnpm nx affected -t lint"
   },
   "private": true,
+  "nx": {
+    "includedScripts": []
+  },
   "packageManager": "pnpm@10.33.0",
   "devDependencies": {
     "@analogjs/vite-plugin-angular": "^2.4.0",
