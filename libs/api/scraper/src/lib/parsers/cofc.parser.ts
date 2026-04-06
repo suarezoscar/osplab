@@ -1,4 +1,3 @@
-import * as cheerio from 'cheerio';
 import type { ScrapedDutySchedule, ScrapedPharmacy } from '../interfaces/scraper.interfaces';
 
 // ──────────────────────────────────────────────────────────────────────────────
@@ -113,6 +112,7 @@ export const COFC_MUNICIPIOS: ReadonlyArray<{ id: number; nombre: string }> = [
 // Tipos de la API
 // ──────────────────────────────────────────────────────────────────────────────
 
+/** @deprecated Usar CofcListadoItem. Mantenido por compatibilidad con tests existentes. */
 export interface CofcMapItem {
   lat: number;
   lng: number;
@@ -120,10 +120,27 @@ export interface CofcMapItem {
   id: number;
 }
 
+/** Estructura real de cada elemento en listadoTodas de la API COFC. */
+export interface CofcListadoItem {
+  idFarmacia: number;
+  nombre: string;
+  direccion: string;
+  latitud: number | null;
+  longitud: number | null;
+  telefono: string | null;
+  idPoblacion: number;
+  nombrePoblacion: string;
+  horario: string;
+  idGuardiaTipoTurno: number;
+  nombreGuardiaTipoTurno: string;
+  abierta: boolean;
+  codigoSanidad: string | null;
+}
+
 export interface CofcApiResponse {
   formulario: string;
-  listadoTodas: CofcMapItem[];
-  municipio: string;
+  listadoTodas: CofcListadoItem[];
+  nombrePoblacion: string;
   esBusquedaGuardias: boolean;
 }
 
@@ -140,30 +157,40 @@ export function formatDateForCofc(date: Date): string {
 }
 
 /**
- * Parsea el texto del horario extraído de `.info-horario span`.
+ * Parsea el texto del horario.
  *
- * Textos típicos:
- *   "De 09:30 h. a 22:00 h."   → { startTime: "09:30", endTime: "22:00" }
- *   "Guardia diurna"            → { startTime: "09:00", endTime: "22:00" }
- *   "Guardia nocturna"          → { startTime: "22:00", endTime: "09:00" }
- *   "24 horas" / "Guardia 24h" → { startTime: "09:00", endTime: "09:00" }
+ * Formatos soportados:
+ *   "09:30 - 22:00"              → { startTime: "09:30", endTime: "22:00" }  (API real)
+ *   "00:00 - 09:30 (día posterior)" → { startTime: "00:00", endTime: "09:30" }
+ *   "De 09:30 h. a 22:00 h."    → { startTime: "09:30", endTime: "22:00" }  (formato antiguo)
+ *   "Guardia diurna"             → { startTime: "09:00", endTime: "22:00" }
+ *   "Guardia nocturna"           → { startTime: "22:00", endTime: "09:00" }
+ *   "24 horas" / "Guardia 24h"  → { startTime: "09:00", endTime: "09:00" }
  */
 export function parseCofcSchedule(text: string): { startTime: string; endTime: string } {
   if (!text) return { startTime: '09:00', endTime: '22:00' };
 
   const lower = text.toLowerCase();
 
-  // Extraer horas explícitas: "De HH[:MM] h. a HH[:MM] h."
-  const timeMatch = lower.match(/de\s+(\d{1,2}(?::\d{2})?)\s*h[^a]*a\s+(\d{1,2}(?::\d{2})?)\s*h/i);
-  if (timeMatch) {
+  // 24h (verificar antes del regex de horas para evitar falsos positivos con "24")
+  if (lower.includes('24')) return { startTime: '09:00', endTime: '09:00' };
+
+  // Formato real API: "HH:MM - HH:MM" (con posible sufijo como "(día posterior)")
+  const dashMatch = lower.match(/(\d{2}:\d{2})\s*-\s*(\d{2}:\d{2})/);
+  if (dashMatch) {
+    return { startTime: dashMatch[1], endTime: dashMatch[2] };
+  }
+
+  // Formato antiguo: "De HH[:MM] h. a HH[:MM] h."
+  const deMatch = lower.match(/de\s+(\d{1,2}(?::\d{2})?)\s*h[^a]*a\s+(\d{1,2}(?::\d{2})?)\s*h/i);
+  if (deMatch) {
     const pad = (t: string) => {
       const parts = t.split(':');
       return `${parts[0].padStart(2, '0')}:${parts[1] ?? '00'}`;
     };
-    return { startTime: pad(timeMatch[1]), endTime: pad(timeMatch[2]) };
+    return { startTime: pad(deMatch[1]), endTime: pad(deMatch[2]) };
   }
 
-  if (lower.includes('24')) return { startTime: '09:00', endTime: '09:00' };
   if (lower.includes('nocturna') || lower.includes('nocturno')) {
     return { startTime: '22:00', endTime: '09:00' };
   }
@@ -174,7 +201,7 @@ export function parseCofcSchedule(text: string): { startTime: string; endTime: s
 
 /**
  * Construye un mapa de nombre normalizado → coordenadas a partir de `listadoTodas`.
- * La clave se normaliza con trim + toUpperCase para tolerar diferencias de capitalización.
+ * @deprecated Mantenido por compatibilidad. La lógica de parseo usa listadoTodas directamente.
  */
 export function buildCofcCoordsMap(
   listadoTodas: CofcMapItem[],
@@ -194,19 +221,13 @@ export function buildCofcCoordsMap(
 /**
  * Parsea la respuesta JSON de la API del COF de A Coruña (COFC).
  *
- * - Extrae el HTML del campo `formulario` y usa cheerio con los selectores documentados.
- * - Enriquece cada farmacia con coordenadas de `listadoTodas` (matching por nombre).
- * - Falla silenciosamente: si la respuesta no tiene la estructura esperada → retorna [].
+ * Usa directamente el array `listadoTodas` que contiene todos los datos
+ * estructurados (nombre, dirección, teléfono, coordenadas, horario).
  *
- * Selectores utilizados:
- *   - Contenedor: `.item.row`
- *   - Nombre: `.titulo span`
- *   - Dirección: `.info-contacto.row div:first-child span`
- *   - Teléfono: `.info-contacto.row strong`
- *   - Horario: `.info-horario span`
+ * Falla silenciosamente: si la respuesta no tiene la estructura esperada → retorna [].
  *
  * @param data      - Respuesta JSON ya parseada de la API
- * @param municipio - Nombre del municipio consultado (para cityName)
+ * @param municipio - Nombre del municipio consultado (fallback para cityName)
  * @param date      - Fecha de guardia
  * @param sourceUrl - URL de origen (para auditoría)
  */
@@ -218,67 +239,38 @@ export function parseCofcResponse(
 ): ScrapedDutySchedule[] {
   try {
     const response = data as CofcApiResponse;
+    const items = response?.listadoTodas;
 
-    const formulario = response?.formulario;
-    if (!formulario) return [];
+    if (!Array.isArray(items) || items.length === 0) return [];
 
-    const coordsMap = buildCofcCoordsMap(response?.listadoTodas ?? []);
+    return items
+      .filter((item): item is CofcListadoItem => !!item?.nombre)
+      .map((item) => {
+        const { startTime, endTime } = parseCofcSchedule(item.horario ?? '');
 
-    const $ = cheerio.load(formulario);
-    const schedules: ScrapedDutySchedule[] = [];
-
-    $('.item.row').each((_i, el) => {
-      try {
-        const container = $(el);
-
-        // ── Nombre ─────────────────────────────────────────────────────────
-        const name = container.find('.titulo span').first().text().trim();
-        if (!name) return;
-
-        // ── Dirección ──────────────────────────────────────────────────────
-        const address = container
-          .find('.info-contacto.row div:first-child span')
-          .first()
-          .text()
-          .replace(/\s+/g, ' ')
-          .trim();
-        if (!address) return;
-
-        // ── Teléfono ───────────────────────────────────────────────────────
-        const phoneRaw = container.find('.info-contacto.row strong').first().text().trim();
-        const phone = phoneRaw.replace(/\D/g, '').slice(0, 9) || undefined;
-
-        // ── Horario ────────────────────────────────────────────────────────
-        const scheduleText = container.find('.info-horario span').first().text().trim();
-        const { startTime, endTime } = parseCofcSchedule(scheduleText);
-
-        // ── Coordenadas (desde listadoTodas, matching por nombre) ──────────
-        const coords = coordsMap.get(name.toUpperCase());
+        const lat = item.latitud;
+        const lng = item.longitud;
         const validCoords =
-          coords != null &&
-          !isNaN(coords.lat) &&
-          !isNaN(coords.lng) &&
-          coords.lat >= -90 &&
-          coords.lat <= 90 &&
-          coords.lng >= -180 &&
-          coords.lng <= 180;
+          lat != null &&
+          lng != null &&
+          !isNaN(lat) &&
+          !isNaN(lng) &&
+          lat >= -90 &&
+          lat <= 90 &&
+          lng >= -180 &&
+          lng <= 180;
 
         const pharmacy: ScrapedPharmacy = {
-          name,
-          address,
-          phone,
-          cityName: municipio,
+          name: item.nombre,
+          address: item.direccion,
+          phone: item.telefono?.replace(/\D/g, '').slice(0, 9) || undefined,
+          cityName: item.nombrePoblacion || municipio,
           provinceName: COFC_PROVINCE,
-          ...(validCoords && coords ? { lat: coords.lat, lng: coords.lng } : {}),
+          ...(validCoords ? { lat: lat!, lng: lng! } : {}),
         };
 
-        schedules.push({ pharmacy, date, startTime, endTime, sourceUrl });
-      } catch {
-        // Fallo silencioso por entrada individual
-      }
-    });
-
-    return schedules;
+        return { pharmacy, date, startTime, endTime, sourceUrl };
+      });
   } catch {
     return [];
   }

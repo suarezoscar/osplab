@@ -8,6 +8,7 @@ import {
   COFC_PROVINCE,
   type CofcApiResponse,
   type CofcMapItem,
+  type CofcListadoItem,
 } from './cofc.parser';
 
 const fixtureData: CofcApiResponse = JSON.parse(
@@ -47,6 +48,27 @@ describe('parseCofcSchedule', () => {
     expect(parseCofcSchedule('De 9 h. a 22 h.')).toEqual({
       startTime: '09:00',
       endTime: '22:00',
+    });
+  });
+
+  it('parsea formato real API "HH:MM - HH:MM"', () => {
+    expect(parseCofcSchedule('09:30 - 22:00')).toEqual({
+      startTime: '09:30',
+      endTime: '22:00',
+    });
+  });
+
+  it('parsea formato real API nocturno "22:00 - 09:30"', () => {
+    expect(parseCofcSchedule('22:00 - 09:30')).toEqual({
+      startTime: '22:00',
+      endTime: '09:30',
+    });
+  });
+
+  it('parsea formato real con sufijo "(día posterior)"', () => {
+    expect(parseCofcSchedule('00:00 - 09:30 (día posterior)')).toEqual({
+      startTime: '00:00',
+      endTime: '09:30',
     });
   });
 
@@ -177,8 +199,8 @@ describe('parseCofcResponse', () => {
     expect(result[0].sourceUrl).toBe(url);
   });
 
-  it('retorna [] si formulario es un string vacío', () => {
-    const data: CofcApiResponse = { ...fixtureData, formulario: '' };
+  it('retorna [] si listadoTodas está vacío', () => {
+    const data: CofcApiResponse = { ...fixtureData, listadoTodas: [] };
     expect(parseCofcResponse(data, municipio, targetDate, url)).toEqual([]);
   });
 
@@ -186,17 +208,21 @@ describe('parseCofcResponse', () => {
     expect(parseCofcResponse(null, municipio, targetDate, url)).toEqual([]);
   });
 
-  it('retorna [] si formulario no contiene .item.row', () => {
-    const data: CofcApiResponse = {
-      ...fixtureData,
-      formulario: '<div>Sin resultados</div>',
-    };
+  it('retorna [] si listadoTodas es null', () => {
+    const data = { ...fixtureData, listadoTodas: null };
     expect(parseCofcResponse(data, municipio, targetDate, url)).toEqual([]);
   });
 
-  it('funciona sin listadoTodas (sin coordenadas pero no lanza)', () => {
-    const data: CofcApiResponse = { ...fixtureData, listadoTodas: [] };
-    const result = parseCofcResponse(data, municipio, targetDate, url);
+  it('omite coordenadas si latitud/longitud son nulos pero devuelve farmacias', () => {
+    const dataWithoutCoords: CofcApiResponse = {
+      ...fixtureData,
+      listadoTodas: fixtureData.listadoTodas.map((item: CofcListadoItem) => ({
+        ...item,
+        latitud: null,
+        longitud: null,
+      })),
+    };
+    const result = parseCofcResponse(dataWithoutCoords, municipio, targetDate, url);
     expect(result).toHaveLength(3);
     expect(result[0].pharmacy.lat).toBeUndefined();
     expect(result[0].pharmacy.lng).toBeUndefined();
