@@ -1,0 +1,58 @@
+<div class="relative" role="search" aria-label="Buscar por dirección">
+  <label for="address-search" class="sr-only">Dirección, ciudad o barrio</label>
+  <div class="relative flex items-center">
+    <span class="absolute left-3.5 pointer-events-none text-gray-400" aria-hidden="true">
+      <icon-search />
+    </span>
+
+    <input
+      id="address-search"
+      type="search"
+      autocomplete="street-address"
+      placeholder="Ciudad, barrio, dirección…"
+      [value]="searchQuery()"
+      (input)="queryChange.emit($any($event.target).value)"
+      (blur)="showSuggestionsChange.emit(false)"
+      (focus)="suggestions().length > 0 && showSuggestionsChange.emit(true)"
+      [disabled]="disabled()"
+      [attr.aria-expanded]="showSuggestions()"
+      aria-autocomplete="list"
+      aria-controls="address-suggestions"
+      class="w-full pl-10 pr-10 py-3.5 rounded-2xl border border-gray-200 bg-white shadow-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-400 text-base transition-shadow duration-200 hover:shadow-md" />
+
+    <div class="absolute right-3.5">
+      @if (loadingSuggestions()) {
+        <icon-spinner class="text-gray-400" [size]="16" />
+      } @else if (searchQuery().length > 0) {
+        <button
+          type="button"
+          (mousedown)="$event.preventDefault(); cleared.emit()"
+          aria-label="Borrar búsqueda"
+          class="w-5 h-5 flex items-center justify-center rounded-full bg-gray-200 text-gray-500 hover:bg-gray-300 hover:text-gray-700 transition-colors duration-150 text-sm font-bold leading-none">
+          ×
+        </button>
+      }
+    </div>
+  </div>
+
+  <!-- Dropdown sugerencias -->
+  @if (showSuggestions() && suggestions().length > 0) {
+    <ul
+      id="address-suggestions"
+      role="listbox"
+      aria-label="Sugerencias de dirección"
+      class="suggestions-list absolute z-50 left-0 right-0 mt-1.5 bg-white border border-gray-200 rounded-2xl shadow-xl overflow-hidden divide-y divide-gray-50">
+      @for (s of suggestions(); track s.displayName; let i = $index) {
+        <li role="option" [id]="'suggestion-' + i" aria-selected="false">
+          <button
+            type="button"
+            (mousedown)="$event.preventDefault(); suggestionSelected.emit(s)"
+            class="w-full text-left px-4 py-3 hover:bg-green-50 active:bg-green-100 transition-colors duration-150 text-sm text-gray-700 leading-snug flex items-start gap-2.5">
+            <icon-pin class="shrink-0 mt-0.5 text-green-500" />
+            <span>{{ s.displayName }}</span>
+          </button>
+        </li>
+      }
+    </ul>
+  }
+</div>

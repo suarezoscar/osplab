@@ -15,11 +15,43 @@ import { PharmaciesApiService } from '../../services/pharmacies-api.service';
 import { GeolocationService } from '../../services/geolocation.service';
 import { GeocodingService, type GeocodingSuggestion } from '../../services/geocoding.service';
 import type { PharmacyDto } from '@farmacias-guardia/shared-interfaces';
+import {
+  AlertTriangleIconComponent,
+  GithubIconComponent,
+  GpsIconComponent,
+  InfoCircleIconComponent,
+  LinkedinIconComponent,
+  NoResultsIconComponent,
+  PharmacyCrossIconComponent,
+  PinIconComponent,
+  RefreshIconComponent,
+  SpinnerIconComponent,
+} from './icons/icons';
+import { AddressSearchComponent } from './components/address-search.component';
+import { LoadingSkeletonComponent } from './components/loading-skeleton.component';
+import { PharmacyCardComponent } from './components/pharmacy-card.component';
+import { WelcomeStateComponent } from './components/welcome-state.component';
 
 @Component({
   selector: 'app-home',
-  standalone: true,
-  imports: [FormsModule, RouterLink],
+  imports: [
+    FormsModule,
+    RouterLink,
+    PharmacyCrossIconComponent,
+    SpinnerIconComponent,
+    GpsIconComponent,
+    InfoCircleIconComponent,
+    AlertTriangleIconComponent,
+    NoResultsIconComponent,
+    PinIconComponent,
+    RefreshIconComponent,
+    GithubIconComponent,
+    LinkedinIconComponent,
+    AddressSearchComponent,
+    PharmacyCardComponent,
+    WelcomeStateComponent,
+    LoadingSkeletonComponent,
+  ],
   templateUrl: './home.component.html',
 })
 export class HomeComponent implements OnDestroy {
@@ -147,12 +179,5 @@ export class HomeComponent implements OnDestroy {
     if (meters == null) return '';
     if (meters < 1000) return `${Math.round(meters)} m`;
     return `${(meters / 1000).toFixed(1)} km`;
-  }
-
-  readonly badges: string[] = ['🥇', '🥈', '🥉'];
-
-  /** Texto accesible para el rank de cada farmacia */
-  rankLabel(i: number): string {
-    return ['La más cercana', 'Segunda más cercana', 'Tercera más cercana'][i] ?? '';
   }
 }
