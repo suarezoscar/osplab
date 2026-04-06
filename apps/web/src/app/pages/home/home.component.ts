@@ -22,6 +22,8 @@ export class HomeComponent implements OnDestroy {
   readonly loading = signal(false);
   readonly error = signal<string | null>(null);
   readonly searched = signal(false);
+  /** true solo cuando la última búsqueda fue por geolocalización exacta */
+  readonly searchedByGeo = signal(false);
 
   // ── Autocompletado ────────────────────────────────────────────────────────
   readonly searchQuery = signal('');
@@ -73,6 +75,7 @@ export class HomeComponent implements OnDestroy {
     this.searchQuery.set(suggestion.displayName);
     this.showSuggestions.set(false);
     this.suggestions.set([]);
+    this.searchedByGeo.set(false);
     this.findNearest(suggestion.lat, suggestion.lng);
   }
 
@@ -91,6 +94,7 @@ export class HomeComponent implements OnDestroy {
 
     try {
       const coords = await this.geo.getCurrentPosition();
+      this.searchedByGeo.set(true);
       this.findNearest(coords.lat, coords.lng);
     } catch (err) {
       this.error.set((err as Error).message);

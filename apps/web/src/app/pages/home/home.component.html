@@ -124,9 +124,17 @@
         <article class="bg-white rounded-2xl shadow-md border border-green-100 overflow-hidden">
 
           <!-- Cabecera verde con nombre y distancia -->
-          <div class="bg-green-600 text-white px-5 py-4">
-            <h2 class="font-bold text-lg leading-snug">{{ pharmacy.name }}</h2>
-            <p class="text-green-100 text-sm mt-0.5">{{ pharmacy.city }}, {{ pharmacy.province }}</p>
+          <div class="bg-green-600 text-white px-5 py-4 flex items-start justify-between gap-3">
+            <div class="flex-1 min-w-0">
+              <h2 class="font-bold text-lg leading-snug">{{ pharmacy.name }}</h2>
+              <p class="text-green-100 text-sm mt-0.5">{{ pharmacy.city }}, {{ pharmacy.province }}</p>
+            </div>
+            @if (searchedByGeo() && pharmacy.distance !== undefined) {
+              <div class="shrink-0 bg-white/20 rounded-xl px-3 py-1.5 text-center">
+                <p class="text-xl font-extrabold leading-none">{{ formatDistance(pharmacy.distance) }}</p>
+                <p class="text-green-100 text-xs mt-0.5">de distancia</p>
+              </div>
+            }
           </div>
 
           <!-- Cuerpo -->
