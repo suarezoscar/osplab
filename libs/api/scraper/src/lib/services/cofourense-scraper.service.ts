@@ -9,6 +9,7 @@ import {
   COFOURENSE_PROVINCE_CODE,
   parseCofourenseResponse,
 } from '../parsers/cofourense.parser';
+import { cleanOldSchedules } from './schedule-cleanup.util';
 
 @Injectable()
 export class CofourenseScraperService {
@@ -34,6 +35,7 @@ export class CofourenseScraperService {
     const today = new Date(now);
     today.setHours(0, 0, 0, 0);
 
+    await cleanOldSchedules(this.prisma, this.logger, 'COF Ourense');
     await this.scrapeForDate(now, today);
   }
 

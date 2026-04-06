@@ -47,6 +47,10 @@ async function main() {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
+  // Limpiar turnos anteriores a hoy
+  const deleted = await prisma.dutySchedule.deleteMany({ where: { date: { lt: today } } });
+  if (deleted.count > 0) log(`🧹 Eliminados ${deleted.count} turnos de guardia anteriores a hoy`);
+
   // Upsert provincia
   const province = await prisma.province.upsert({
     where: { code: COFLUGO_PROVINCE_CODE },

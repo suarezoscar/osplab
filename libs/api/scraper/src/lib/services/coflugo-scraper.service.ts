@@ -10,6 +10,7 @@ import {
   COFLUGO_PROVINCE_CODE,
   parseCoflugoHtml,
 } from '../parsers/coflugo.parser';
+import { cleanOldSchedules } from './schedule-cleanup.util';
 
 /** Pausa entre peticiones (ms) — respetar el rate limit del servidor */
 const REQUEST_DELAY_MS = 200;
@@ -37,6 +38,7 @@ export class CoflugoScraperService {
   async scrapeToday(): Promise<void> {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
+    await cleanOldSchedules(this.prisma, this.logger, 'COF Lugo');
     await this.scrapeForDate(today);
   }
 

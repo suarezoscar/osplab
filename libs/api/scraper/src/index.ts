@@ -1,5 +1,4 @@
 export { ScraperModule } from './lib/scraper.module';
-export { SergasScraperService } from './lib/services/sergas-scraper.service';
 export { CofourenseScraperService } from './lib/services/cofourense-scraper.service';
 export { CofpontevedraScraperService } from './lib/services/cofpontevedra-scraper.service';
 export { CoflugoScraperService } from './lib/services/coflugo-scraper.service';
@@ -13,7 +12,6 @@ export {
   COFLUGO_PROVINCE_CODE,
   COFLUGO_MUNICIPIOS,
 } from './lib/parsers/coflugo.parser';
-export { parseSergasHtml, parseTimeRange, SERGAS_URLS } from './lib/parsers/sergas.parser';
 export {
   parseCofourenseResponse,
   buildCofourenseUrl,

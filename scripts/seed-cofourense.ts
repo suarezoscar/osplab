@@ -35,10 +35,14 @@ async function main() {
   await prisma.$connect();
   log('✅ Conectado a PostgreSQL');
 
+  // 0. Limpiar turnos de guardia de días anteriores
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const deleted = await prisma.dutySchedule.deleteMany({ where: { date: { lt: today } } });
+  if (deleted.count > 0) log(`🧹 Eliminados ${deleted.count} turnos de guardia anteriores a hoy`);
+
   // 1. Llamar a la API
   const now = new Date();
-  const today = new Date(now);
-  today.setHours(0, 0, 0, 0);
 
   const url = buildCofourenseUrl(now);
   log(`🌐 Consultando: ${url}`);

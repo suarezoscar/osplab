@@ -145,12 +145,21 @@ export function parseCofourenseResponse(
       return [];
     }
 
+    // Fecha esperada en formato "YYYY-MM-DD" para validar cada item
+    const pad = (n: number) => String(n).padStart(2, '0');
+    const expectedDateStr = `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+
     const schedules: ScrapedDutySchedule[] = [];
 
     for (const item of items) {
       try {
         // Validar datos mínimos
         if (!item.nombre) continue;
+
+        // ── Validación de fecha ────────────────────────────────────────────
+        // La API incluye la fecha real de guardia en cada item.
+        // Solo procesamos items cuya fecha coincide con targetDate.
+        if (item.fecha && item.fecha !== expectedDateStr) continue;
 
         const contacto: CofContacto | undefined = item.contactos_profesionales?.[0];
         if (!contacto?.direccion) continue;
@@ -167,6 +176,9 @@ export function parseCofourenseResponse(
         // Coordenadas (opcionales — validadas)
         const coords = parseCoordinates(contacto.coordenadas);
 
+        // Usar la fecha real del item para el DutySchedule
+        const itemDate = item.fecha ? new Date(`${item.fecha}T00:00:00`) : date;
+
         const pharmacy = {
           name: resolvePharmacyName(item.nombre_fiscal, item.nombre),
           address: contacto.direccion.trim(),
@@ -178,7 +190,7 @@ export function parseCofourenseResponse(
 
         schedules.push({
           pharmacy,
-          date,
+          date: itemDate,
           startTime,
           endTime,
           sourceUrl,
@@ -190,7 +202,6 @@ export function parseCofourenseResponse(
 
     return schedules;
   } catch {
-    // Si cualquier cosa falla a nivel global, retornar [] sin propagar el error
     return [];
   }
 }
