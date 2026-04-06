@@ -4,6 +4,7 @@ import {
   parseApiTime,
   parseCoordinates,
   resolvePharmacyName,
+  resolveOwnerName,
   parseCofourenseResponse,
   buildCofourenseUrl,
   COFOURENSE_API_BASE,
@@ -94,6 +95,22 @@ describe('resolvePharmacyName', () => {
   });
 });
 
+// ─── resolveOwnerName ─────────────────────────────────────────────────────────
+
+describe('resolveOwnerName', () => {
+  it('devuelve el nombre del titular cuando hay nombre_fiscal', () => {
+    expect(resolveOwnerName('FARMACIA GARCÍA', 'María García López')).toBe('María García López');
+  });
+
+  it('devuelve undefined cuando nombre_fiscal está vacío (name ya es el titular)', () => {
+    expect(resolveOwnerName('', 'Carlos Pérez')).toBeUndefined();
+  });
+
+  it('devuelve undefined cuando ambos están vacíos', () => {
+    expect(resolveOwnerName('', '')).toBeUndefined();
+  });
+});
+
 // ─── parseCofourenseResponse ──────────────────────────────────────────────────
 
 describe('parseCofourenseResponse', () => {
@@ -113,6 +130,16 @@ describe('parseCofourenseResponse', () => {
   it('cae back al nombre cuando nombre_fiscal está vacío', () => {
     const result = parseCofourenseResponse(fixtureData, targetDate, url);
     expect(result[1].pharmacy.name).toBe('Carlos Pérez Gómez');
+  });
+
+  it('popula ownerName cuando hay nombre_fiscal', () => {
+    const result = parseCofourenseResponse(fixtureData, targetDate, url);
+    expect(result[0].pharmacy.ownerName).toBe('María García López');
+  });
+
+  it('ownerName es undefined cuando no hay nombre_fiscal', () => {
+    const result = parseCofourenseResponse(fixtureData, targetDate, url);
+    expect(result[1].pharmacy.ownerName).toBeUndefined();
   });
 
   it('parsea las coordenadas correctamente', () => {

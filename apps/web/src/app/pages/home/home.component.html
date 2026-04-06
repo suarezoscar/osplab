@@ -123,9 +123,14 @@
             <div class="bg-green-600 text-white px-5 py-4 flex items-start justify-between gap-3">
               <div class="flex-1 min-w-0">
                 <div class="flex items-center gap-2 mb-0.5">
-                  <span class="text-xl">{{ badges[i] }}</span>
+                  <span class="text-xl shrink-0">{{ badges[i] }}</span>
                   <h2 class="font-bold text-lg leading-snug truncate">{{ pharmacy.name }}</h2>
                 </div>
+                @if (pharmacy.ownerName) {
+                  <p class="text-green-200 text-xs leading-snug truncate pl-8 -mt-0.5 mb-0.5 italic">
+                    {{ pharmacy.ownerName }}
+                  </p>
+                }
                 <p class="text-green-100 text-sm">{{ pharmacy.city }}, {{ pharmacy.province }}</p>
               </div>
               @if (pharmacy.distance !== undefined) {

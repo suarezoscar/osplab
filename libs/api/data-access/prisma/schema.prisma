@@ -29,6 +29,9 @@ model City {
 model Pharmacy {
   id        String                                @id @default(cuid())
   name      String
+  /// Nombre del titular/propietario cuando la fuente lo distingue del nombre comercial.
+  /// Ejemplo (Ourense): name="FARMACIA GARCÍA", ownerName="María García López"
+  ownerName String?
   address   String
   phone     String?
   /// Tipo nativo PostGIS — se usa $queryRaw para consultas geoespaciales

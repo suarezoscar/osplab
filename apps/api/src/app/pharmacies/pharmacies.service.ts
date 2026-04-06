@@ -20,6 +20,7 @@ export class PharmaciesService {
       Array<{
         id: string;
         name: string;
+        owner_name: string | null;
         address: string;
         phone: string | null;
         city_name: string;
@@ -35,6 +36,7 @@ export class PharmaciesService {
         SELECT
           p.id,
           p.name,
+          p."ownerName"  AS owner_name,
           p.address,
           p.phone,
           c.name  AS city_name,
@@ -76,7 +78,7 @@ export class PharmaciesService {
           p.location IS NOT NULL
           AND ds.date = ${targetDate}
       )
-      SELECT id, name, address, phone, city_name, province_name,
+      SELECT id, name, owner_name, address, phone, city_name, province_name,
              start_time, end_time, lat, lng, distance_meters
       FROM candidates
       WHERE rn = 1
@@ -87,6 +89,7 @@ export class PharmaciesService {
     return results.map((row) => ({
       id: row.id,
       name: row.name,
+      ownerName: row.owner_name,
       address: row.address,
       phone: row.phone,
       city: row.city_name,

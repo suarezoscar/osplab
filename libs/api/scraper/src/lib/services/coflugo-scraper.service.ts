@@ -125,9 +125,13 @@ export class CoflugoScraperService {
 
         const pharmacy = await this.prisma.pharmacy.upsert({
           where: { id: existing?.id ?? 'new' },
-          update: { phone: schedule.pharmacy.phone ?? undefined },
+          update: {
+            phone: schedule.pharmacy.phone ?? undefined,
+            ownerName: schedule.pharmacy.ownerName ?? undefined,
+          },
           create: {
             name: schedule.pharmacy.name,
+            ownerName: schedule.pharmacy.ownerName,
             address: schedule.pharmacy.address,
             phone: schedule.pharmacy.phone,
             cityId: city.id,

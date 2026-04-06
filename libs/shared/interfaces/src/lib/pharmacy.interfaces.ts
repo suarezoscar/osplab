@@ -7,6 +7,8 @@ export enum DutyType {
 export interface PharmacyDto {
   id: string;
   name: string;
+  /** Nombre del titular cuando la fuente lo distingue del nombre comercial. */
+  ownerName?: string | null;
   address: string;
   phone?: string | null;
   city: string;
