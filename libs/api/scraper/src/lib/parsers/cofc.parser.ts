@@ -244,7 +244,7 @@ export function parseCofcResponse(
     if (!Array.isArray(items) || items.length === 0) return [];
 
     return items
-      .filter((item): item is CofcListadoItem => !!(item?.nombre))
+      .filter((item): item is CofcListadoItem => !!item?.nombre)
       .map((item) => {
         const { startTime, endTime } = parseCofcSchedule(item.horario ?? '');
 
