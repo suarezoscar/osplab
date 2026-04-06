@@ -55,7 +55,9 @@ export class CofcScraperService {
 
     const session = await this.fetchSession();
     if (!session) {
-      this.logger.warn('⚠️ COF A Coruña: no se pudo obtener sesión antiforgery, scraping cancelado');
+      this.logger.warn(
+        '⚠️ COF A Coruña: no se pudo obtener sesión antiforgery, scraping cancelado',
+      );
       return;
     }
 
