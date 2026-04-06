@@ -17,9 +17,11 @@ import {
 } from '../libs/api/scraper/src/lib/parsers/cofourense.parser';
 
 // ─── Conexión a BD ───────────────────────────────────────────────────────────
-const DATABASE_URL =
-  process.env['DATABASE_URL'] ??
-  'postgresql://postgres:REDACTED@localhost:5432/farmacias_guardia?schema=public';
+const DATABASE_URL = process.env['DATABASE_URL'];
+if (!DATABASE_URL) {
+  console.error('❌  DATABASE_URL no está definida. Copia .env.example en .env y rellénalo.');
+  process.exit(1);
+}
 
 const adapter = new PrismaPg({ connectionString: DATABASE_URL });
 const prisma = new PrismaClient({ adapter } as never);
