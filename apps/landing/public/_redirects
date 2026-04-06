@@ -1,0 +1,4 @@
+# Cloudflare Pages — SPA routing
+# Todas las rutas que no coincidan con un fichero estático → index.html
+/*  /index.html  200
+

@@ -1,0 +1,164 @@
+name: Deploy
+
+on:
+  push:
+    branches: [master]
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false # No cancelar despliegues en curso
+
+env:
+  NODE_VERSION: 22
+  NX_DAEMON: 'false'
+
+jobs:
+  # ── Detectar qué proyectos están afectados ────────────────────────
+  changes:
+    name: Detect affected projects
+    runs-on: ubuntu-latest
+    outputs:
+      landing: ${{ steps.check.outputs.landing }}
+      farmacias-web: ${{ steps.check.outputs.farmacias-web }}
+      farmacias-api: ${{ steps.check.outputs.farmacias-api }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Check affected projects
+        id: check
+        run: |
+          AFFECTED=$(pnpm nx show projects --affected --base=HEAD~1 --head=HEAD)
+          echo "Affected projects: $AFFECTED"
+
+          echo "landing=false" >> $GITHUB_OUTPUT
+          echo "farmacias-web=false" >> $GITHUB_OUTPUT
+          echo "farmacias-api=false" >> $GITHUB_OUTPUT
+
+          if echo "$AFFECTED" | grep -q "^landing$"; then
+            echo "landing=true" >> $GITHUB_OUTPUT
+          fi
+          if echo "$AFFECTED" | grep -q "^farmacias-web$"; then
+            echo "farmacias-web=true" >> $GITHUB_OUTPUT
+          fi
+          if echo "$AFFECTED" | grep -q "^farmacias-api$"; then
+            echo "farmacias-api=true" >> $GITHUB_OUTPUT
+          fi
+
+  # ── Migraciones Prisma (antes del deploy del API) ─────────────────
+  migrate:
+    name: Run Prisma migrations
+    needs: changes
+    if: needs.changes.outputs.farmacias-api == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Apply migrations
+        run: pnpm prisma:migrate:deploy
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+  # ── Deploy Landing → Cloudflare Pages ─────────────────────────────
+  deploy-landing:
+    name: Deploy landing → Cloudflare Pages
+    needs: changes
+    if: needs.changes.outputs.landing == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      deployments: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Build landing
+        run: pnpm nx build landing
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy dist/apps/landing/browser --project-name=osplab-landing
+
+  # ── Deploy Farmacias Web → Cloudflare Pages ───────────────────────
+  deploy-farmacias-web:
+    name: Deploy farmacias-web → Cloudflare Pages
+    needs: changes
+    if: needs.changes.outputs.farmacias-web == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      deployments: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Build farmacias-web
+        run: pnpm nx build farmacias-web
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy dist/apps/farmacias-web/browser --project-name=osplab-farmacias
+
+  # ── Deploy Farmacias API → Render ───────────────────────────────────
+  deploy-farmacias-api:
+    name: Deploy farmacias-api → Render
+    needs: [changes, migrate]
+    if: needs.changes.outputs.farmacias-api == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Trigger Render deploy
+        run: |
+          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" \
+            -X POST "${{ secrets.RENDER_DEPLOY_HOOK_URL }}")
+
+          if [ "$RESPONSE" -ge 200 ] && [ "$RESPONSE" -lt 300 ]; then
+            echo "✅ Render deploy triggered (HTTP $RESPONSE)"
+          else
+            echo "❌ Render deploy failed (HTTP $RESPONSE)"
+            exit 1
+          fi

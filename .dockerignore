@@ -1,0 +1,49 @@
+# Dependencias (se instalan dentro del contenedor)
+node_modules/
+
+# Build output
+dist/
+tmp/
+out-tsc/
+
+# Control de versiones
+.git/
+.gitignore
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# Entornos locales
+.env
+.env.*
+!.env.example
+
+# Testing / Coverage
+coverage/
+.jest-cache/
+jest_html_reporters.html
+
+# Nx cache
+.nx/
+
+# Angular cache
+.angular/
+
+# AI tool caches
+.agents/
+.codex/
+.gemini/
+.opencode/
+.claude/
+
+# Documentación
+*.md
+LICENSE
+
+# Docker (evitar recursión)
+Dockerfile
+.dockerignore
+docker-compose.yml
+
