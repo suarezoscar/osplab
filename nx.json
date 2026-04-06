@@ -12,7 +12,11 @@
       "!{projectRoot}/.eslintrc.json",
       "!{projectRoot}/eslint.config.mjs"
     ],
-    "sharedGlobals": []
+    "sharedGlobals": [
+      "{workspaceRoot}/package.json",
+      "{workspaceRoot}/tsconfig.base.json",
+      "{workspaceRoot}/vitest.base.config.ts"
+    ]
   },
   "targetDefaults": {
     "build": {
