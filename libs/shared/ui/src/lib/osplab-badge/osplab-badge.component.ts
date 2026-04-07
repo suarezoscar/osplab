@@ -21,21 +21,16 @@ import { Component, input } from '@angular/core';
       aria-label="Ir a osplab.dev — herramientas open source para la ciudadanía"
       [class]="linkClasses()"
     >
-      <!-- OSP mark — 3 puntos superpuestos que evocan la O del logo -->
-      <svg
-        width="18"
+      <img
+        src="/assets/svg/osp-logo-horizontal.svg"
+        alt="osplab.dev"
+        width="90"
         height="18"
-        viewBox="0 0 24 24"
-        fill="none"
-        aria-hidden="true"
         class="shrink-0"
-      >
-        <circle cx="8" cy="13" r="5.5" [attr.fill]="dotColors()[0]" opacity="0.85" />
-        <circle cx="15" cy="10" r="5.5" [attr.fill]="dotColors()[1]" opacity="0.8" />
-        <circle cx="12" cy="16" r="4" [attr.fill]="dotColors()[2]" opacity="0.9" />
-      </svg>
-      <span class="font-medium">osplab</span>
-      <span [class]="tldClasses()">.dev</span>
+        [class.brightness-0]="theme() === 'light'"
+        [class.opacity-40]="theme() === 'light'"
+        [class.invert]="theme() === 'light'"
+      />
     </a>
   `,
 })
@@ -44,20 +39,10 @@ export class OspLabBadgeComponent {
 
   linkClasses(): string {
     const base =
-      'inline-flex items-center gap-1.5 text-sm tracking-tight rounded-full px-3 py-1.5 transition-all duration-200 no-underline';
+      'inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 transition-all duration-200 no-underline';
 
     return this.theme() === 'dark'
-      ? `${base} text-[#7aaec8] hover:text-white hover:bg-white/5`
-      : `${base} text-gray-400 hover:text-gray-600 hover:bg-gray-50`;
-  }
-
-  tldClasses(): string {
-    return this.theme() === 'dark' ? 'text-[#4d8aaa] font-normal' : 'text-gray-300 font-normal';
-  }
-
-  dotColors(): [string, string, string] {
-    return this.theme() === 'dark'
-      ? ['#3375A2', '#368F8B', '#F9B06C']
-      : ['#3375A2', '#368F8B', '#F9B06C'];
+      ? `${base} hover:bg-white/5 opacity-70 hover:opacity-100`
+      : `${base} hover:bg-gray-50 opacity-50 hover:opacity-80`;
   }
 }
