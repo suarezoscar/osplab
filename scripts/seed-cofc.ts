@@ -18,6 +18,7 @@ import {
   parseCofcResponse,
 } from '../libs/farmacias/scraper/src/lib/parsers/cofc.parser';
 import type { ScrapedDutySchedule } from '../libs/farmacias/scraper/src/lib/interfaces/scraper.interfaces';
+import { getSpainToday } from '../libs/farmacias/scraper/src/lib/utils/spain-date.util';
 
 // ─── BD ───────────────────────────────────────────────────────────────────────
 const DATABASE_URL = process.env['DATABASE_URL'];
@@ -80,7 +81,7 @@ async function main() {
   log('✅ Conectado a PostgreSQL');
 
   const now = new Date();
-  const today = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
+  const today = getSpainToday();
 
   // Limpiar turnos anteriores a hoy
   const deleted = await prisma.dutySchedule.deleteMany({ where: { date: { lt: today } } });

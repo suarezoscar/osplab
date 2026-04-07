@@ -15,18 +15,24 @@ const fixtureHtml = fs.readFileSync(path.join(__dirname, '__fixtures__/coflugo.h
 
 describe('buildCoflugoUrl', () => {
   it('incluye el id en la URL', () => {
-    const url = buildCoflugoUrl(122, new Date('2026-04-06'));
+    const url = buildCoflugoUrl(122, new Date('2026-04-06T12:00:00+02:00'));
     expect(url).toContain(`${COFLUGO_BASE_URL}?id=122`);
   });
 
-  it('formatea la fecha como YYYY-MM-DD', () => {
-    const url = buildCoflugoUrl(1, new Date('2026-04-06'));
+  it('formatea la fecha como YYYY-MM-DD (hora española)', () => {
+    const url = buildCoflugoUrl(1, new Date('2026-04-06T12:00:00+02:00'));
     expect(url).toContain('f=2026-04-06');
   });
 
   it('rellena mes y día con ceros', () => {
-    const url = buildCoflugoUrl(1, new Date('2026-01-05'));
+    const url = buildCoflugoUrl(1, new Date('2026-01-05T12:00:00+01:00'));
     expect(url).toContain('f=2026-01-05');
+  });
+
+  it('usa la fecha española cuando UTC y España difieren', () => {
+    // 23:30 UTC del 7 abril = 01:30 CEST del 8 abril
+    const url = buildCoflugoUrl(1, new Date('2026-04-07T23:30:00Z'));
+    expect(url).toContain('f=2026-04-08');
   });
 });
 

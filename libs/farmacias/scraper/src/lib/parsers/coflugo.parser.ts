@@ -1,5 +1,6 @@
 import * as cheerio from 'cheerio';
 import type { ScrapedDutySchedule } from '../interfaces/scraper.interfaces';
+import { formatSpainDate } from '../utils/spain-date.util';
 
 // ──────────────────────────────────────────────────────────────────────────────
 // Constantes
@@ -94,8 +95,7 @@ export const COFLUGO_MUNICIPIOS: ReadonlyArray<{ id: number; nombre: string }> =
  * @param date        - Fecha de consulta
  */
 export function buildCoflugoUrl(municipioId: number, date: Date): string {
-  const pad = (n: number) => String(n).padStart(2, '0');
-  const dateStr = `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+  const dateStr = formatSpainDate(date);
   return `${COFLUGO_BASE_URL}?id=${municipioId}&f=${dateStr}`;
 }
 

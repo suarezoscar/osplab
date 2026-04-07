@@ -1,4 +1,5 @@
 import type { ScrapedDutySchedule, ScrapedPharmacy } from '../interfaces/scraper.interfaces';
+import { formatSpainDateDMY } from '../utils/spain-date.util';
 
 // ──────────────────────────────────────────────────────────────────────────────
 // Constantes
@@ -43,8 +44,7 @@ interface CofpontevedraItem {
  * Formatea una fecha al formato DD/MM/YYYY que espera la API.
  */
 export function formatDateForCofpo(date: Date): string {
-  const pad = (n: number) => String(n).padStart(2, '0');
-  return `${pad(date.getDate())}/${pad(date.getMonth() + 1)}/${date.getFullYear()}`;
+  return formatSpainDateDMY(date);
 }
 
 /**

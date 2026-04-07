@@ -15,6 +15,7 @@ import {
   COFLUGO_PROVINCE,
   COFLUGO_PROVINCE_CODE,
 } from '../libs/farmacias/scraper/src/lib/parsers/coflugo.parser';
+import { getSpainToday } from '../libs/farmacias/scraper/src/lib/utils/spain-date.util';
 
 // ─── Conexión a BD ───────────────────────────────────────────────────────────
 const DATABASE_URL = process.env['DATABASE_URL'];
@@ -53,7 +54,7 @@ async function main() {
   log('✅ Conectado a PostgreSQL');
 
   const now = new Date();
-  const today = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
+  const today = getSpainToday();
 
   // Limpiar turnos anteriores a hoy
   const deleted = await prisma.dutySchedule.deleteMany({ where: { date: { lt: today } } });
@@ -73,16 +74,28 @@ async function main() {
   for (const municipio of COFLUGO_MUNICIPIOS) {
     const url = buildCoflugoUrl(municipio.id, today);
 
-    let html: string;
-    try {
-      const response = await axios.get<string>(url, {
-        timeout: 10_000,
-        headers: COMMON_HEADERS,
-        responseType: 'text',
-      });
-      html = response.data;
-    } catch (err) {
-      log(`⚠️  ${municipio.nombre}: error HTTP — ${(err as Error).message}`);
+    let html: string | undefined;
+    for (let attempt = 0; attempt <= 2; attempt++) {
+      try {
+        const response = await axios.get<string>(url, {
+          timeout: 30_000,
+          headers: COMMON_HEADERS,
+          responseType: 'text',
+        });
+        html = response.data;
+        break;
+      } catch (err) {
+        if (attempt < 2) {
+          const backoff = (attempt + 1) * 1_000;
+          log(`⏳ ${municipio.nombre}: reintento ${attempt + 1}/2 en ${backoff}ms...`);
+          await sleep(backoff);
+        } else {
+          log(`⚠️  ${municipio.nombre}: error HTTP tras 3 intentos — ${(err as Error).message}`);
+        }
+      }
+    }
+
+    if (!html) {
       continue;
     }
 
@@ -167,7 +180,7 @@ async function main() {
       }
     }
 
-    await sleep(200);
+    await sleep(300);
   }
 
   // Resumen final

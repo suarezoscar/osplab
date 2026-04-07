@@ -13,6 +13,7 @@ import {
   parseCofcResponse,
 } from '../parsers/cofc.parser';
 import { cleanOldSchedules } from './schedule-cleanup.util';
+import { getSpainToday } from '../utils/spain-date.util';
 
 /** Pausa entre peticiones (ms) — respetar el rate limit */
 const REQUEST_DELAY_MS = 300;
@@ -44,8 +45,7 @@ export class CofcScraperService {
   }
 
   async scrapeToday(): Promise<void> {
-    const now = new Date();
-    const today = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
+    const today = getSpainToday();
     await cleanOldSchedules(this.prisma, this.logger, 'COF A Coruña');
     await this.scrapeForDate(today);
   }

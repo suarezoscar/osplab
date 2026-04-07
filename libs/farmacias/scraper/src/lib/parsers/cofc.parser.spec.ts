@@ -18,12 +18,17 @@ const fixtureData: CofcApiResponse = JSON.parse(
 // ─── formatDateForCofc ────────────────────────────────────────────────────────
 
 describe('formatDateForCofc', () => {
-  it('formatea la fecha como DD/MM/YYYY', () => {
-    expect(formatDateForCofc(new Date('2026-04-06'))).toBe('06/04/2026');
+  it('formatea la fecha como DD/MM/YYYY (hora española)', () => {
+    expect(formatDateForCofc(new Date('2026-04-06T12:00:00+02:00'))).toBe('06/04/2026');
   });
 
   it('rellena día y mes con ceros', () => {
-    expect(formatDateForCofc(new Date('2026-01-05'))).toBe('05/01/2026');
+    expect(formatDateForCofc(new Date('2026-01-05T12:00:00+01:00'))).toBe('05/01/2026');
+  });
+
+  it('usa la fecha española cuando UTC y España difieren', () => {
+    // 23:30 UTC del 7 abril = 01:30 CEST del 8 abril
+    expect(formatDateForCofc(new Date('2026-04-07T23:30:00Z'))).toBe('08/04/2026');
   });
 });
 

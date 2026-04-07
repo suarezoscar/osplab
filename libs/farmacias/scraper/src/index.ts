@@ -48,3 +48,9 @@ export type {
   ScrapedPharmacy,
   ScraperResult,
 } from './lib/interfaces/scraper.interfaces';
+export {
+  getSpainToday,
+  formatSpainDate,
+  formatSpainDateDMY,
+  formatSpainTime,
+} from './lib/utils/spain-date.util';

@@ -1,5 +1,6 @@
 import { PrismaService } from '@osplab/farmacias-data-access';
 import { Logger } from '@nestjs/common';
+import { getSpainToday } from '../utils/spain-date.util';
 
 /**
  * Elimina los `DutySchedule` cuya fecha sea estrictamente anterior a hoy.
@@ -16,8 +17,7 @@ export async function cleanOldSchedules(
   label: string,
 ): Promise<void> {
   try {
-    const now = new Date();
-    const today = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
+    const today = getSpainToday();
 
     const deleted = await prisma.dutySchedule.deleteMany({
       where: { date: { lt: today } },

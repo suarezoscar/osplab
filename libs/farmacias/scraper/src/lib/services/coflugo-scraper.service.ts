@@ -11,9 +11,16 @@ import {
   parseCoflugoHtml,
 } from '../parsers/coflugo.parser';
 import { cleanOldSchedules } from './schedule-cleanup.util';
+import { getSpainToday } from '../utils/spain-date.util';
 
 /** Pausa entre peticiones (ms) — respetar el rate limit del servidor */
-const REQUEST_DELAY_MS = 200;
+const REQUEST_DELAY_MS = 300;
+
+/** Timeout HTTP (ms) — coflugo.org puede ser lento desde fuera de España */
+const HTTP_TIMEOUT_MS = 30_000;
+
+/** Número máximo de reintentos por municipio */
+const MAX_RETRIES = 2;
 
 const COMMON_HEADERS = {
   'User-Agent':
@@ -36,8 +43,7 @@ export class CoflugoScraperService {
   }
 
   async scrapeToday(): Promise<void> {
-    const now = new Date();
-    const today = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
+    const today = getSpainToday();
     await cleanOldSchedules(this.prisma, this.logger, 'COF Lugo');
     await this.scrapeForDate(today);
   }
@@ -66,20 +72,33 @@ export class CoflugoScraperService {
   ): Promise<number> {
     const url = buildCoflugoUrl(municipio.id, targetDate);
 
-    let html: string;
-    try {
-      const response = await axios.get<string>(url, {
-        timeout: 10_000,
-        headers: COMMON_HEADERS,
-        responseType: 'text',
-      });
-      html = response.data;
-    } catch (err) {
-      this.logger.warn(
-        `⚠️  ${municipio.nombre}: error al consultar COFLugo — ${(err as Error).message}`,
-      );
-      return 0;
+    let html: string | undefined;
+    for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+      try {
+        const response = await axios.get<string>(url, {
+          timeout: HTTP_TIMEOUT_MS,
+          headers: COMMON_HEADERS,
+          responseType: 'text',
+        });
+        html = response.data;
+        break;
+      } catch (err) {
+        if (attempt < MAX_RETRIES) {
+          const backoff = (attempt + 1) * 1_000;
+          this.logger.debug(
+            `⏳ ${municipio.nombre}: reintento ${attempt + 1}/${MAX_RETRIES} en ${backoff}ms`,
+          );
+          await sleep(backoff);
+        } else {
+          this.logger.warn(
+            `⚠️  ${municipio.nombre}: error al consultar COFLugo tras ${MAX_RETRIES + 1} intentos — ${(err as Error).message}`,
+          );
+          return 0;
+        }
+      }
     }
+
+    if (!html) return 0;
 
     const schedules = parseCoflugoHtml(html, municipio.nombre, targetDate, url);
     if (schedules.length === 0) return 0;

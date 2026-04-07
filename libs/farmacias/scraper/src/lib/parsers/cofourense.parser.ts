@@ -1,4 +1,5 @@
 import type { ScrapedDutySchedule } from '../interfaces/scraper.interfaces';
+import { formatSpainDate, formatSpainTime } from '../utils/spain-date.util';
 
 // ──────────────────────────────────────────────────────────────────────────────
 // Constantes del endpoint
@@ -218,17 +219,8 @@ export function parseCofourenseResponse(
  * @param date - Fecha para la que se quieren las farmacias de guardia
  */
 export function buildCofourenseUrl(date: Date): string {
-  const pad = (n: number) => String(n).padStart(2, '0');
-
-  const year = date.getFullYear();
-  const month = pad(date.getMonth() + 1);
-  const day = pad(date.getDate());
-  const hours = pad(date.getHours());
-  const minutes = pad(date.getMinutes());
-  const seconds = pad(date.getSeconds());
-
-  const fechaStr = `${year}-${month}-${day}`;
-  const horaStr = `${hours}:${minutes}:${seconds}`;
+  const fechaStr = formatSpainDate(date);
+  const horaStr = formatSpainTime(date);
 
   const params = new URLSearchParams({
     estilo: 'completo',

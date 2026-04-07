@@ -15,6 +15,7 @@ import {
   COFOURENSE_PROVINCE,
   COFOURENSE_PROVINCE_CODE,
 } from '../libs/farmacias/scraper/src/lib/parsers/cofourense.parser';
+import { getSpainToday } from '../libs/farmacias/scraper/src/lib/utils/spain-date.util';
 
 // ─── Conexión a BD ───────────────────────────────────────────────────────────
 const DATABASE_URL = process.env['DATABASE_URL'];
@@ -43,7 +44,7 @@ async function main() {
 
   // 0. Limpiar turnos de guardia de días anteriores
   const now = new Date();
-  const today = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
+  const today = getSpainToday();
   const deleted = await prisma.dutySchedule.deleteMany({ where: { date: { lt: today } } });
   if (deleted.count > 0) log(`🧹 Eliminados ${deleted.count} turnos de guardia anteriores a hoy`);
 

@@ -3,6 +3,17 @@ name: Seed Supabase
 on:
   workflow_dispatch:
     inputs:
+      province:
+        description: 'Provincia a seedear'
+        required: true
+        type: choice
+        default: 'all'
+        options:
+          - all
+          - ourense
+          - pontevedra
+          - lugo
+          - coruña
       confirm:
         description: '⚠️ Escribe "yes" para confirmar el seed en producción'
         required: true
@@ -18,7 +29,7 @@ env:
 
 jobs:
   seed:
-    name: Seed Supabase (producción)
+    name: 'Seed Supabase — ${{ github.event.inputs.province }}'
     runs-on: ubuntu-latest
     timeout-minutes: 60
     permissions:
@@ -52,24 +63,7 @@ jobs:
           DATABASE_URL: postgresql://${{ env.SUPABASE_USER }}:placeholder@${{ env.SUPABASE_HOST }}:${{ env.SUPABASE_PORT }}/${{ env.SUPABASE_DB }}
         run: pnpm prisma:generate
 
-      - name: Run seeds
+      - name: Run seeds (${{ github.event.inputs.province }})
         env:
           DATABASE_URL: postgresql://${{ env.SUPABASE_USER }}:${{ secrets.SUPABASE_PASSWORD }}@${{ env.SUPABASE_HOST }}:${{ env.SUPABASE_PORT }}/${{ env.SUPABASE_DB }}
-        run: |
-          echo "🔗 Conectando a: ${{ env.SUPABASE_HOST }}:${{ env.SUPABASE_PORT }}/${{ env.SUPABASE_DB }}"
-          echo ""
-
-          SEEDS=(
-            "seed-cofourense.ts"
-            "seed-cofpontevedra.ts"
-            "seed-coflugo.ts"
-            "seed-cofc.ts"
-          )
-
-          for seed in "${SEEDS[@]}"; do
-            echo "🌱 Ejecutando ${seed}..."
-            pnpm exec jiti "scripts/${seed}"
-            echo ""
-          done
-
-          echo "✅ Todos los seeds completados contra Supabase."
+        run: bash scripts/seed-supabase.sh "${{ github.event.inputs.province }}"

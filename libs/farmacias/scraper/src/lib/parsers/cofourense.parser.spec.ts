@@ -209,22 +209,30 @@ describe('parseCofourenseResponse', () => {
 
 describe('buildCofourenseUrl', () => {
   it('incluye la URL base', () => {
-    const url = buildCofourenseUrl(new Date('2026-04-06T14:30:00'));
+    const url = buildCofourenseUrl(new Date('2026-04-06T14:30:00+02:00'));
     expect(url).toContain(COFOURENSE_API_BASE);
   });
 
-  it('incluye fecha_inicio en formato YYYY-MM-DD', () => {
-    const url = buildCofourenseUrl(new Date('2026-04-06T14:30:00'));
+  it('incluye fecha_inicio en formato YYYY-MM-DD (hora española)', () => {
+    const url = buildCofourenseUrl(new Date('2026-04-06T14:30:00+02:00'));
     expect(url).toContain('fecha_inicio=2026-04-06');
   });
 
-  it('incluye hora_inicio con segundos', () => {
-    const url = buildCofourenseUrl(new Date('2026-04-06T14:30:45'));
+  it('incluye hora_inicio con segundos (hora española)', () => {
+    // 14:30:45 CEST
+    const url = buildCofourenseUrl(new Date('2026-04-06T14:30:45+02:00'));
     expect(url).toContain('hora_inicio=14%3A30%3A45');
   });
 
   it('incluye el UUID estático', () => {
-    const url = buildCofourenseUrl(new Date('2026-04-06'));
+    const url = buildCofourenseUrl(new Date('2026-04-06T00:00:00Z'));
     expect(url).toContain(COFOURENSE_UUID);
+  });
+
+  it('usa la fecha española cuando UTC y España difieren', () => {
+    // 23:30 UTC del 7 abril = 01:30 CEST del 8 abril
+    const url = buildCofourenseUrl(new Date('2026-04-07T23:30:00Z'));
+    expect(url).toContain('fecha_inicio=2026-04-08');
+    expect(url).toContain('hora_inicio=01%3A30%3A00');
   });
 });

@@ -10,6 +10,7 @@ import {
   parseCofourenseResponse,
 } from '../parsers/cofourense.parser';
 import { cleanOldSchedules } from './schedule-cleanup.util';
+import { getSpainToday } from '../utils/spain-date.util';
 
 @Injectable()
 export class CofourenseScraperService {
@@ -32,7 +33,7 @@ export class CofourenseScraperService {
    */
   async scrapeToday(): Promise<void> {
     const now = new Date();
-    const today = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
+    const today = getSpainToday();
 
     await cleanOldSchedules(this.prisma, this.logger, 'COF Ourense');
     await this.scrapeForDate(now, today);
