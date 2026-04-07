@@ -1,14 +1,8 @@
 {
-  "mcp": {
-    "nx-mcp": {
-      "type": "local",
-      "command": ["npx", "nx", "mcp"],
-      "enabled": true
-    },
+  "servers": {
     "github": {
-      "type": "local",
-      "command": [
-        "docker",
+      "command": "docker",
+      "args": [
         "run",
         "-i",
         "--rm",
@@ -19,7 +13,6 @@
         "--toolsets=code_security,dependabot,repos",
         "--read-only"
       ],
-      "enabled": true,
       "env": {
         "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_PERSONAL_ACCESS_TOKEN}"
       }
