@@ -29,6 +29,7 @@ export class HomeComponent {
       theme: 'green',
       status: 'live',
       tags: ['Salud', 'Galicia', 'Geolocalización'],
+      version: '0.1.0',
     },
   ];
 
