@@ -34,7 +34,7 @@ Cada herramienta vive en su propio subdominio bajo `osplab.dev`.
 apps/
   landing/           → SPA Angular (osplab.dev — portal, puerto 4300)
   farmacias-api/     → API REST NestJS (farmacias.osplab.dev, puerto 3000)
-  farmacias-api-e2e/ → Tests end-to-end del API de farmacias (Jest)
+    e2e/             → Tests end-to-end del API (Vitest)
   farmacias-web/     → SPA Angular (farmacias.osplab.dev, puerto 4200)
 
 libs/

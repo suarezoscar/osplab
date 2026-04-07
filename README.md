@@ -166,7 +166,7 @@ El pipeline de GitHub Actions se ejecuta en cada push/PR a `main`:
 apps/
   landing/           → Angular SPA · osplab.dev (portal principal)
   farmacias-api/     → NestJS API   · farmacias.osplab.dev/api
-  farmacias-api-e2e/ → Tests e2e del API de farmacias
+    e2e/             → Tests e2e del API (Vitest)
   farmacias-web/     → Angular SPA  · farmacias.osplab.dev
 libs/
   farmacias/

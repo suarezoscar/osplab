@@ -1,5 +1,9 @@
 import axios from 'axios';
 
+const adminHeaders = {
+  'X-Admin-Key': process.env['ADMIN_API_KEY'] ?? '',
+};
+
 describe('GET /api', () => {
   it('should return a message', async () => {
     const res = await axios.get(`/api`);
@@ -31,12 +35,30 @@ describe('GET /api/pharmacies/nearest', () => {
 
 describe('POST /api/admin/scrape', () => {
   it('POST /api/admin/scrape/cofourense → 202', async () => {
-    const res = await axios.post('/api/admin/scrape/cofourense');
+    const res = await axios.post('/api/admin/scrape/cofourense', null, {
+      headers: adminHeaders,
+    });
     expect(res.status).toBe(202);
   });
 
   it('POST /api/admin/scrape/cofpontevedra → 202', async () => {
-    const res = await axios.post('/api/admin/scrape/cofpontevedra');
+    const res = await axios.post('/api/admin/scrape/cofpontevedra', null, {
+      headers: adminHeaders,
+    });
     expect(res.status).toBe(202);
+  });
+
+  it('401 sin cabecera X-Admin-Key', async () => {
+    await expect(axios.post('/api/admin/scrape/cofourense')).rejects.toMatchObject({
+      response: { status: 401 },
+    });
+  });
+
+  it('401 con API key incorrecta', async () => {
+    await expect(
+      axios.post('/api/admin/scrape/cofourense', null, {
+        headers: { 'X-Admin-Key': 'clave-incorrecta' },
+      }),
+    ).rejects.toMatchObject({ response: { status: 401 } });
   });
 });

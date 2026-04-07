@@ -35,6 +35,33 @@ Cada herramienta vive bajo un subdominio de `osplab.dev`.
 @osplab/shared-ui              → libs/shared/ui
 ```
 
+## Estructura del Monorepo
+
+```
+apps/
+  landing/           → SPA Angular (osplab.dev)
+  farmacias-api/     → API REST NestJS (farmacias.osplab.dev/api)
+    e2e/             → Tests end-to-end del API (Vitest)
+  farmacias-web/     → SPA Angular (farmacias.osplab.dev)
+libs/
+  farmacias/
+    data-access/     → PrismaService + migraciones (PostgreSQL + PostGIS)
+    scraper/         → Scrapers + parsers por COF
+    web/ui/          → Componentes UI reutilizables del proyecto farmacias
+  shared/
+    interfaces/      → DTOs e interfaces compartidas (Nest ↔ Angular)
+    ui/              → Componentes UI compartidos entre proyectos
+```
+
+## Testing
+
+- **Framework:** Vitest 4 para todo (unitarios, integración y e2e). No se usa Jest.
+- **Tests unitarios:** dentro de cada app/lib junto al código (`*.spec.ts`).
+- **Tests e2e:** colocados dentro del proyecto que testean (`apps/farmacias-api/e2e/`), no como proyecto Nx separado.
+- **Ejecución:**
+  - `pnpm nx test <proyecto>` → tests unitarios
+  - `pnpm nx e2e farmacias-api` → tests e2e del API
+
 ## Lógica de Negocio Crítica
 
 1. **Geolocalización:** El cálculo de "cercanía" debe ocurrir en la base de datos (PostgreSQL), no en el cliente.

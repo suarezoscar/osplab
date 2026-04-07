@@ -4,6 +4,15 @@
   "sourceRoot": "apps/farmacias-api/src",
   "projectType": "application",
   "targets": {
+    "e2e": {
+      "executor": "nx:run-commands",
+      "outputs": ["{workspaceRoot}/coverage/apps/farmacias-api-e2e"],
+      "options": {
+        "command": "vitest run --config apps/farmacias-api/e2e/vitest.config.ts",
+        "cwd": "{workspaceRoot}"
+      },
+      "dependsOn": ["build"]
+    },
     "test": {
       "executor": "nx:run-commands",
       "outputs": ["{workspaceRoot}/coverage/apps/farmacias-api"],

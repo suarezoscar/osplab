@@ -6,8 +6,13 @@
 // Carga .env en desarrollo local (Node.js 22 nativo, sin @nestjs/config)
 // En producción las vars de entorno ya están inyectadas por Docker/CI.
 try {
+  console.log('[DEBUG] CWD:', process.cwd());
+  console.log('[DEBUG] .env exists:', require('fs').existsSync('.env'));
+  console.log('[DEBUG] ADMIN_API_KEY before:', process.env['ADMIN_API_KEY']);
   process.loadEnvFile('.env');
-} catch {
+  console.log('[DEBUG] ADMIN_API_KEY after:', process.env['ADMIN_API_KEY']);
+} catch (e) {
+  console.log('[DEBUG] loadEnvFile FAILED:', e);
   // .env no existe → entorno de producción o CI, se ignora
 }
 
