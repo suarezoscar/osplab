@@ -1,6 +1,6 @@
 import { vi, type Mock } from 'vitest';
 import { Logger } from '@nestjs/common';
-import { PrismaService } from '@osplab/farmacias-data-access';
+import { PrismaService, ScheduleWriterService } from '@osplab/farmacias-data-access';
 import { CoflugoScraperService } from './coflugo-scraper.service';
 import axios from 'axios';
 import * as fs from 'node:fs';
@@ -24,63 +24,34 @@ const fixtureHtml = fs.readFileSync(
 );
 
 type PrismaMock = {
-  province: { upsert: Mock };
-  city: { upsert: Mock };
-  pharmacy: { upsert: Mock; findFirst: Mock };
-  dutySchedule: { upsert: Mock; deleteMany: Mock };
-  $executeRaw: Mock;
+  dutySchedule: { deleteMany: Mock };
 };
 
 function makePrismaMock(): PrismaMock {
   return {
-    province: { upsert: vi.fn() },
-    city: { upsert: vi.fn() },
-    pharmacy: { upsert: vi.fn(), findFirst: vi.fn() },
-    dutySchedule: { upsert: vi.fn(), deleteMany: vi.fn() },
-    $executeRaw: vi.fn(),
+    dutySchedule: { deleteMany: vi.fn().mockResolvedValue({ count: 0 }) },
+  };
+}
+
+function makeWriterMock() {
+  return {
+    upsertSchedules: vi.fn().mockResolvedValue({ saved: 2, skipped: 0 }),
   };
 }
 
 describe('CoflugoScraperService', () => {
   let service: CoflugoScraperService;
   let prisma: ReturnType<typeof makePrismaMock>;
+  let writer: ReturnType<typeof makeWriterMock>;
 
   beforeEach(() => {
     prisma = makePrismaMock();
-    prisma.province.upsert.mockResolvedValue({
-      id: 'prov-1',
-      name: 'Lugo',
-      code: 'LU',
-    });
-    prisma.city.upsert.mockResolvedValue({
-      id: 'city-1',
-      name: 'Lugo',
-      provinceId: 'prov-1',
-    });
-    prisma.pharmacy.findFirst.mockResolvedValue(null);
-    prisma.pharmacy.upsert.mockResolvedValue({
-      id: 'ph-1',
-      name: 'Test',
-      address: 'Test',
-      phone: null,
-      cityId: 'city-1',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    });
-    prisma.dutySchedule.upsert.mockResolvedValue({
-      id: 'ds-1',
-      pharmacyId: 'ph-1',
-      date: new Date(),
-      startTime: '09:00',
-      endTime: '22:00',
-      type: 'REGULAR',
-      source: null,
-      createdAt: new Date(),
-    });
-    prisma.dutySchedule.deleteMany.mockResolvedValue({ count: 0 });
-    prisma.$executeRaw.mockResolvedValue(1);
+    writer = makeWriterMock();
 
-    service = new CoflugoScraperService(prisma as unknown as PrismaService);
+    service = new CoflugoScraperService(
+      prisma as unknown as PrismaService,
+      writer as unknown as ScheduleWriterService,
+    );
     // Silenciar logs del servicio en tests
     vi.spyOn(service['logger'] as Logger, 'log').mockImplementation(() => undefined);
     vi.spyOn(service['logger'] as Logger, 'warn').mockImplementation(() => undefined);
@@ -94,14 +65,18 @@ describe('CoflugoScraperService', () => {
   });
 
   describe('scrapeForDate', () => {
-    it('llama a axios.get por cada municipio y guarda turnos en BD', async () => {
+    it('llama a axios.get por cada municipio y delega persistencia al writer', async () => {
       vi.spyOn(axios, 'get').mockResolvedValue({ data: fixtureHtml });
 
       await service.scrapeForDate(new Date('2026-04-06T00:00:00'));
 
       // COFLUGO_MUNICIPIOS está mockeado a 2 entradas en este test file
       expect(axios.get).toHaveBeenCalledTimes(2);
-      expect(prisma.dutySchedule.upsert).toHaveBeenCalled();
+      expect(writer.upsertSchedules).toHaveBeenCalled();
+      expect(writer.upsertSchedules).toHaveBeenCalledWith(
+        { name: 'Lugo', code: 'LU' },
+        expect.any(Array),
+      );
     });
 
     it('continúa con el resto si un municipio falla (fallo silencioso)', async () => {
@@ -112,24 +87,14 @@ describe('CoflugoScraperService', () => {
       await expect(service.scrapeForDate(new Date('2026-04-06T00:00:00'))).resolves.not.toThrow();
     });
 
-    it('no llama a prisma si el HTML no contiene .farmacias', async () => {
+    it('no llama al writer si el HTML no contiene .farmacias', async () => {
       vi.spyOn(axios, 'get').mockResolvedValue({
         data: '<html><body><p>Sin farmacias</p></body></html>',
       });
 
       await service.scrapeForDate(new Date('2026-04-06T00:00:00'));
 
-      expect(prisma.dutySchedule.upsert).not.toHaveBeenCalled();
-    });
-  });
-
-  describe('upsertSchedules (via scrapeForDate)', () => {
-    it('llama a $executeRaw cuando la farmacia tiene coordenadas', async () => {
-      vi.spyOn(axios, 'get').mockResolvedValue({ data: fixtureHtml });
-
-      await service.scrapeForDate(new Date('2026-04-06T00:00:00'));
-
-      expect(prisma.$executeRaw).toHaveBeenCalled();
+      expect(writer.upsertSchedules).not.toHaveBeenCalled();
     });
   });
 });

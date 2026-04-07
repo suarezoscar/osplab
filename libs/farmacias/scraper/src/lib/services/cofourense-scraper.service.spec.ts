@@ -1,6 +1,6 @@
 import { vi, type Mock } from 'vitest';
 import { Logger } from '@nestjs/common';
-import { PrismaService } from '@osplab/farmacias-data-access';
+import { PrismaService, ScheduleWriterService } from '@osplab/farmacias-data-access';
 import { CofourenseScraperService } from './cofourense-scraper.service';
 import axios from 'axios';
 import * as fs from 'node:fs';
@@ -11,55 +11,34 @@ const fixtureData = JSON.parse(
 );
 
 type PrismaMock = {
-  province: { upsert: Mock };
-  city: { upsert: Mock };
-  pharmacy: { upsert: Mock; findFirst: Mock };
-  dutySchedule: { upsert: Mock; deleteMany: Mock };
-  $executeRaw: Mock;
+  dutySchedule: { deleteMany: Mock };
 };
 
 function makePrismaMock(): PrismaMock {
   return {
-    province: { upsert: vi.fn() },
-    city: { upsert: vi.fn() },
-    pharmacy: { upsert: vi.fn(), findFirst: vi.fn() },
-    dutySchedule: { upsert: vi.fn(), deleteMany: vi.fn() },
-    $executeRaw: vi.fn(),
+    dutySchedule: { deleteMany: vi.fn().mockResolvedValue({ count: 0 }) },
+  };
+}
+
+function makeWriterMock() {
+  return {
+    upsertSchedules: vi.fn().mockResolvedValue({ saved: 3, skipped: 0 }),
   };
 }
 
 describe('CofourenseScraperService', () => {
   let service: CofourenseScraperService;
   let prisma: ReturnType<typeof makePrismaMock>;
+  let writer: ReturnType<typeof makeWriterMock>;
 
   beforeEach(() => {
     prisma = makePrismaMock();
-    prisma.province.upsert.mockResolvedValue({ id: 'prov-1', name: 'Ourense', code: 'OR' });
-    prisma.city.upsert.mockResolvedValue({ id: 'city-1', name: 'Ourense', provinceId: 'prov-1' });
-    prisma.pharmacy.findFirst.mockResolvedValue(null);
-    prisma.pharmacy.upsert.mockResolvedValue({
-      id: 'ph-1',
-      name: 'Test',
-      address: 'Test',
-      phone: null,
-      cityId: 'city-1',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    });
-    prisma.dutySchedule.upsert.mockResolvedValue({
-      id: 'ds-1',
-      pharmacyId: 'ph-1',
-      date: new Date(),
-      startTime: '09:00',
-      endTime: '22:00',
-      type: 'REGULAR',
-      source: null,
-      createdAt: new Date(),
-    });
-    prisma.dutySchedule.deleteMany.mockResolvedValue({ count: 0 });
-    prisma.$executeRaw.mockResolvedValue(1);
+    writer = makeWriterMock();
 
-    service = new CofourenseScraperService(prisma as unknown as PrismaService);
+    service = new CofourenseScraperService(
+      prisma as unknown as PrismaService,
+      writer as unknown as ScheduleWriterService,
+    );
     vi.spyOn(service['logger'] as Logger, 'log').mockImplementation(() => undefined);
     vi.spyOn(service['logger'] as Logger, 'warn').mockImplementation(() => undefined);
     vi.spyOn(service['logger'] as Logger, 'debug').mockImplementation(() => undefined);
@@ -77,7 +56,11 @@ describe('CofourenseScraperService', () => {
 
       await service.scrapeForDate(new Date('2026-04-06T10:00:00'), new Date('2026-04-06T00:00:00'));
 
-      expect(prisma.dutySchedule.upsert).toHaveBeenCalledTimes(3);
+      expect(writer.upsertSchedules).toHaveBeenCalledTimes(1);
+      expect(writer.upsertSchedules).toHaveBeenCalledWith(
+        { name: 'Ourense', code: 'OR' },
+        expect.arrayContaining([expect.objectContaining({ pharmacy: expect.any(Object) })]),
+      );
     });
 
     it('no guarda nada si informacion está vacío (API cambiada)', async () => {
@@ -87,7 +70,7 @@ describe('CofourenseScraperService', () => {
 
       await service.scrapeForDate(new Date('2026-04-06T10:00:00'), new Date('2026-04-06T00:00:00'));
 
-      expect(prisma.dutySchedule.upsert).not.toHaveBeenCalled();
+      expect(writer.upsertSchedules).not.toHaveBeenCalled();
     });
 
     it('falla silenciosamente en error de red', async () => {
@@ -96,29 +79,7 @@ describe('CofourenseScraperService', () => {
       await expect(
         service.scrapeForDate(new Date('2026-04-06T10:00:00'), new Date('2026-04-06T00:00:00')),
       ).resolves.not.toThrow();
-      expect(prisma.dutySchedule.upsert).not.toHaveBeenCalled();
-    });
-  });
-
-  describe('findPharmacyId (indirecto via upsertSchedules)', () => {
-    it('usa create (id "new") cuando la farmacia no existe en BD', async () => {
-      vi.spyOn(axios, 'get').mockResolvedValue({ data: fixtureData });
-      prisma.pharmacy.findFirst.mockResolvedValue(null);
-
-      await service.scrapeForDate(new Date('2026-04-06T10:00:00'), new Date('2026-04-06T00:00:00'));
-
-      expect(prisma.pharmacy.upsert.mock.calls.some((c) => c[0].where.id === 'new')).toBe(true);
-    });
-
-    it('usa update cuando la farmacia ya existe en BD', async () => {
-      vi.spyOn(axios, 'get').mockResolvedValue({ data: fixtureData });
-      prisma.pharmacy.findFirst.mockResolvedValue({ id: 'existing-id' });
-
-      await service.scrapeForDate(new Date('2026-04-06T10:00:00'), new Date('2026-04-06T00:00:00'));
-
-      expect(prisma.pharmacy.upsert.mock.calls.some((c) => c[0].where.id === 'existing-id')).toBe(
-        true,
-      );
+      expect(writer.upsertSchedules).not.toHaveBeenCalled();
     });
   });
 });

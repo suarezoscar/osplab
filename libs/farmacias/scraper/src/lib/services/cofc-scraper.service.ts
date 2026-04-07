@@ -2,8 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import axios from 'axios';
 import * as cheerio from 'cheerio';
-import { PrismaService } from '@osplab/farmacias-data-access';
-import type { ScrapedDutySchedule } from '../interfaces/scraper.interfaces';
+import { PrismaService, ScheduleWriterService } from '@osplab/farmacias-data-access';
 import {
   COFC_API_URL,
   COFC_MUNICIPIOS,
@@ -36,7 +35,10 @@ interface CofcSession {
 export class CofcScraperService {
   private readonly logger = new Logger(CofcScraperService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly scheduleWriter: ScheduleWriterService,
+  ) {}
 
   @Cron(CronExpression.EVERY_DAY_AT_6AM)
   async scheduledScrape(): Promise<void> {
@@ -143,91 +145,10 @@ export class CofcScraperService {
     }
 
     this.logger.debug(`  📋 ${municipio.nombre}: ${schedules.length} farmacia(s) de guardia`);
-    return this.upsertSchedules(schedules);
-  }
-
-  private async upsertSchedules(schedules: ScrapedDutySchedule[]): Promise<number> {
-    const provinceRecord = await this.prisma.province.upsert({
-      where: { code: COFC_PROVINCE_CODE },
-      update: {},
-      create: { name: COFC_PROVINCE, code: COFC_PROVINCE_CODE },
-    });
-
-    let saved = 0;
-
-    for (const schedule of schedules) {
-      try {
-        const city = await this.prisma.city.upsert({
-          where: {
-            name_provinceId: {
-              name: schedule.pharmacy.cityName,
-              provinceId: provinceRecord.id,
-            },
-          },
-          update: {},
-          create: { name: schedule.pharmacy.cityName, provinceId: provinceRecord.id },
-        });
-
-        const existing = await this.prisma.pharmacy.findFirst({
-          where: {
-            name: schedule.pharmacy.name,
-            address: schedule.pharmacy.address,
-            cityId: city.id,
-          },
-          select: { id: true },
-        });
-
-        const pharmacy = await this.prisma.pharmacy.upsert({
-          where: { id: existing?.id ?? 'new' },
-          update: {
-            phone: schedule.pharmacy.phone ?? undefined,
-            ownerName: schedule.pharmacy.ownerName ?? undefined,
-          },
-          create: {
-            name: schedule.pharmacy.name,
-            ownerName: schedule.pharmacy.ownerName,
-            address: schedule.pharmacy.address,
-            phone: schedule.pharmacy.phone,
-            cityId: city.id,
-          },
-        });
-
-        // PostGIS location
-        if (schedule.pharmacy.lat != null && schedule.pharmacy.lng != null) {
-          await this.prisma.$executeRaw`
-            UPDATE "Pharmacy"
-            SET location = ST_SetSRID(
-              ST_MakePoint(${schedule.pharmacy.lng}, ${schedule.pharmacy.lat}),
-              4326
-            )::geography
-            WHERE id = ${pharmacy.id}
-          `;
-        }
-
-        await this.prisma.dutySchedule.upsert({
-          where: { pharmacyId_date: { pharmacyId: pharmacy.id, date: schedule.date } },
-          update: {
-            startTime: schedule.startTime,
-            endTime: schedule.endTime,
-            source: schedule.sourceUrl,
-          },
-          create: {
-            pharmacyId: pharmacy.id,
-            date: schedule.date,
-            startTime: schedule.startTime,
-            endTime: schedule.endTime,
-            source: schedule.sourceUrl,
-          },
-        });
-
-        saved++;
-      } catch (err) {
-        this.logger.warn(
-          `⚠️  Error al guardar ${schedule.pharmacy.name}: ${(err as Error).message}`,
-        );
-      }
-    }
-
+    const { saved } = await this.scheduleWriter.upsertSchedules(
+      { name: COFC_PROVINCE, code: COFC_PROVINCE_CODE },
+      schedules,
+    );
     return saved;
   }
 }

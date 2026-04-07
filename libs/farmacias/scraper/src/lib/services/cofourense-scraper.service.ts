@@ -1,8 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import axios from 'axios';
-import { PrismaService } from '@osplab/farmacias-data-access';
-import type { ScrapedDutySchedule } from '../interfaces/scraper.interfaces';
+import { PrismaService, ScheduleWriterService } from '@osplab/farmacias-data-access';
 import {
   buildCofourenseUrl,
   COFOURENSE_PROVINCE,
@@ -16,7 +15,10 @@ import { getSpainToday } from '../utils/spain-date.util';
 export class CofourenseScraperService {
   private readonly logger = new Logger(CofourenseScraperService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly scheduleWriter: ScheduleWriterService,
+  ) {}
 
   /**
    * Ejecuta el scraping automáticamente cada día a las 06:00.
@@ -79,118 +81,11 @@ export class CofourenseScraperService {
     }
 
     this.logger.debug(`📋 COF Ourense: ${schedules.length} farmacias de guardia encontradas`);
-    await this.upsertSchedules(schedules);
-  }
 
-  /**
-   * Guarda los turnos en la BD usando upsert (no duplica ni corrompe datos).
-   */
-  private async upsertSchedules(schedules: ScrapedDutySchedule[]): Promise<void> {
-    // Asegurar que la comunidad autónoma / provincia existe
-    const provinceRecord = await this.prisma.province.upsert({
-      where: { code: COFOURENSE_PROVINCE_CODE },
-      update: {},
-      create: { name: COFOURENSE_PROVINCE, code: COFOURENSE_PROVINCE_CODE },
-    });
-
-    let saved = 0;
-    let skipped = 0;
-
-    for (const schedule of schedules) {
-      try {
-        // Upsert de la ciudad
-        const city = await this.prisma.city.upsert({
-          where: {
-            name_provinceId: {
-              name: schedule.pharmacy.cityName,
-              provinceId: provinceRecord.id,
-            },
-          },
-          update: {},
-          create: {
-            name: schedule.pharmacy.cityName,
-            provinceId: provinceRecord.id,
-          },
-        });
-
-        // Upsert de la farmacia (identificada por nombre + dirección + ciudad)
-        const pharmacyId = await this.findPharmacyId(
-          schedule.pharmacy.name,
-          schedule.pharmacy.address,
-          city.id,
-        );
-
-        const pharmacy = await this.prisma.pharmacy.upsert({
-          where: { id: pharmacyId },
-          update: {
-            phone: schedule.pharmacy.phone ?? undefined,
-            ownerName: schedule.pharmacy.ownerName ?? undefined,
-          },
-          create: {
-            name: schedule.pharmacy.name,
-            ownerName: schedule.pharmacy.ownerName,
-            address: schedule.pharmacy.address,
-            phone: schedule.pharmacy.phone,
-            cityId: city.id,
-          },
-        });
-
-        // Actualizar la localización PostGIS si tenemos coordenadas válidas
-        if (schedule.pharmacy.lat != null && schedule.pharmacy.lng != null) {
-          await this.prisma.$executeRaw`
-            UPDATE "Pharmacy"
-            SET location = ST_SetSRID(
-              ST_MakePoint(${schedule.pharmacy.lng}, ${schedule.pharmacy.lat}),
-              4326
-            )::geography
-            WHERE id = ${pharmacy.id}
-          `;
-        }
-
-        // Upsert del turno de guardia
-        await this.prisma.dutySchedule.upsert({
-          where: {
-            pharmacyId_date: {
-              pharmacyId: pharmacy.id,
-              date: schedule.date,
-            },
-          },
-          update: {
-            startTime: schedule.startTime,
-            endTime: schedule.endTime,
-            source: schedule.sourceUrl,
-          },
-          create: {
-            pharmacyId: pharmacy.id,
-            date: schedule.date,
-            startTime: schedule.startTime,
-            endTime: schedule.endTime,
-            source: schedule.sourceUrl,
-          },
-        });
-
-        saved++;
-      } catch (err) {
-        skipped++;
-        this.logger.warn(
-          `⚠️  Error al guardar ${schedule.pharmacy.name}: ${(err as Error).message}`,
-        );
-        // Continúa con la siguiente farmacia
-      }
-    }
-
+    const { saved, skipped } = await this.scheduleWriter.upsertSchedules(
+      { name: COFOURENSE_PROVINCE, code: COFOURENSE_PROVINCE_CODE },
+      schedules,
+    );
     this.logger.log(`💾 COF Ourense: ${saved} turnos guardados, ${skipped} omitidos`);
-  }
-
-  /**
-   * Busca el ID de una farmacia por nombre+dirección+ciudad.
-   * Retorna un ID ficticio si no existe (para que upsert use el create).
-   */
-  private async findPharmacyId(name: string, address: string, cityId: string): Promise<string> {
-    const existing = await this.prisma.pharmacy.findFirst({
-      where: { name, address, cityId },
-      select: { id: true },
-    });
-    return existing?.id ?? 'new';
   }
 }

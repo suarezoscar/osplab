@@ -5,6 +5,22 @@
   "projectType": "library",
   "tags": ["type:data-access", "scope:farmacias"],
   "targets": {
-    "lint": { "executor": "@nx/eslint:lint" }
+    "lint": { "executor": "@nx/eslint:lint" },
+    "test": {
+      "executor": "nx:run-commands",
+      "outputs": ["{workspaceRoot}/coverage/libs/farmacias/data-access"],
+      "options": {
+        "command": "vitest run --config libs/farmacias/data-access/vitest.config.ts",
+        "cwd": "{workspaceRoot}"
+      },
+      "configurations": {
+        "coverage": {
+          "command": "vitest run --coverage --config libs/farmacias/data-access/vitest.config.ts"
+        },
+        "watch": {
+          "command": "vitest --config libs/farmacias/data-access/vitest.config.ts"
+        }
+      }
+    }
   }
 }

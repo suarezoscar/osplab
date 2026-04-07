@@ -1,6 +1,6 @@
 import { vi, type Mock } from 'vitest';
 import { Logger } from '@nestjs/common';
-import { PrismaService } from '@osplab/farmacias-data-access';
+import { PrismaService, ScheduleWriterService } from '@osplab/farmacias-data-access';
 import { CofpontevedraScraperService } from './cofpontevedra-scraper.service';
 import axios from 'axios';
 import * as fs from 'node:fs';
@@ -16,59 +16,34 @@ const mockMunicipios = [
 ];
 
 type PrismaMock = {
-  province: { upsert: Mock };
-  city: { upsert: Mock };
-  pharmacy: { upsert: Mock; findFirst: Mock };
-  dutySchedule: { upsert: Mock; deleteMany: Mock };
-  $executeRaw: Mock;
+  dutySchedule: { deleteMany: Mock };
 };
 
 function makePrismaMock(): PrismaMock {
   return {
-    province: { upsert: vi.fn() },
-    city: { upsert: vi.fn() },
-    pharmacy: { upsert: vi.fn(), findFirst: vi.fn() },
-    dutySchedule: { upsert: vi.fn(), deleteMany: vi.fn() },
-    $executeRaw: vi.fn(),
+    dutySchedule: { deleteMany: vi.fn().mockResolvedValue({ count: 0 }) },
+  };
+}
+
+function makeWriterMock() {
+  return {
+    upsertSchedules: vi.fn().mockResolvedValue({ saved: 3, skipped: 0 }),
   };
 }
 
 describe('CofpontevedraScraperService', () => {
   let service: CofpontevedraScraperService;
   let prisma: ReturnType<typeof makePrismaMock>;
+  let writer: ReturnType<typeof makeWriterMock>;
 
   beforeEach(() => {
     prisma = makePrismaMock();
-    prisma.province.upsert.mockResolvedValue({ id: 'prov-1', name: 'Pontevedra', code: 'PO' });
-    prisma.city.upsert.mockResolvedValue({
-      id: 'city-1',
-      name: 'Pontevedra',
-      provinceId: 'prov-1',
-    });
-    prisma.pharmacy.findFirst.mockResolvedValue(null);
-    prisma.pharmacy.upsert.mockResolvedValue({
-      id: 'ph-1',
-      name: 'Test',
-      address: 'Test',
-      phone: null,
-      cityId: 'city-1',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    });
-    prisma.dutySchedule.upsert.mockResolvedValue({
-      id: 'ds-1',
-      pharmacyId: 'ph-1',
-      date: new Date(),
-      startTime: '09:00',
-      endTime: '22:00',
-      type: 'REGULAR',
-      source: null,
-      createdAt: new Date(),
-    });
-    prisma.dutySchedule.deleteMany.mockResolvedValue({ count: 0 });
-    prisma.$executeRaw.mockResolvedValue(1);
+    writer = makeWriterMock();
 
-    service = new CofpontevedraScraperService(prisma as unknown as PrismaService);
+    service = new CofpontevedraScraperService(
+      prisma as unknown as PrismaService,
+      writer as unknown as ScheduleWriterService,
+    );
     vi.spyOn(service['logger'] as Logger, 'log').mockImplementation(() => undefined);
     vi.spyOn(service['logger'] as Logger, 'warn').mockImplementation(() => undefined);
     vi.spyOn(service['logger'] as Logger, 'debug').mockImplementation(() => undefined);
@@ -86,7 +61,7 @@ describe('CofpontevedraScraperService', () => {
 
       await service.scrapeForDate(new Date('2026-04-06T00:00:00'));
 
-      expect(prisma.dutySchedule.upsert).not.toHaveBeenCalled();
+      expect(writer.upsertSchedules).not.toHaveBeenCalled();
     });
 
     it('llama a axios.post por cada municipio', async () => {
@@ -100,15 +75,19 @@ describe('CofpontevedraScraperService', () => {
       expect(axios.post).toHaveBeenCalledTimes(3);
     });
 
-    it('Diurno+Nocturno del mismo id genera un único dutySchedule.upsert', async () => {
+    it('delega la persistencia al ScheduleWriterService', async () => {
       vi.spyOn(axios, 'post')
         .mockResolvedValueOnce({ data: mockMunicipios })
         .mockResolvedValue({ data: fixtureItems });
 
       await service.scrapeForDate(new Date('2026-04-06T00:00:00'));
 
-      // id 101 (Diurno+Nocturno=1) + id 202 (Diurno=1) + id 303 (Diurno=1) × 2 municipios = 6 upserts
-      expect(prisma.dutySchedule.upsert).toHaveBeenCalledTimes(6);
+      // Se llama una vez por cada municipio que devuelve schedules
+      expect(writer.upsertSchedules).toHaveBeenCalled();
+      expect(writer.upsertSchedules).toHaveBeenCalledWith(
+        { name: 'Pontevedra', code: 'PO' },
+        expect.any(Array),
+      );
     });
 
     it('falla silenciosamente si la respuesta de un municipio es inválida', async () => {
