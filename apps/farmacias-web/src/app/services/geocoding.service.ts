@@ -57,7 +57,7 @@ export class GeocodingService {
           addressdetails: '1',
           'accept-language': 'es',
         },
-        headers: { 'User-Agent': 'FarmaciasGuardiaApp/1.0' },
+        headers: { Referer: 'https://farmacias.osplab.dev' },
       })
       .pipe(
         map((results) => {
