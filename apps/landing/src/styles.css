@@ -14,12 +14,12 @@ body {
 @keyframes logo-enter {
   from {
     opacity: 0;
-    transform: translateY(-16px) scale(0.93);
+    transform: translate3d(0, -16px, 0) scale(0.93);
     filter: blur(4px);
   }
   to {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: translate3d(0, 0, 0) scale(1);
     filter: blur(0);
   }
 }
@@ -27,10 +27,10 @@ body {
 @keyframes logo-float {
   0%,
   100% {
-    transform: translateY(0px);
+    transform: translate3d(0, 0, 0);
   }
   50% {
-    transform: translateY(-9px);
+    transform: translate3d(0, -8px, 0);
   }
 }
 
@@ -44,10 +44,17 @@ body {
   }
 }
 
+/* Glow pulse on the wrapper — doesn't move, so no rasterization blur */
+.logo-glow {
+  animation: logo-glow-pulse 5s ease-in-out 0.75s infinite;
+  will-change: filter;
+}
+
+/* Float + enter on the image — transform only, no filter */
 .logo-animate {
   animation:
     logo-enter 0.75s cubic-bezier(0.16, 1, 0.3, 1) both,
-    logo-float 5s ease-in-out 0.75s infinite,
-    logo-glow-pulse 5s ease-in-out 0.75s infinite;
-  will-change: transform, filter;
+    logo-float 5s ease-in-out 0.75s infinite;
+  will-change: transform;
+  backface-visibility: hidden;
 }
