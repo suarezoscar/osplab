@@ -15,6 +15,7 @@ on:
           - lugo
           - coruña
           - madrid
+          - cataluña
       confirm:
         description: '⚠️ Escribe "yes" para confirmar el seed en producción'
         required: true

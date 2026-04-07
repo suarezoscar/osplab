@@ -10,6 +10,7 @@ import {
   CoflugoScraperService,
   CofcScraperService,
   CofmScraperService,
+  FarmaguiaScraperService,
 } from '@osplab/farmacias-scraper';
 
 const mockCofourense: Partial<CofourenseScraperService> = {
@@ -32,6 +33,10 @@ const mockCofm: Partial<CofmScraperService> = {
   scrapeToday: vi.fn().mockResolvedValue(undefined),
 };
 
+const mockFarmaguia: Partial<FarmaguiaScraperService> = {
+  scrapeToday: vi.fn().mockResolvedValue(undefined),
+};
+
 /** Crea la app con el guard sobreescrito (para tests de lógica del controller) */
 async function buildApp(overrideGuard = true): Promise<INestApplication> {
   let builder = Test.createTestingModule({
@@ -42,6 +47,7 @@ async function buildApp(overrideGuard = true): Promise<INestApplication> {
       { provide: CoflugoScraperService, useValue: mockCoflugo },
       { provide: CofcScraperService, useValue: mockCofc },
       { provide: CofmScraperService, useValue: mockCofm },
+      { provide: FarmaguiaScraperService, useValue: mockFarmaguia },
     ],
   });
 
@@ -162,6 +168,28 @@ describe('AdminController', () => {
       (mockCofm.scrapeToday as Mock).mockRejectedValueOnce(new Error('scraping failed'));
 
       const res = await request(app.getHttpServer()).post('/admin/scrape/cofm');
+
+      expect(res.status).toBe(HttpStatus.ACCEPTED);
+    });
+  });
+  describe('POST /admin/scrape/farmaguia', () => {
+    it('responde 202 Accepted', async () => {
+      const res = await request(app.getHttpServer()).post('/admin/scrape/farmaguia');
+
+      expect(res.status).toBe(HttpStatus.ACCEPTED);
+      expect(res.body.message).toContain('Barcelona');
+    });
+
+    it('invoca scrapeToday en background', async () => {
+      await request(app.getHttpServer()).post('/admin/scrape/farmaguia');
+      await new Promise((r) => setTimeout(r, 10));
+      expect(mockFarmaguia.scrapeToday).toHaveBeenCalledTimes(1);
+    });
+
+    it('no propaga el error si scrapeToday rechaza', async () => {
+      (mockFarmaguia.scrapeToday as Mock).mockRejectedValueOnce(new Error('scraping failed'));
+
+      const res = await request(app.getHttpServer()).post('/admin/scrape/farmaguia');
 
       expect(res.status).toBe(HttpStatus.ACCEPTED);
     });

@@ -24,11 +24,11 @@ export class HomeComponent {
       id: 'farmacias',
       name: 'Farmacias de Guardia',
       description:
-        'Encuentra las farmacias de guardia más cercanas a tu ubicación en tiempo real. Disponible en Galicia y Madrid — más provincias próximamente.',
+        'Encuentra las farmacias de guardia más cercanas a tu ubicación en tiempo real. Disponible en Galicia, Madrid y Barcelona — más provincias próximamente.',
       url: 'https://farmacias.osplab.dev',
       theme: 'green',
       status: 'live',
-      tags: ['Salud', 'Galicia', 'Madrid', 'Geolocalización'],
+      tags: ['Salud', 'Galicia', 'Madrid', 'Barcelona', 'Geolocalización'],
       version: '1.1.0',
     },
   ];
