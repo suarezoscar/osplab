@@ -2,7 +2,7 @@
 
 ## Visión del Proyecto
 
-**OSPLab** es un monorepo Nx que alberga una suite de herramientas open source para la ciudadanía.
+**OSPLab** es un monorepo Nx que alberga una suite de herramientas open source.
 Cada herramienta vive bajo un subdominio de `osplab.dev`.
 
 | Proyecto             | Dominio                | Apps Nx                           |

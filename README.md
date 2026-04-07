@@ -1,6 +1,6 @@
 # OSPLab 🧪
 
-**Suite de herramientas open source orientadas al ciudadano.**
+**Suite de herramientas open source.**
 
 | Proyecto             | Dominio                                              | Estado    |
 | -------------------- | ---------------------------------------------------- | --------- |
