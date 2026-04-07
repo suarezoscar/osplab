@@ -48,14 +48,6 @@ export function formatDateForCofpo(date: Date): string {
 }
 
 /**
- * Formatea una fecha a YYYY-MM-DD para comparar con el campo `fecha` de la respuesta.
- */
-function toIsoDate(date: Date): string {
-  const pad = (n: number) => String(n).padStart(2, '0');
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
-}
-
-/**
  * Intenta extraer el horario de guardia del campo `observaciones`.
  * Ej: "De 9:30 h. a 22 h." → { start: "09:30", end: "22:00" }
  * Retorna null si no hay match.
@@ -102,12 +94,15 @@ export function resolveTimeRange(
 /**
  * Convierte el array de items de la API de COF Pontevedra en `ScrapedDutySchedule[]`.
  *
- * - Filtra solo los registros de `targetDate`.
  * - Agrupa por farmacia (mismo `id`) para fusionar Diurno+Nocturno en un único turno.
  * - Retorna [] si la estructura no es válida (fail silently).
  *
+ * No filtramos por fecha: la API ya devuelve solo las farmacias de guardia
+ * para la `search_fecha` enviada. El campo `fecha` indica cuándo EMPIEZA la
+ * guardia, que puede ser el día anterior en guardias nocturnas.
+ *
  * @param data       - Respuesta JSON de la API (array)
- * @param targetDate - Fecha de guardia a procesar
+ * @param targetDate - Fecha de referencia (fallback si un item no tiene `fecha`)
  * @param sourceUrl  - URL de origen (para auditoría)
  */
 export function parseCofpontevedraItems(
@@ -118,18 +113,11 @@ export function parseCofpontevedraItems(
   try {
     if (!Array.isArray(data) || data.length === 0) return [];
 
-    const targetDateStr = toIsoDate(targetDate);
-
-    // Filtrar solo registros de hoy
-    const todayItems = (data as CofpontevedraItem[]).filter(
-      (item) => item?.fecha === targetDateStr,
-    );
-
-    if (todayItems.length === 0) return [];
+    const items = data as CofpontevedraItem[];
 
     // Agrupar por id de farmacia (una farmacia puede tener Diurno + Nocturno)
     const byId = new Map<string, CofpontevedraItem[]>();
-    for (const item of todayItems) {
+    for (const item of items) {
       if (!item.id || !item.nombre) continue;
       const list = byId.get(item.id) ?? [];
       list.push(item);
@@ -161,7 +149,10 @@ export function parseCofpontevedraItems(
           ...(validCoords ? { lat, lng } : {}),
         };
 
-        schedules.push({ pharmacy, date: targetDate, startTime, endTime, sourceUrl });
+        // Usar la fecha real del item para el DutySchedule
+        const itemDate = first.fecha ? new Date(`${first.fecha}T00:00:00`) : targetDate;
+
+        schedules.push({ pharmacy, date: itemDate, startTime, endTime, sourceUrl });
       } catch {
         // Fail silently por entrada individual
       }

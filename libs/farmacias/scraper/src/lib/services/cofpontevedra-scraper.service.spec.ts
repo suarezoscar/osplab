@@ -107,8 +107,8 @@ describe('CofpontevedraScraperService', () => {
 
       await service.scrapeForDate(new Date('2026-04-06T00:00:00'));
 
-      // id 101 (Diurno+Nocturno=1) + id 202 (Diurno=1) × 2 municipios = 4 upserts
-      expect(prisma.dutySchedule.upsert).toHaveBeenCalledTimes(4);
+      // id 101 (Diurno+Nocturno=1) + id 202 (Diurno=1) + id 303 (Diurno=1) × 2 municipios = 6 upserts
+      expect(prisma.dutySchedule.upsert).toHaveBeenCalledTimes(6);
     });
 
     it('falla silenciosamente si la respuesta de un municipio es inválida', async () => {

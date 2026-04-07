@@ -99,16 +99,16 @@ describe('parseCofpontevedraItems', () => {
   const targetDate = new Date('2026-04-06T00:00:00');
   const url = 'https://example.com/guardia';
 
-  it('retorna 2 schedules para 2026-04-06 (el item de ayer se filtra)', () => {
+  it('retorna todos los schedules de la respuesta (sin filtrar por fecha)', () => {
     const result = parseCofpontevedraItems(fixtureItems, targetDate, url);
-    expect(result).toHaveLength(2);
+    expect(result).toHaveLength(3);
   });
 
   it('agrupa Diurno+Nocturno del mismo id en un único schedule', () => {
     // id "101" tiene dos items (Diurno + Nocturno) → debe ser 1 schedule
     const result = parseCofpontevedraItems(fixtureItems, targetDate, url);
-    const pontevedra = result.filter((s) => s.pharmacy.cityName === 'Pontevedra');
-    expect(pontevedra).toHaveLength(1);
+    const centro = result.filter((s) => s.pharmacy.name === 'FARMACIA PONTEVEDRA CENTRO');
+    expect(centro).toHaveLength(1);
   });
 
   it('las observaciones se usan para resolver el horario de id 101', () => {
@@ -139,9 +139,9 @@ describe('parseCofpontevedraItems', () => {
     expect(parseCofpontevedraItems([], targetDate, url)).toEqual([]);
   });
 
-  it('retorna [] si no hay items para la fecha objetivo', () => {
+  it('procesa items independientemente de la fecha objetivo (la API filtra server-side)', () => {
     const result = parseCofpontevedraItems(fixtureItems, new Date('2030-01-01T00:00:00'), url);
-    expect(result).toEqual([]);
+    expect(result).toHaveLength(3);
   });
 
   it('asigna el sourceUrl correcto', () => {
