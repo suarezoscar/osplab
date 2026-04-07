@@ -150,19 +150,12 @@
   </main>
 
   <!-- ── Footer ──────────────────────────────────────────────────────────── -->
-  <footer
-    class="text-center text-xs text-gray-400 py-5 px-4 border-t border-gray-100 mt-4 flex flex-col items-center gap-2">
+  <footer class="border-t border-gray-100 mt-4 py-6 px-4 flex flex-col items-center gap-4 text-xs text-gray-400">
+    <!-- 1. Marca / Identidad — lo primero que el usuario asocia -->
     <osplab-badge />
-    <p>
-      Datos actualizados diariamente &middot;
-      <a
-        routerLink="/privacidad"
-        class="underline underline-offset-2 hover:text-green-600 transition-colors duration-150">
-        Privacidad
-      </a>
-    </p>
-    <p class="flex items-center gap-2 text-gray-400">
-      <!-- GitHub -->
+
+    <!-- 2. Engagement — redes sociales y apoyo -->
+    <nav aria-label="Redes sociales" class="flex items-center gap-3">
       <a
         href="https://github.com/suarezoscar"
         target="_blank"
@@ -171,8 +164,6 @@
         class="text-gray-400 hover:text-gray-700 transition-colors duration-200">
         <icon-github />
       </a>
-      <span aria-hidden="true">&middot;</span>
-      <!-- LinkedIn -->
       <a
         href="https://www.linkedin.com/in/oscarsuarezpayo/"
         target="_blank"
@@ -181,8 +172,6 @@
         class="text-gray-400 hover:text-blue-600 transition-colors duration-200">
         <icon-linkedin />
       </a>
-      <!-- Ko-fi -->
-      <span aria-hidden="true">&middot;</span>
       <a
         href="https://ko-fi.com/osplab"
         target="_blank"
@@ -191,6 +180,16 @@
         class="inline-flex items-center gap-1 text-gray-400 hover:text-amber-500 transition-colors duration-200 font-medium">
         <icon-kofi [size]="14" />
         <span>Ko-fi</span>
+      </a>
+    </nav>
+
+    <!-- 3. Legal / meta — siempre al final por convención -->
+    <p class="text-gray-400/80">
+      Datos actualizados diariamente &middot;
+      <a
+        routerLink="/privacidad"
+        class="underline underline-offset-2 hover:text-green-600 transition-colors duration-150">
+        Privacidad
       </a>
     </p>
   </footer>
