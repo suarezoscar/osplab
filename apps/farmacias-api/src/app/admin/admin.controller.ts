@@ -5,6 +5,7 @@ import {
   CofpontevedraScraperService,
   CoflugoScraperService,
   CofcScraperService,
+  CofmScraperService,
 } from '@osplab/farmacias-scraper';
 import { AdminApiKeyGuard } from './admin-api-key.guard';
 
@@ -13,6 +14,7 @@ import { AdminApiKeyGuard } from './admin-api-key.guard';
  * POST /api/admin/scrape/cofpontevedra
  * POST /api/admin/scrape/coflugo
  * POST /api/admin/scrape/cofc
+ * POST /api/admin/scrape/cofm
  *
  * Protegidos por AdminApiKeyGuard (cabecera X-Admin-Key).
  * SkipThrottle porque estas rutas son llamadas sólo por el propio cron/admin.
@@ -26,6 +28,7 @@ export class AdminController {
     private readonly cofpontevedraScraper: CofpontevedraScraperService,
     private readonly coflugoScraper: CoflugoScraperService,
     private readonly cofcScraper: CofcScraperService,
+    private readonly cofmScraper: CofmScraperService,
   ) {}
 
   @Post('scrape/cofourense')
@@ -54,5 +57,12 @@ export class AdminController {
   async triggerCofcScrape(): Promise<{ message: string }> {
     this.cofcScraper.scrapeToday().catch(() => void 0);
     return { message: 'Scraping de COF A Coruña iniciado en background' };
+  }
+
+  @Post('scrape/cofm')
+  @HttpCode(HttpStatus.ACCEPTED)
+  async triggerCofmScrape(): Promise<{ message: string }> {
+    this.cofmScraper.scrapeToday().catch(() => void 0);
+    return { message: 'Scraping de COFM Madrid iniciado en background' };
   }
 }

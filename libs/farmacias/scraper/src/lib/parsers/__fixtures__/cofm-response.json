@@ -1,0 +1,72 @@
+[
+  {
+    "identificador": "2",
+    "direccion": "PZ DOS DE MAYO, 6",
+    "poblacion": "MADRID",
+    "latitud": "40.42732577",
+    "longitud": "-3.70418625",
+    "telefono": "915227658",
+    "codigoPostal": "28004",
+    "horarioHoy": "09:15-21:15",
+    "horarioDesc": "09:15–21:15",
+    "abierta": true,
+    "guardia": false,
+    "servicio24h": false
+  },
+  {
+    "identificador": "3",
+    "direccion": "CL RIOS ROSAS, 50",
+    "poblacion": "MADRID",
+    "latitud": "40.44159016",
+    "longitud": "-3.69623446",
+    "telefono": "915334118",
+    "codigoPostal": "28003",
+    "horarioHoy": "08:30-14:00,17:00-20:30",
+    "horarioDesc": "08:30–14:00 · 17:00–20:30",
+    "abierta": true,
+    "guardia": false,
+    "servicio24h": false
+  },
+  {
+    "identificador": "4",
+    "direccion": "CL ARGENSOLA, 12",
+    "poblacion": "MADRID",
+    "latitud": "40.42528357",
+    "longitud": "-3.69478135",
+    "telefono": "913103945",
+    "codigoPostal": "28004",
+    "horarioHoy": "09:30-21:00",
+    "horarioDesc": "09:30–21:00",
+    "abierta": true,
+    "guardia": false,
+    "servicio24h": false
+  },
+  {
+    "identificador": "5",
+    "direccion": "CL ALCALA, 98",
+    "poblacion": "MADRID",
+    "latitud": "40.42499626",
+    "longitud": "-3.6748442",
+    "telefono": "915753123",
+    "codigoPostal": "28009",
+    "horarioHoy": "09:30-13:30,17:00-20:00",
+    "horarioDesc": "09:30–13:30 · 17:00–20:00",
+    "abierta": true,
+    "guardia": false,
+    "servicio24h": false
+  },
+  {
+    "identificador": "100",
+    "direccion": "AV GRAN VIA, 1",
+    "poblacion": "MADRID",
+    "latitud": "40.41900000",
+    "longitud": "-3.70100000",
+    "telefono": "910000001",
+    "codigoPostal": "28013",
+    "horarioHoy": "00:00-23:59",
+    "horarioDesc": "24 horas",
+    "abierta": true,
+    "guardia": true,
+    "servicio24h": true
+  }
+]
