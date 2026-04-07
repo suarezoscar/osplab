@@ -34,8 +34,8 @@ export class PharmacyCardComponent {
 
   readonly headerClass = computed(() =>
     this.isFirst()
-      ? 'bg-linear-to-br from-green-950 to-green-800 text-white px-5 py-4 flex items-start justify-between gap-3'
-      : 'bg-linear-to-br from-green-700 to-green-600 text-white px-5 py-4 flex items-start justify-between gap-3',
+      ? 'bg-linear-to-br from-green-950 to-green-800 text-white px-5 py-4'
+      : 'bg-linear-to-br from-green-700 to-green-600 text-white px-5 py-4',
   );
 
   readonly rankBadgeClass = computed(
@@ -44,25 +44,13 @@ export class PharmacyCardComponent {
   );
 
   readonly nameClass = computed(() =>
-    this.isFirst()
-      ? 'font-bold text-lg leading-snug truncate'
-      : 'font-semibold text-base leading-snug truncate',
+    this.isFirst() ? 'font-bold text-lg leading-snug' : 'font-semibold text-base leading-snug',
   );
 
   readonly distanceBadgeClass = computed(() =>
     this.isFirst()
-      ? 'shrink-0 bg-amber-400 rounded-xl px-3 py-2 text-center min-w-17'
-      : 'shrink-0 bg-white/15 rounded-xl px-2.5 py-1.5 text-center min-w-15',
-  );
-
-  readonly distanceTextClass = computed(() =>
-    this.isFirst()
-      ? 'text-2xl font-extrabold leading-none text-amber-900'
-      : 'text-lg font-extrabold leading-none',
-  );
-
-  readonly distanceSubtitleClass = computed(() =>
-    this.isFirst() ? 'text-amber-800 text-xs mt-0.5' : 'text-green-100 text-xs mt-0.5',
+      ? 'inline-flex items-center bg-amber-400 text-amber-900 text-xs font-bold rounded-full px-2.5 py-0.5'
+      : 'inline-flex items-center bg-white/15 text-green-100 text-xs font-bold rounded-full px-2.5 py-0.5',
   );
 
   readonly cityLineClass = computed(() =>

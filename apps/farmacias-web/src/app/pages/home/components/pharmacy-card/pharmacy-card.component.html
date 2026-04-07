@@ -16,26 +16,21 @@
 
   <!-- ── Cabecera ──────────────────────────────────────────────────── -->
   <div [class]="headerClass()">
-    <div class="flex-1 min-w-0">
-      <div class="flex items-center gap-2.5 mb-1">
-        @if (!isFirst()) {
-          <span [class]="rankBadgeClass()" aria-hidden="true">{{ index() + 1 }}</span>
-        }
-        <h2 [class]="nameClass()">{{ pharmacy().name }}</h2>
-      </div>
-      @if (pharmacy().ownerName) {
-        <p [class]="ownerClass()">{{ pharmacy().ownerName }}</p>
+    <div class="flex items-center gap-2.5 mb-1">
+      @if (!isFirst()) {
+        <span [class]="rankBadgeClass()" aria-hidden="true">{{ index() + 1 }}</span>
       }
-      <p [class]="cityLineClass()">{{ pharmacy().city }}, {{ pharmacy().province }}</p>
+      <h2 [class]="nameClass()">{{ pharmacy().name }}</h2>
     </div>
-
-    <!-- Distancia -->
-    @if (pharmacy().distance !== undefined) {
-      <div [class]="distanceBadgeClass()">
-        <p [class]="distanceTextClass()">{{ formatDistance(pharmacy().distance) }}</p>
-        <p [class]="distanceSubtitleClass()">de ti</p>
-      </div>
+    @if (pharmacy().ownerName) {
+      <p [class]="ownerClass()">{{ pharmacy().ownerName }}</p>
     }
+    <div class="flex items-center gap-2 mt-0.5 flex-wrap">
+      <p [class]="cityLineClass()">{{ pharmacy().city }}, {{ pharmacy().province }}</p>
+      @if (pharmacy().distance !== undefined) {
+        <span [class]="distanceBadgeClass()">{{ formatDistance(pharmacy().distance) }}</span>
+      }
+    </div>
   </div>
 
   <!-- ── Cuerpo ────────────────────────────────────────────────────── -->
