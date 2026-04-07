@@ -32,6 +32,7 @@ Cada herramienta vive bajo un subdominio de `osplab.dev`.
 @osplab/farmacias-scraper      → libs/farmacias/scraper
 @osplab/farmacias-web-ui       → libs/farmacias/web/ui
 @osplab/shared-interfaces      → libs/shared/interfaces
+@osplab/shared-ui              → libs/shared/ui
 ```
 
 ## Lógica de Negocio Crítica

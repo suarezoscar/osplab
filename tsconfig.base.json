@@ -19,6 +19,7 @@
       "@osplab/farmacias-data-access": ["libs/farmacias/data-access/src/index.ts"],
       "@osplab/farmacias-scraper": ["libs/farmacias/scraper/src/index.ts"],
       "@osplab/shared-interfaces": ["libs/shared/interfaces/src/index.ts"],
+      "@osplab/shared-ui": ["libs/shared/ui/src/index.ts"],
       "@osplab/farmacias-web-ui": ["libs/farmacias/web/ui/src/index.ts"]
     }
   },

@@ -15,6 +15,7 @@ import { PharmaciesApiService } from '../../services/pharmacies-api.service';
 import { GeolocationService } from '../../services/geolocation.service';
 import { GeocodingService, type GeocodingSuggestion } from '../../services/geocoding.service';
 import type { PharmacyDto } from '@osplab/shared-interfaces';
+import { OspLabBadgeComponent } from '@osplab/shared-ui';
 import {
   AlertTriangleIconComponent,
   GithubIconComponent,
@@ -53,6 +54,7 @@ import { WelcomeStateComponent } from './components/welcome-state/welcome-state.
     PharmacyCardComponent,
     WelcomeStateComponent,
     LoadingSkeletonComponent,
+    OspLabBadgeComponent,
   ],
   templateUrl: './home.component.html',
 })
