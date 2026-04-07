@@ -144,21 +144,7 @@ jobs:
           command: pages deploy dist/apps/farmacias-web/browser --project-name=osplab-farmacias
 
   # ── Deploy Farmacias API → Render ───────────────────────────────────
-  deploy-farmacias-api:
-    name: Deploy farmacias-api → Render
-    needs: [changes, migrate]
-    if: needs.changes.outputs.farmacias-api == 'true'
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    steps:
-      - name: Trigger Render deploy
-        run: |
-          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" \
-            -X POST "${{ secrets.RENDER_DEPLOY_HOOK_URL }}")
-
-          if [ "$RESPONSE" -ge 200 ] && [ "$RESPONSE" -lt 300 ]; then
-            echo "✅ Render deploy triggered (HTTP $RESPONSE)"
-          else
-            echo "❌ Render deploy failed (HTTP $RESPONSE)"
-            exit 1
-          fi
+  # Render auto-deploya desde GitHub en cada push a master.
+  # NO necesita webhook — el servicio está conectado al repo.
+  # Si en el futuro desactivas auto-deploy en Render, descomenta el job
+  # y configura el secret RENDER_DEPLOY_HOOK_URL.

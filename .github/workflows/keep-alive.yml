@@ -1,0 +1,30 @@
+name: Keep Alive
+
+# Pinga el API en Render cada 14 minutos para evitar que el free tier
+# entre en cold sleep (se apaga tras 15 min de inactividad).
+# También mantiene activa la BD de Supabase (se pausa tras 1 semana idle).
+
+on:
+  schedule:
+    # Cada 14 minutos, las 24h del día
+    - cron: '*/14 * * * *'
+  workflow_dispatch: # Permite ejecutar manualmente
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Ping Render API (health check)
+        run: |
+          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" \
+            --max-time 60 \
+            "https://osplab-farmacias-api.onrender.com/api/health")
+
+          echo "Health check response: HTTP $RESPONSE"
+
+          if [ "$RESPONSE" -ge 200 ] && [ "$RESPONSE" -lt 500 ]; then
+            echo "✅ API is alive"
+          else
+            echo "⚠️ API might be down (HTTP $RESPONSE)"
+          fi
