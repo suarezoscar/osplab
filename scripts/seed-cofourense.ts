@@ -7,13 +7,14 @@
  */
 
 import axios from 'axios';
+// noinspection ES6PreferShortImport — jiti no resuelve tsconfig paths ni barrels con dependencias NestJS
 import {
   buildCofourenseUrl,
   COFOURENSE_PROVINCE,
   COFOURENSE_PROVINCE_CODE,
-  getSpainToday,
   parseCofourenseResponse,
-} from '@osplab/farmacias-scraper';
+} from '../libs/farmacias/scraper/src/lib/parsers/cofourense.parser';
+import { getSpainToday } from '../libs/farmacias/scraper/src/lib/utils/spain-date.util';
 import { bulkWriteSchedules, runSeed } from './lib/seed-helpers';
 
 // ─── Main ────────────────────────────────────────────────────────────────────

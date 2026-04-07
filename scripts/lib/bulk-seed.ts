@@ -14,7 +14,8 @@
  */
 
 import { Prisma, PrismaClient } from '../../libs/farmacias/data-access/src/generated/prisma';
-import type { ScrapedDutySchedule } from '@osplab/farmacias-scraper';
+// noinspection ES6PreferShortImport — jiti no resuelve tsconfig paths ni barrels con dependencias NestJS
+import type { ScrapedDutySchedule } from '../../libs/farmacias/scraper/src/lib/interfaces/scraper.interfaces';
 
 // ─── Tipos públicos ──────────────────────────────────────────────────────────
 
@@ -35,8 +36,10 @@ type Logger = (msg: string) => void;
 /**
  * Máximo de operaciones por $transaction batch.
  * Prisma las envía como un solo request al servidor.
+ * Con @prisma/adapter-pg (Supabase), las transacciones batch son interactivas
+ * y tienen timeout — batches pequeños evitan exceder el límite.
  */
-const BATCH_SIZE = 500;
+const BATCH_SIZE = 50;
 
 // ─── API pública ─────────────────────────────────────────────────────────────
 

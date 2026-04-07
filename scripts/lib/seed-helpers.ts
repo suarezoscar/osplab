@@ -11,7 +11,8 @@
 
 import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '../../libs/farmacias/data-access/src/generated/prisma';
-import { getSpainToday } from '@osplab/farmacias-scraper';
+// noinspection ES6PreferShortImport — jiti no resuelve tsconfig paths ni barrels con dependencias NestJS
+import { getSpainToday } from '../../libs/farmacias/scraper/src/lib/utils/spain-date.util';
 
 // Re-exportar para que los seeds solo importen de aquí
 export { bulkWriteSchedules } from './bulk-seed';
@@ -52,7 +53,12 @@ export function createPrisma(): PrismaClient {
   }
 
   const adapter = new PrismaPg({ connectionString: DATABASE_URL });
-  return new PrismaClient({ adapter } as never);
+  return new PrismaClient({
+    adapter,
+    transactionOptions: {
+      timeout: 30_000, // 30s — necesario para Supabase con latencia de red
+    },
+  } as never);
 }
 
 // ─── Limpieza de turnos antiguos ─────────────────────────────────────────────

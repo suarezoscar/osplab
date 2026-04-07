@@ -7,17 +7,18 @@
  */
 
 import axios from 'axios';
+// noinspection ES6PreferShortImport — jiti no resuelve tsconfig paths ni barrels con dependencias NestJS
 import {
   COFPONTEVEDRA_GUARDIA_URL,
   COFPONTEVEDRA_MUNICIPIOS_URL,
   COFPONTEVEDRA_PROVINCE,
   COFPONTEVEDRA_PROVINCE_CODE,
   formatDateForCofpo,
-  getSpainToday,
   parseCofpontevedraItems,
-  type CofpontevedraMunicipio,
-  type ScrapedDutySchedule,
-} from '@osplab/farmacias-scraper';
+} from '../libs/farmacias/scraper/src/lib/parsers/cofpontevedra.parser';
+import type { CofpontevedraMunicipio } from '../libs/farmacias/scraper/src/lib/parsers/cofpontevedra.parser';
+import { getSpainToday } from '../libs/farmacias/scraper/src/lib/utils/spain-date.util';
+import type { ScrapedDutySchedule } from '../libs/farmacias/scraper/src/lib/interfaces/scraper.interfaces';
 import { bulkWriteSchedules, runSeed } from './lib/seed-helpers';
 
 const HEADERS = {

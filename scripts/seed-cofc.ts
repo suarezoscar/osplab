@@ -8,16 +8,17 @@
 
 import axios from 'axios';
 import * as cheerio from 'cheerio';
+// noinspection ES6PreferShortImport — jiti no resuelve tsconfig paths ni barrels con dependencias NestJS
 import {
   COFC_API_URL,
   COFC_MUNICIPIOS,
   COFC_PROVINCE,
   COFC_PROVINCE_CODE,
   formatDateForCofc,
-  getSpainToday,
   parseCofcResponse,
-  type ScrapedDutySchedule,
-} from '@osplab/farmacias-scraper';
+} from '../libs/farmacias/scraper/src/lib/parsers/cofc.parser';
+import { getSpainToday } from '../libs/farmacias/scraper/src/lib/utils/spain-date.util';
+import type { ScrapedDutySchedule } from '../libs/farmacias/scraper/src/lib/interfaces/scraper.interfaces';
 import { bulkWriteSchedules, runSeed } from './lib/seed-helpers';
 
 const HEADERS = {
