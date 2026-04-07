@@ -20,7 +20,7 @@ export class HomeComponent {
       id: 'farmacias',
       name: 'Farmacias de Guardia',
       description:
-        'Consulta las farmacias de guardia más cercanas a tu ubicación en Galicia, en tiempo real desde los colegios oficiales de farmacéuticos.',
+        'Encuentra las farmacias de guardia más cercanas a tu ubicación en tiempo real. Disponible en Galicia por ahora — más provincias próximamente.',
       url: 'https://farmacias.osplab.dev',
       theme: 'green',
       status: 'live',

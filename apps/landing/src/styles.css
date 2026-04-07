@@ -10,6 +10,37 @@ body {
   min-height: 100vh;
 }
 
+/* ── Card shine effect ─────────────────────────────────────────────── */
+@keyframes card-shine-slide {
+  from {
+    translate: -100% 0;
+  }
+  to {
+    translate: 100% 0;
+  }
+}
+
+.card-shine::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 40%,
+    rgba(255, 255, 255, 0.06) 45%,
+    rgba(255, 255, 255, 0.12) 50%,
+    rgba(255, 255, 255, 0.06) 55%,
+    transparent 60%
+  );
+  translate: -100% 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.card-shine:hover::before {
+  animation: card-shine-slide 0.8s ease-out forwards;
+}
+
 /* ── Logo animations ─────────────────────────────────────────────────── */
 @keyframes logo-enter {
   from {
