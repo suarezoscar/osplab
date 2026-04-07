@@ -5,6 +5,7 @@ import { CofpontevedraScraperService } from './services/cofpontevedra-scraper.se
 import { CoflugoScraperService } from './services/coflugo-scraper.service';
 import { CofcScraperService } from './services/cofc-scraper.service';
 import { CofmScraperService } from './services/cofm-scraper.service';
+import { FarmaguiaScraperService } from './services/farmaguia-scraper.service';
 
 @Module({
   imports: [DataAccessModule],
@@ -14,6 +15,7 @@ import { CofmScraperService } from './services/cofm-scraper.service';
     CoflugoScraperService,
     CofcScraperService,
     CofmScraperService,
+    FarmaguiaScraperService,
   ],
   exports: [
     CofourenseScraperService,
@@ -21,6 +23,7 @@ import { CofmScraperService } from './services/cofm-scraper.service';
     CoflugoScraperService,
     CofcScraperService,
     CofmScraperService,
+    FarmaguiaScraperService,
   ],
 })
 export class ScraperModule {}

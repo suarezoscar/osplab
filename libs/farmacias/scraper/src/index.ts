@@ -4,6 +4,7 @@ export { CofpontevedraScraperService } from './lib/services/cofpontevedra-scrape
 export { CoflugoScraperService } from './lib/services/coflugo-scraper.service';
 export { CofcScraperService } from './lib/services/cofc-scraper.service';
 export { CofmScraperService } from './lib/services/cofm-scraper.service';
+export { FarmaguiaScraperService } from './lib/services/farmaguia-scraper.service';
 export {
   parseCoflugoHtml,
   buildCoflugoUrl,
@@ -54,6 +55,23 @@ export {
   COFM_PROVINCE_CODE,
 } from './lib/parsers/cofm.parser';
 export type { CofmPharmacy } from './lib/parsers/cofm.parser';
+export {
+  parseFarmaguiaResponse,
+  extractMagicKey,
+  parseFarmaguiaCoordinates,
+  parseFarmaguiaAddress,
+  parseFarmaguiaSchedule,
+  buildFarmaguiaUrl,
+  resolveProvinceFromPostalCode,
+  FARMAGUIA_INDEX_URL,
+  FARMAGUIA_LANG_URL,
+  FARMAGUIA_DATA_URL,
+  FARMAGUIA_PROVINCE,
+  FARMAGUIA_PROVINCE_CODE,
+  FARMAGUIA_PROVINCES,
+  FARMAGUIA_DEFAULT_PROVINCE,
+} from './lib/parsers/farmaguia.parser';
+export type { FarmaguiaPharmacy, FarmaguiaProvinceInfo } from './lib/parsers/farmaguia.parser';
 export type {
   ScrapedDutySchedule,
   ScrapedPharmacy,
