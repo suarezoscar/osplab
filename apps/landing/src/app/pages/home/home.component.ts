@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { APP_VERSION } from '../../../version';
 
 interface Project {
   id: string;
@@ -8,6 +9,7 @@ interface Project {
   theme: 'green' | 'blue';
   status: 'live' | 'wip' | 'planned';
   tags: string[];
+  version?: string;
 }
 
 @Component({
@@ -15,6 +17,8 @@ interface Project {
   templateUrl: './home.component.html',
 })
 export class HomeComponent {
+  readonly appVersion = APP_VERSION;
+
   readonly projects: Project[] = [
     {
       id: 'farmacias',
