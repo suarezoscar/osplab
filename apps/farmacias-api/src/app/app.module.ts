@@ -5,6 +5,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { ScraperModule } from '@osplab/farmacias-scraper';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { KeepAliveService } from './keep-alive.service';
 import { PharmaciesModule } from './pharmacies/pharmacies.module';
 import { AdminController } from './admin/admin.controller';
 
@@ -19,6 +20,7 @@ import { AdminController } from './admin/admin.controller';
   controllers: [AppController, AdminController],
   providers: [
     AppService,
+    KeepAliveService,
     // Aplica ThrottlerGuard a todos los endpoints
     { provide: APP_GUARD, useClass: ThrottlerGuard },
   ],
