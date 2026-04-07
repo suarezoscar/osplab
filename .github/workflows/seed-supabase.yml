@@ -68,7 +68,7 @@ jobs:
 
           for seed in "${SEEDS[@]}"; do
             echo "🌱 Ejecutando ${seed}..."
-            pnpm jiti "scripts/${seed}"
+            pnpm exec jiti "scripts/${seed}"
             echo ""
           done
 
