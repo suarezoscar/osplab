@@ -29,7 +29,7 @@ export class HomeComponent {
       theme: 'green',
       status: 'live',
       tags: ['Salud', 'Galicia', 'Madrid', 'Geolocalización'],
-      version: '1.0.0',
+      version: '1.1.0',
     },
   ];
 
