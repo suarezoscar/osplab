@@ -76,9 +76,11 @@ echo "📋 Seeds a ejecutar: ${LABEL} (${#SEEDS[@]} script(s))"
 echo ""
 
 # ── Ejecutar seeds ───────────────────────────────────────────────────
+# Usamos "pnpm jiti" para resolver el binario local (node_modules/.bin/jiti).
+# En CI, jiti no está en el PATH global.
 for seed in "${SEEDS[@]}"; do
   echo "🌱 Ejecutando ${seed}..."
-  jiti "scripts/${seed}"
+  pnpm jiti "scripts/${seed}"
   echo ""
 done
 
