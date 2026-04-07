@@ -1,12 +1,11 @@
 /**
  * Script de carga inicial de datos de COF A Coruña (COFC).
- * Consulta cada municipio de la provincia y guarda las farmacias de guardia en PostgreSQL.
+ * Fase 1: Scrape de todos los municipios (HTTP).
+ * Fase 2: Escritura bulk a la BD.
  *
- * Uso: ./node_modules/.bin/jiti scripts/seed-cofc.ts
+ * Uso: jiti scripts/seed-cofc.ts
  */
 
-import { PrismaPg } from '@prisma/adapter-pg';
-import { PrismaClient } from '../libs/farmacias/data-access/src/generated/prisma';
 import axios from 'axios';
 import * as cheerio from 'cheerio';
 import {
@@ -15,31 +14,11 @@ import {
   COFC_PROVINCE,
   COFC_PROVINCE_CODE,
   formatDateForCofc,
+  getSpainToday,
   parseCofcResponse,
-} from '../libs/farmacias/scraper/src/lib/parsers/cofc.parser';
-import type { ScrapedDutySchedule } from '../libs/farmacias/scraper/src/lib/interfaces/scraper.interfaces';
-import { getSpainToday } from '../libs/farmacias/scraper/src/lib/utils/spain-date.util';
-
-// ─── BD ───────────────────────────────────────────────────────────────────────
-const DATABASE_URL = process.env['DATABASE_URL'];
-if (!DATABASE_URL) {
-  console.error('❌  DATABASE_URL no está definida. Copia .env.example en .env y rellénalo.');
-  process.exit(1);
-}
-
-const adapter = new PrismaPg({ connectionString: DATABASE_URL });
-const prisma = new PrismaClient({ adapter } as never);
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-function log(msg: string) {
-  console.log(`  ${msg}`);
-}
-function section(t: string) {
-  console.log(`\n${'─'.repeat(55)}\n${t}\n${'─'.repeat(55)}`);
-}
-function sleep(ms: number) {
-  return new Promise<void>((r) => setTimeout(r, ms));
-}
+  type ScrapedDutySchedule,
+} from '@osplab/farmacias-scraper';
+import { bulkWriteSchedules, runSeed } from './lib/seed-helpers';
 
 const HEADERS = {
   'User-Agent':
@@ -75,23 +54,13 @@ async function fetchSession(): Promise<{ token: string; cookie: string } | null>
 }
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
-async function main() {
-  section('🌿 Seed — COF A Coruña (COFC)');
-  await prisma.$connect();
-  log('✅ Conectado a PostgreSQL');
-
-  const now = new Date();
+runSeed('🌿 Seed — COF A Coruña (COFC)', async ({ prisma, log, sleep }) => {
   const today = getSpainToday();
-
-  // Limpiar turnos anteriores a hoy
-  const deleted = await prisma.dutySchedule.deleteMany({ where: { date: { lt: today } } });
-  if (deleted.count > 0) log(`🧹 Eliminados ${deleted.count} turnos de guardia anteriores a hoy`);
-
   const dateStr = formatDateForCofc(today);
   log(`📅 Fecha: ${dateStr}`);
   log(`📋 Municipios a consultar: ${COFC_MUNICIPIOS.length}`);
 
-  // Obtener token antiforgery (requerido por ASP.NET MVC)
+  // Obtener token antiforgery
   log('🔑 Obteniendo sesión antiforgery...');
   const session = await fetchSession();
   if (!session) {
@@ -100,15 +69,8 @@ async function main() {
   }
   log('✅ Sesión obtenida');
 
-  // Upsert provincia
-  const province = await prisma.province.upsert({
-    where: { code: COFC_PROVINCE_CODE },
-    update: {},
-    create: { name: COFC_PROVINCE, code: COFC_PROVINCE_CODE },
-  });
-
-  let totalSaved = 0;
-  let totalSkipped = 0;
+  // ── FASE 1: Scrape ──────────────────────────────────────────────────
+  const allSchedules: ScrapedDutySchedule[] = [];
 
   for (const municipio of COFC_MUNICIPIOS) {
     let data: unknown;
@@ -136,103 +98,28 @@ async function main() {
 
     const schedules = parseCofcResponse(data, municipio.nombre, today, sourceUrl);
 
-    if (schedules.length === 0) {
-      await sleep(300);
-      continue;
+    if (schedules.length > 0) {
+      log(`  📋 ${municipio.nombre.padEnd(35)} ${schedules.length} farmacia(s)`);
+      allSchedules.push(...schedules);
     }
-
-    log(`  📋 ${municipio.nombre.padEnd(35)} ${schedules.length} farmacia(s)`);
-
-    const { saved, skipped } = await upsertSchedules(schedules, province.id);
-    totalSaved += saved;
-    totalSkipped += skipped;
 
     await sleep(300);
   }
 
-  // Resumen
-  section(`✅ Completado: ${totalSaved} guardadas, ${totalSkipped} errores`);
+  log(`✅ Scraping completado: ${allSchedules.length} farmacias encontradas`);
 
-  const withLocation = await prisma.$queryRaw<[{ count: bigint }]>`
-    SELECT COUNT(*) FROM "Pharmacy" WHERE location IS NOT NULL
-  `;
-  const total = await prisma.pharmacy.count();
-  const scheduleCount = await prisma.dutySchedule.count();
-
-  log(`📊 BD ahora tiene:`);
-  log(`   - ${total} farmacia(s) en total`);
-  log(`   - ${Number(withLocation[0].count)} con coordenadas PostGIS`);
-  log(`   - ${scheduleCount} turno(s) de guardia`);
-}
-
-async function upsertSchedules(
-  schedules: ScrapedDutySchedule[],
-  provinceId: string,
-): Promise<{ saved: number; skipped: number }> {
-  let saved = 0,
-    skipped = 0;
-
-  for (const s of schedules) {
-    try {
-      const city = await prisma.city.upsert({
-        where: { name_provinceId: { name: s.pharmacy.cityName, provinceId } },
-        update: {},
-        create: { name: s.pharmacy.cityName, provinceId },
-      });
-
-      const existing = await prisma.pharmacy.findFirst({
-        where: { name: s.pharmacy.name, address: s.pharmacy.address, cityId: city.id },
-        select: { id: true },
-      });
-
-      const pharmacy = await prisma.pharmacy.upsert({
-        where: { id: existing?.id ?? 'new' },
-        update: {
-          phone: s.pharmacy.phone ?? undefined,
-          ownerName: s.pharmacy.ownerName ?? undefined,
-        },
-        create: {
-          name: s.pharmacy.name,
-          ownerName: s.pharmacy.ownerName,
-          address: s.pharmacy.address,
-          phone: s.pharmacy.phone,
-          cityId: city.id,
-        },
-      });
-
-      if (s.pharmacy.lat != null && s.pharmacy.lng != null) {
-        await prisma.$executeRaw`
-          UPDATE "Pharmacy"
-          SET location = ST_SetSRID(ST_MakePoint(${s.pharmacy.lng}, ${s.pharmacy.lat}), 4326)::geography
-          WHERE id = ${pharmacy.id}
-        `;
-      }
-
-      await prisma.dutySchedule.upsert({
-        where: { pharmacyId_date: { pharmacyId: pharmacy.id, date: s.date } },
-        update: { startTime: s.startTime, endTime: s.endTime, source: s.sourceUrl },
-        create: {
-          pharmacyId: pharmacy.id,
-          date: s.date,
-          startTime: s.startTime,
-          endTime: s.endTime,
-          source: s.sourceUrl,
-        },
-      });
-
-      saved++;
-    } catch (err) {
-      skipped++;
-      log(`    ❌ ${s.pharmacy.name}: ${(err as Error).message}`);
-    }
+  if (allSchedules.length === 0) {
+    log('⚠️  0 farmacias parseadas. Abortando.');
+    return;
   }
 
-  return { saved, skipped };
-}
+  // ── FASE 2: Bulk write ──────────────────────────────────────────────
+  const { saved, skipped } = await bulkWriteSchedules(
+    prisma,
+    { provinceName: COFC_PROVINCE, provinceCode: COFC_PROVINCE_CODE },
+    allSchedules,
+    log,
+  );
 
-main()
-  .catch((err) => {
-    console.error('\n❌ Error fatal:', err.message);
-    process.exit(1);
-  })
-  .finally(() => prisma.$disconnect());
+  log(`✅ Completado: ${saved} guardadas, ${skipped} errores`);
+});
