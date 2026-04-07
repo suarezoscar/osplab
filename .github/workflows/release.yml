@@ -35,9 +35,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          # Usar un token con permisos de push para que el commit
-          # pueda disparar los workflows posteriores (deploy).
-          token: ${{ secrets.GITHUB_TOKEN }}
+          # Usar PAT (RELEASE_TOKEN) en lugar de GITHUB_TOKEN para que
+          # el push pueda disparar los workflows posteriores (deploy, ci).
+          # Si no existe el secret, cae a GITHUB_TOKEN (deploy no se disparará).
+          token: ${{ secrets.RELEASE_TOKEN || secrets.GITHUB_TOKEN }}
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
