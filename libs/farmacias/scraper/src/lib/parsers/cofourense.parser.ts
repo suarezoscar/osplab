@@ -138,7 +138,7 @@ export function resolveOwnerName(nombreFiscal: string, nombre: string): string |
  * - Si las coordenadas están fuera de rango → se ignoran sin bloquear la entrada.
  *
  * @param data      - Respuesta JSON ya parseada de la API
- * @param date      - Fecha de referencia de la consulta
+ * @param date      - Fecha de referencia (fallback si un item no tiene `fecha`)
  * @param sourceUrl - URL de origen (para auditoría)
  */
 export function parseCofourenseResponse(
@@ -154,10 +154,6 @@ export function parseCofourenseResponse(
       return [];
     }
 
-    // Fecha esperada en formato "YYYY-MM-DD" para validar cada item
-    const pad = (n: number) => String(n).padStart(2, '0');
-    const expectedDateStr = `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
-
     const schedules: ScrapedDutySchedule[] = [];
 
     for (const item of items) {
@@ -165,10 +161,10 @@ export function parseCofourenseResponse(
         // Validar datos mínimos
         if (!item.nombre) continue;
 
-        // ── Validación de fecha ────────────────────────────────────────────
-        // La API incluye la fecha real de guardia en cada item.
-        // Solo procesamos items cuya fecha coincide con targetDate.
-        if (item.fecha && item.fecha !== expectedDateStr) continue;
+        // No filtramos por fecha: la API ya devuelve solo las farmacias
+        // de guardia para el rango fecha_inicio/hora_inicio solicitado.
+        // El campo `fecha` indica cuándo EMPIEZA la guardia, que puede ser
+        // el día anterior cuando `cierre_dia_siguiente` es true (guardias nocturnas).
 
         const contacto: CofContacto | undefined = item.contactos_profesionales?.[0];
         if (!contacto?.direccion) continue;

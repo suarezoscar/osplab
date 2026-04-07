@@ -77,7 +77,7 @@ describe('CofourenseScraperService', () => {
 
       await service.scrapeForDate(new Date('2026-04-06T10:00:00'), new Date('2026-04-06T00:00:00'));
 
-      expect(prisma.dutySchedule.upsert).toHaveBeenCalledTimes(2);
+      expect(prisma.dutySchedule.upsert).toHaveBeenCalledTimes(3);
     });
 
     it('no guarda nada si informacion está vacío (API cambiada)', async () => {

@@ -117,9 +117,9 @@ describe('parseCofourenseResponse', () => {
   const targetDate = new Date('2026-04-06T00:00:00');
   const url = 'https://example.com/api';
 
-  it('retorna 2 schedules para la fecha objetivo (el tercer item es de ayer)', () => {
+  it('retorna todos los schedules de la respuesta (sin filtrar por fecha)', () => {
     const result = parseCofourenseResponse(fixtureData, targetDate, url);
-    expect(result).toHaveLength(2);
+    expect(result).toHaveLength(3);
   });
 
   it('usa nombre_fiscal cuando está disponible', () => {
