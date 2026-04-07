@@ -3,6 +3,7 @@ export { CofourenseScraperService } from './lib/services/cofourense-scraper.serv
 export { CofpontevedraScraperService } from './lib/services/cofpontevedra-scraper.service';
 export { CoflugoScraperService } from './lib/services/coflugo-scraper.service';
 export { CofcScraperService } from './lib/services/cofc-scraper.service';
+export { CofmScraperService } from './lib/services/cofm-scraper.service';
 export {
   parseCoflugoHtml,
   buildCoflugoUrl,
@@ -43,6 +44,16 @@ export {
   COFC_MUNICIPIOS,
 } from './lib/parsers/cofc.parser';
 export type { CofcApiResponse, CofcMapItem } from './lib/parsers/cofc.parser';
+export {
+  parseCofmResponse,
+  parseCofmCoordinates,
+  parseCofmSchedule,
+  buildCofmPharmacyName,
+  COFM_API_URL,
+  COFM_PROVINCE,
+  COFM_PROVINCE_CODE,
+} from './lib/parsers/cofm.parser';
+export type { CofmPharmacy } from './lib/parsers/cofm.parser';
 export type {
   ScrapedDutySchedule,
   ScrapedPharmacy,

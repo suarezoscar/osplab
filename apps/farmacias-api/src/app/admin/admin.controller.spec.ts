@@ -4,10 +4,13 @@ import { INestApplication, HttpStatus } from '@nestjs/common';
 import request from 'supertest';
 import { AdminController } from './admin.controller';
 import { AdminApiKeyGuard } from './admin-api-key.guard';
-import { CofourenseScraperService } from '@osplab/farmacias-scraper';
-import { CofpontevedraScraperService } from '@osplab/farmacias-scraper';
-import { CoflugoScraperService } from '@osplab/farmacias-scraper';
-import { CofcScraperService } from '@osplab/farmacias-scraper';
+import {
+  CofourenseScraperService,
+  CofpontevedraScraperService,
+  CoflugoScraperService,
+  CofcScraperService,
+  CofmScraperService,
+} from '@osplab/farmacias-scraper';
 
 const mockCofourense: Partial<CofourenseScraperService> = {
   scrapeToday: vi.fn().mockResolvedValue(undefined),
@@ -25,6 +28,10 @@ const mockCofc: Partial<CofcScraperService> = {
   scrapeToday: vi.fn().mockResolvedValue(undefined),
 };
 
+const mockCofm: Partial<CofmScraperService> = {
+  scrapeToday: vi.fn().mockResolvedValue(undefined),
+};
+
 /** Crea la app con el guard sobreescrito (para tests de lógica del controller) */
 async function buildApp(overrideGuard = true): Promise<INestApplication> {
   let builder = Test.createTestingModule({
@@ -34,6 +41,7 @@ async function buildApp(overrideGuard = true): Promise<INestApplication> {
       { provide: CofpontevedraScraperService, useValue: mockCofpontevedra },
       { provide: CoflugoScraperService, useValue: mockCoflugo },
       { provide: CofcScraperService, useValue: mockCofc },
+      { provide: CofmScraperService, useValue: mockCofm },
     ],
   });
 
@@ -131,6 +139,29 @@ describe('AdminController', () => {
       (mockCofc.scrapeToday as Mock).mockRejectedValueOnce(new Error('scraping failed'));
 
       const res = await request(app.getHttpServer()).post('/admin/scrape/cofc');
+
+      expect(res.status).toBe(HttpStatus.ACCEPTED);
+    });
+  });
+
+  describe('POST /admin/scrape/cofm', () => {
+    it('responde 202 Accepted', async () => {
+      const res = await request(app.getHttpServer()).post('/admin/scrape/cofm');
+
+      expect(res.status).toBe(HttpStatus.ACCEPTED);
+      expect(res.body.message).toContain('Madrid');
+    });
+
+    it('invoca scrapeToday en background', async () => {
+      await request(app.getHttpServer()).post('/admin/scrape/cofm');
+      await new Promise((r) => setTimeout(r, 10));
+      expect(mockCofm.scrapeToday).toHaveBeenCalledTimes(1);
+    });
+
+    it('no propaga el error si scrapeToday rechaza', async () => {
+      (mockCofm.scrapeToday as Mock).mockRejectedValueOnce(new Error('scraping failed'));
+
+      const res = await request(app.getHttpServer()).post('/admin/scrape/cofm');
 
       expect(res.status).toBe(HttpStatus.ACCEPTED);
     });
