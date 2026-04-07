@@ -52,8 +52,8 @@ async function main() {
   await prisma.$connect();
   log('✅ Conectado a PostgreSQL');
 
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  const now = new Date();
+  const today = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
 
   // Limpiar turnos anteriores a hoy
   const deleted = await prisma.dutySchedule.deleteMany({ where: { date: { lt: today } } });

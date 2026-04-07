@@ -44,8 +44,8 @@ export class CofcScraperService {
   }
 
   async scrapeToday(): Promise<void> {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const now = new Date();
+    const today = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
     await cleanOldSchedules(this.prisma, this.logger, 'COF A Coruña');
     await this.scrapeForDate(today);
   }

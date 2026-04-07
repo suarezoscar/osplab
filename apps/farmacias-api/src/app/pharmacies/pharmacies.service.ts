@@ -13,8 +13,22 @@ export class PharmaciesService {
    */
   async findNearest(query: NearbyPharmaciesQueryDto): Promise<PharmacyDto[]> {
     const { lat, lng, date } = query;
-    const targetDate = date ? new Date(date) : new Date();
-    targetDate.setHours(0, 0, 0, 0);
+
+    // Construir fechas en UTC-midnight para evitar desfases con la columna DATE de PostgreSQL.
+    // JS Date con setHours(0,0,0,0) usa la zona horaria local (ej. UTC+2 en España),
+    // lo que enviaría "2026-04-06T22:00:00Z" y PG lo interpretaría como 2026-04-06.
+    let targetDate: Date;
+    if (date) {
+      // date viene como "YYYY-MM-DD" → parsear directamente en UTC
+      const [y, m, d] = date.split('-').map(Number);
+      targetDate = new Date(Date.UTC(y, m - 1, d));
+    } else {
+      const now = new Date();
+      targetDate = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
+    }
+
+    // Guardias nocturnas/24h del día anterior que aún están activas hoy
+    const yesterDate = new Date(targetDate.getTime() - 86_400_000);
 
     const results = await this.prisma.$queryRaw<
       Array<{
@@ -76,7 +90,13 @@ export class PharmaciesService {
         INNER JOIN "DutySchedule" ds ON ds."pharmacyId" = p.id
         WHERE
           p.location IS NOT NULL
-          AND ds.date = ${targetDate}
+          AND (
+            ds.date = ${targetDate}
+            OR (
+              ds.date = ${yesterDate}
+              AND ds."startTime" >= ds."endTime"
+            )
+          )
       )
       SELECT id, name, owner_name, address, phone, city_name, province_name,
              start_time, end_time, lat, lng, distance_meters

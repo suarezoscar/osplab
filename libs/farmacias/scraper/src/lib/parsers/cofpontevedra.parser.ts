@@ -150,7 +150,7 @@ export function parseCofpontevedraItems(
         };
 
         // Usar la fecha real del item para el DutySchedule
-        const itemDate = first.fecha ? new Date(`${first.fecha}T00:00:00`) : targetDate;
+        const itemDate = first.fecha ? new Date(`${first.fecha}T00:00:00Z`) : targetDate;
 
         schedules.push({ pharmacy, date: itemDate, startTime, endTime, sourceUrl });
       } catch {

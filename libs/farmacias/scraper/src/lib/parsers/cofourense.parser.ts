@@ -182,7 +182,7 @@ export function parseCofourenseResponse(
         const coords = parseCoordinates(contacto.coordenadas);
 
         // Usar la fecha real del item para el DutySchedule
-        const itemDate = item.fecha ? new Date(`${item.fecha}T00:00:00`) : date;
+        const itemDate = item.fecha ? new Date(`${item.fecha}T00:00:00Z`) : date;
 
         const pharmacy = {
           name: resolvePharmacyName(item.nombre_fiscal, item.nombre),

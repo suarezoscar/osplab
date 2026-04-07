@@ -31,8 +31,8 @@ describe('cleanOldSchedules', () => {
     const call = prisma.dutySchedule.deleteMany.mock.calls[0][0];
     const ltDate = call?.where?.date?.lt as Date;
     expect(ltDate).toBeInstanceOf(Date);
-    expect(ltDate.getHours()).toBe(0);
-    expect(ltDate.getMinutes()).toBe(0);
+    expect(ltDate.getUTCHours()).toBe(0);
+    expect(ltDate.getUTCMinutes()).toBe(0);
   });
 
   it('registra log si se eliminaron turnos', async () => {
