@@ -1,0 +1,75 @@
+name: Seed Supabase
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: '⚠️ Escribe "yes" para confirmar el seed en producción'
+        required: true
+        type: string
+
+# ── Variables compartidas ─────────────────────────────────────────────────────
+env:
+  NODE_VERSION: 22
+  SUPABASE_HOST: 'aws-1-eu-north-1.pooler.supabase.com'
+  SUPABASE_PORT: '5432'
+  SUPABASE_USER: 'postgres.vrqaamkqoiuppqtrzpbu'
+  SUPABASE_DB: 'postgres'
+
+jobs:
+  seed:
+    name: Seed Supabase (producción)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+
+    steps:
+      - name: Validar confirmación
+        run: |
+          if [ "${{ github.event.inputs.confirm }}" != "yes" ]; then
+            echo "❌ Debes escribir 'yes' para confirmar. Abortando."
+            exit 1
+          fi
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate Prisma Client
+        env:
+          DATABASE_URL: postgresql://${{ env.SUPABASE_USER }}:placeholder@${{ env.SUPABASE_HOST }}:${{ env.SUPABASE_PORT }}/${{ env.SUPABASE_DB }}
+        run: pnpm prisma:generate
+
+      - name: Run seeds
+        env:
+          DATABASE_URL: postgresql://${{ env.SUPABASE_USER }}:${{ secrets.SUPABASE_PASSWORD }}@${{ env.SUPABASE_HOST }}:${{ env.SUPABASE_PORT }}/${{ env.SUPABASE_DB }}
+        run: |
+          echo "🔗 Conectando a: ${{ env.SUPABASE_HOST }}:${{ env.SUPABASE_PORT }}/${{ env.SUPABASE_DB }}"
+          echo ""
+
+          SEEDS=(
+            "seed-cofourense.ts"
+            "seed-cofpontevedra.ts"
+            "seed-coflugo.ts"
+            "seed-cofc.ts"
+          )
+
+          for seed in "${SEEDS[@]}"; do
+            echo "🌱 Ejecutando ${seed}..."
+            pnpm jiti "scripts/${seed}"
+            echo ""
+          done
+
+          echo "✅ Todos los seeds completados contra Supabase."
