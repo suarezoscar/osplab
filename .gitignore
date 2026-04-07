@@ -49,7 +49,7 @@ jest_html_reporters.html
 *.crt
 
 # Prisma generated client (regenerar con: pnpm prisma:generate)
-libs/api/data-access/src/generated/
+libs/farmacias/data-access/src/generated/
 
 # System Files
 .DS_Store
