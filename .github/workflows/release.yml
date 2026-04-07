@@ -1,0 +1,118 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      project:
+        description: 'Proyecto a versionar'
+        required: true
+        type: choice
+        options:
+          - farmacias-web
+          - landing
+          - all
+      bump:
+        description: 'Tipo de incremento'
+        required: true
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+
+env:
+  NODE_VERSION: 22
+
+jobs:
+  release:
+    name: Bump version & tag
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          # Usar un token con permisos de push para que el commit
+          # pueda disparar los workflows posteriores (deploy).
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Bump version
+        id: bump
+        run: |
+          pnpm jiti scripts/bump-version.ts \
+            --project=${{ inputs.project }} \
+            --bump=${{ inputs.bump }}
+
+      - name: Format bumped files
+        run: pnpm prettier --write "apps/**/version.ts" "apps/landing/src/app/pages/home/home.component.ts"
+
+      - name: Read new versions for tag
+        id: versions
+        run: |
+          # Leer versiones actuales de todos los version.ts
+          LANDING_V=$(grep -oP "APP_VERSION = '\K[^']+" apps/landing/src/version.ts || echo "")
+          FARMACIAS_V=$(grep -oP "APP_VERSION = '\K[^']+" apps/farmacias-web/src/version.ts || echo "")
+          echo "landing=${LANDING_V}" >> $GITHUB_OUTPUT
+          echo "farmacias=${FARMACIAS_V}" >> $GITHUB_OUTPUT
+
+          # Determinar tag según el proyecto
+          if [ "${{ inputs.project }}" = "landing" ]; then
+            echo "tag=landing-v${LANDING_V}" >> $GITHUB_OUTPUT
+            echo "title=Landing v${LANDING_V}" >> $GITHUB_OUTPUT
+          elif [ "${{ inputs.project }}" = "farmacias-web" ]; then
+            echo "tag=farmacias-v${FARMACIAS_V}" >> $GITHUB_OUTPUT
+            echo "title=Farmacias de Guardia v${FARMACIAS_V}" >> $GITHUB_OUTPUT
+          else
+            echo "tag=v${LANDING_V}" >> $GITHUB_OUTPUT
+            echo "title=OSPLab — Landing v${LANDING_V} / Farmacias v${FARMACIAS_V}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Commit version bump
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "release: ${{ steps.versions.outputs.title }}" \
+                     -m "Bump automático desde GitHub Actions (${{ inputs.bump }})"
+
+      - name: Create git tag
+        run: |
+          git tag "${{ steps.versions.outputs.tag }}" \
+            -m "${{ steps.versions.outputs.title }}"
+
+      - name: Push changes & tag
+        run: |
+          git push origin master
+          git push origin "${{ steps.versions.outputs.tag }}"
+
+      - name: Summary
+        run: |
+          echo "## 🚀 Release completado" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Proyecto | Versión |" >> $GITHUB_STEP_SUMMARY
+          echo "|----------|---------|" >> $GITHUB_STEP_SUMMARY
+          if [ -n "${{ steps.versions.outputs.landing }}" ]; then
+            echo "| Landing | \`v${{ steps.versions.outputs.landing }}\` |" >> $GITHUB_STEP_SUMMARY
+          fi
+          if [ -n "${{ steps.versions.outputs.farmacias }}" ]; then
+            echo "| Farmacias | \`v${{ steps.versions.outputs.farmacias }}\` |" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Tag:** \`${{ steps.versions.outputs.tag }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "El push a master disparará automáticamente el workflow de **Deploy**." >> $GITHUB_STEP_SUMMARY

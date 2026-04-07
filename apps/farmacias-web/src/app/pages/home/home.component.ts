@@ -16,6 +16,7 @@ import { GeolocationService } from '../../services/geolocation.service';
 import { GeocodingService, type GeocodingSuggestion } from '../../services/geocoding.service';
 import type { PharmacyDto } from '@osplab/shared-interfaces';
 import { OspLabBadgeComponent } from '@osplab/shared-ui';
+import { APP_VERSION } from '../../../version';
 import {
   AlertTriangleIconComponent,
   GithubIconComponent,
@@ -69,6 +70,8 @@ export class HomeComponent implements OnDestroy {
   private readonly geo = inject(GeolocationService);
   private readonly geocoding = inject(GeocodingService);
   private readonly resultsPanel = viewChild<ElementRef<HTMLElement>>('resultsPanel');
+
+  readonly appVersion = APP_VERSION;
 
   readonly results = signal<PharmacyDto[]>([]);
   readonly loading = signal(false);

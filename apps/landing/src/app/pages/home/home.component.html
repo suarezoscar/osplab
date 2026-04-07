@@ -71,6 +71,9 @@
                   [class]="statusClass(project.status)">
                   {{ statusLabel(project.status) }}
                 </span>
+                @if (project.version) {
+                  <span class="text-[0.72rem] font-medium text-[#4d8ab0]"> v{{ project.version }} </span>
+                }
               </div>
               <!-- Descripción: ≥ 4.5:1 en fondo de card -->
               <p class="text-[0.92rem] leading-relaxed text-[#aec8db]">
@@ -173,5 +176,6 @@
         </svg>
       </a>
     </nav>
+    <p class="mt-4 text-center text-[0.7rem] text-[#2e5a7a]">v{{ appVersion }}</p>
   </footer>
 </div>
