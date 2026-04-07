@@ -14,6 +14,7 @@ concurrency:
 env:
   NODE_VERSION: 22
   GITLEAKS_VERSION: '8.24.3'
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   # ────────────────────────────────────────────────────────────────────────────
@@ -170,7 +171,7 @@ jobs:
 
       - name: Upload Gitleaks SARIF
         if: always()
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: results.sarif
         continue-on-error: true

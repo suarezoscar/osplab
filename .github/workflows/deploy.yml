@@ -11,6 +11,7 @@ concurrency:
 env:
   NODE_VERSION: 22
   NX_DAEMON: 'false'
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   # ── Detectar qué proyectos están afectados ────────────────────────

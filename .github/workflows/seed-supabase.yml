@@ -14,6 +14,7 @@ on:
           - pontevedra
           - lugo
           - coruña
+          - madrid
       confirm:
         description: '⚠️ Escribe "yes" para confirmar el seed en producción'
         required: true
@@ -22,6 +23,7 @@ on:
 # ── Variables compartidas ─────────────────────────────────────────────────────
 env:
   NODE_VERSION: 22
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
   SUPABASE_HOST: 'aws-1-eu-north-1.pooler.supabase.com'
   SUPABASE_PORT: '5432'
   SUPABASE_USER: 'postgres.vrqaamkqoiuppqtrzpbu'
