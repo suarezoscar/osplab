@@ -138,7 +138,7 @@
     "@prisma/adapter-pg": "^7.6.0",
     "@prisma/client": "^7.6.0",
     "@prisma/client-runtime-utils": "^7.6.0",
-    "axios": "^1.13.5",
+    "axios": "^1.13.6",
     "cheerio": "^1.2.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.15.1",
