@@ -149,5 +149,10 @@
   },
   "lint-staged": {
     "*.{ts,tsx,js,mjs,json,md,html,css,yml,yaml}": "prettier --write"
+  },
+  "pnpm": {
+    "overrides": {
+      "vite": ">=7.3.2"
+    }
   }
 }
