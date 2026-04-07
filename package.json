@@ -31,7 +31,7 @@
     "seed:supabase:lugo": "bash scripts/seed-supabase.sh lugo",
     "seed:supabase:coruna": "bash scripts/seed-supabase.sh coruña",
     "seed:supabase:madrid": "bash scripts/seed-supabase.sh madrid",
-    "seed:supabase:cataluna": "bash scripts/seed-supabase.sh cataluña",
+    "seed:supabase:barcelona": "bash scripts/seed-supabase.sh barcelona",
     "// --- DEV: suite completa ---": "",
     "dev": "pnpm db:start && pnpm db:ready && pnpm prisma:generate && pnpm prisma:migrate:deploy && pnpm nx run-many -t serve --projects=farmacias-api,farmacias-web --parallel=2",
     "dev:stop": "pnpm db:stop",
