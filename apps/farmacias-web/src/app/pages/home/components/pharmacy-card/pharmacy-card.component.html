@@ -63,23 +63,37 @@
       </div>
     }
 
-    <div class="flex gap-2.5 mt-0.5">
+    <div class="flex flex-col gap-2.5 mt-1">
       @if (pharmacy().lat && pharmacy().lng) {
-        <a
-          [href]="'https://www.google.com/maps/dir/?api=1&destination=' + pharmacy().lat + ',' + pharmacy().lng"
-          target="_blank"
-          rel="noopener noreferrer"
-          [attr.aria-label]="'Cómo llegar a ' + pharmacy().name + ' en Google Maps'"
-          class="flex-1 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold py-3 rounded-xl transition-all duration-200 shadow-sm hover:shadow-md text-sm hover:scale-[1.02]">
-          <icon-directions />
-          Cómo llegar
-        </a>
+        <div class="flex flex-col gap-1.5">
+          <p class="text-xs font-semibold uppercase text-gray-400 tracking-wide px-0.5">Cómo llegar</p>
+          <div class="flex gap-2">
+            <a
+              [href]="'https://www.google.com/maps/dir/?api=1&destination=' + pharmacy().lat + ',' + pharmacy().lng"
+              target="_blank"
+              rel="noopener noreferrer"
+              [attr.aria-label]="'Cómo llegar a ' + pharmacy().name + ' en Google Maps'"
+              class="flex-1 flex items-center justify-center gap-2.5 rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm font-medium text-gray-700 transition-all duration-200 hover:bg-gray-50 hover:border-gray-300 hover:shadow-sm active:scale-[0.98]">
+              <icon-google-maps class="shrink-0" />
+              Google Maps
+            </a>
+            <a
+              [href]="'https://maps.apple.com/?daddr=' + pharmacy().lat + ',' + pharmacy().lng + '&dirflg=d'"
+              target="_blank"
+              rel="noopener noreferrer"
+              [attr.aria-label]="'Cómo llegar a ' + pharmacy().name + ' en Apple Maps'"
+              class="flex-1 flex items-center justify-center gap-2.5 rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm font-medium text-gray-700 transition-all duration-200 hover:bg-gray-50 hover:border-gray-300 hover:shadow-sm active:scale-[0.98]">
+              <icon-apple class="shrink-0 text-gray-700" />
+              Apple Maps
+            </a>
+          </div>
+        </div>
       }
       @if (pharmacy().phone) {
         <a
           [href]="'tel:' + pharmacy().phone"
           [attr.aria-label]="'Llamar a ' + pharmacy().name + ': ' + pharmacy().phone"
-          class="flex-1 flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 active:bg-green-800 text-white font-semibold py-3 rounded-xl transition-all duration-200 shadow-sm hover:shadow-md text-sm hover:scale-[1.02]">
+          class="flex items-center justify-center gap-2 rounded-xl border border-green-200 bg-green-50 px-3 py-2.5 text-sm font-semibold text-green-700 transition-all duration-200 hover:bg-green-100 hover:border-green-300 hover:shadow-sm active:scale-[0.98]">
           <icon-phone />
           {{ pharmacy().phone }}
         </a>

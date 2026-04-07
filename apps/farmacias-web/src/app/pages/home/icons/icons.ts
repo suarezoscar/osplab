@@ -13,6 +13,8 @@ export { AlertTriangleIconComponent } from './alert-triangle.icon';
 export { RefreshIconComponent } from './refresh.icon';
 export { PharmacyIllustrationComponent } from './pharmacy-illustration.icon';
 export { NoResultsIconComponent } from './no-results.icon';
+export { GoogleMapsIconComponent } from './google-maps.icon';
+export { AppleIconComponent } from './apple.icon';
 export { GithubIconComponent } from './github.icon';
 export { LinkedinIconComponent } from './linkedin.icon';
 export { KofiIconComponent } from './kofi.icon';

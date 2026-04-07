@@ -119,16 +119,28 @@ describe('PharmacyCardComponent', () => {
       expect(screen.getByText(/guardia 24 horas/i)).toBeTruthy();
     });
 
-    it('muestra el botón "Cómo llegar" cuando hay coordenadas', async () => {
+    it('muestra el botón "Google Maps" cuando hay coordenadas', async () => {
       await renderCard(BASE_PHARMACY, 0);
-      const link = screen.getByRole('link', { name: /cómo llegar/i });
+      const link = screen.getByRole('link', { name: /google maps/i });
       expect(link).toBeTruthy();
       expect(link.getAttribute('href')).toContain('42.431');
+      expect(link.getAttribute('href')).toContain('google.com/maps');
     });
 
-    it('NO muestra el botón "Cómo llegar" sin coordenadas', async () => {
+    it('muestra el botón "Apple Maps" cuando hay coordenadas', async () => {
+      await renderCard(BASE_PHARMACY, 0);
+      const link = screen.getByRole('link', { name: /apple maps/i });
+      expect(link).toBeTruthy();
+      const href = link.getAttribute('href')!;
+      expect(href).toContain('maps.apple.com');
+      expect(href).toContain('daddr=42.431');
+      expect(href).toContain('dirflg=d');
+    });
+
+    it('NO muestra botones de navegación sin coordenadas', async () => {
       await renderCard(PHARMACY_NO_COORDS, 0);
-      expect(screen.queryByRole('link', { name: /cómo llegar/i })).toBeNull();
+      expect(screen.queryByRole('link', { name: /google maps/i })).toBeNull();
+      expect(screen.queryByRole('link', { name: /apple maps/i })).toBeNull();
     });
 
     it('muestra el botón de llamada con el número de teléfono', async () => {

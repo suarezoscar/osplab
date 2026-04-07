@@ -1,8 +1,9 @@
 import { Component, computed, input } from '@angular/core';
 import type { PharmacyDto } from '@osplab/shared-interfaces';
 import {
+  AppleIconComponent,
   ClockIconComponent,
-  DirectionsIconComponent,
+  GoogleMapsIconComponent,
   HouseIconComponent,
   PhoneIconComponent,
   StarIconComponent,
@@ -17,8 +18,9 @@ import {
 @Component({
   selector: 'app-pharmacy-card',
   imports: [
+    AppleIconComponent,
     ClockIconComponent,
-    DirectionsIconComponent,
+    GoogleMapsIconComponent,
     HouseIconComponent,
     PhoneIconComponent,
     StarIconComponent,
