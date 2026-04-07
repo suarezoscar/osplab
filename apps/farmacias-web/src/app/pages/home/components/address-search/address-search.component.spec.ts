@@ -2,8 +2,6 @@ import { render, screen, fireEvent } from '@testing-library/angular';
 import { AddressSearchComponent } from './address-search.component';
 import type { GeocodingSuggestion } from '../../../../services/geocoding.service';
 
-// ── Fixtures ─────────────────────────────────────────────────────────────────
-
 const SUGGESTIONS: GeocodingSuggestion[] = [
   { displayName: 'Santiago de Compostela, A Coruña', lat: 42.878, lng: -8.544 },
   { displayName: 'Vigo, Pontevedra', lat: 42.231, lng: -8.712 },
@@ -20,8 +18,6 @@ async function renderSearch({
     componentInputs: { searchQuery, suggestions, showSuggestions, loadingSuggestions, disabled },
   });
 }
-
-// ── Tests ─────────────────────────────────────────────────────────────────────
 
 describe('AddressSearchComponent', () => {
   describe('Input de búsqueda', () => {

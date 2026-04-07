@@ -2,7 +2,6 @@
   [class]="articleClass()"
   [style.animation-delay]="animationDelay()"
   [attr.aria-label]="rankLabel() + ': ' + pharmacy().name">
-  <!-- ── Franja ámbar "La más cercana" — solo primera tarjeta ────── -->
   @if (isFirst()) {
     <div class="bg-linear-to-r from-amber-500 to-amber-400 px-4 py-2 flex items-center gap-2">
       <span
@@ -14,7 +13,6 @@
     </div>
   }
 
-  <!-- ── Cabecera ──────────────────────────────────────────────────── -->
   <div [class]="headerClass()">
     <div class="flex items-center gap-2.5 mb-1">
       @if (!isFirst()) {
@@ -33,9 +31,7 @@
     </div>
   </div>
 
-  <!-- ── Cuerpo ────────────────────────────────────────────────────── -->
   <div class="px-5 py-4 flex flex-col gap-3.5">
-    <!-- Dirección -->
     <div class="flex gap-3 items-start">
       <span class="shrink-0 mt-0.5 text-green-600">
         <icon-house />
@@ -46,7 +42,6 @@
       </div>
     </div>
 
-    <!-- Horario -->
     @if (pharmacy().startTime && pharmacy().endTime) {
       <div class="flex gap-3 items-start">
         <span class="shrink-0 mt-0.5 text-green-600">
@@ -68,7 +63,6 @@
       </div>
     }
 
-    <!-- Botones acción -->
     <div class="flex gap-2.5 mt-0.5">
       @if (pharmacy().lat && pharmacy().lng) {
         <a

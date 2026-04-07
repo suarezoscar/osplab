@@ -1,16 +1,22 @@
 import { Injectable, signal } from '@angular/core';
 
+/** Coordenadas geográficas WGS-84. */
 export interface Coordinates {
   lat: number;
   lng: number;
 }
 
+/**
+ * Envuelve la API `navigator.geolocation` del navegador
+ * y expone signals reactivos para el estado de la petición.
+ */
 @Injectable({ providedIn: 'root' })
 export class GeolocationService {
   readonly coordinates = signal<Coordinates | null>(null);
   readonly error = signal<string | null>(null);
   readonly loading = signal(false);
 
+  /** Solicita la posición actual del usuario con alta precisión. */
   getCurrentPosition(): Promise<Coordinates> {
     return new Promise((resolve, reject) => {
       if (!navigator.geolocation) {

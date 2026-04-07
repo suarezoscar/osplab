@@ -58,23 +58,25 @@ import { WelcomeStateComponent } from './components/welcome-state/welcome-state.
   ],
   templateUrl: './home.component.html',
 })
+/**
+ * Página principal de la app Farmacia de Guardia.
+ *
+ * Permite buscar las farmacias de guardia más cercanas mediante
+ * geolocalización del navegador o autocompletado de dirección.
+ */
 export class HomeComponent implements OnDestroy {
   private readonly pharmaciesApi = inject(PharmaciesApiService);
   private readonly geo = inject(GeolocationService);
   private readonly geocoding = inject(GeocodingService);
-
-  /** Referencia al panel de resultados para scroll automático */
   private readonly resultsPanel = viewChild<ElementRef<HTMLElement>>('resultsPanel');
 
-  // ── Estado principal ──────────────────────────────────────────────────────
   readonly results = signal<PharmacyDto[]>([]);
   readonly loading = signal(false);
   readonly error = signal<string | null>(null);
   readonly searched = signal(false);
-  /** true solo cuando la última búsqueda fue por geolocalización exacta */
+  /** `true` solo cuando la última búsqueda fue por geolocalización exacta del navegador. */
   readonly searchedByGeo = signal(false);
 
-  // ── Autocompletado ────────────────────────────────────────────────────────
   readonly searchQuery = signal('');
   readonly suggestions = signal<GeocodingSuggestion[]>([]);
   readonly showSuggestions = signal(false);
@@ -111,7 +113,7 @@ export class HomeComponent implements OnDestroy {
     this.sub.unsubscribe();
   }
 
-  // ── Handlers del input ────────────────────────────────────────────────────
+  /** Propaga el texto del input al Subject que alimenta el autocompletado. */
   onQueryChange(value: string): void {
     this.searchQuery.set(value);
     if (value.trim().length < 3) {
@@ -122,6 +124,7 @@ export class HomeComponent implements OnDestroy {
     this.searchInput$.next(value);
   }
 
+  /** Selecciona una sugerencia del dropdown y lanza la búsqueda por coordenadas. */
   selectSuggestion(suggestion: GeocodingSuggestion): void {
     this.searchQuery.set(suggestion.displayName);
     this.showSuggestions.set(false);
@@ -136,7 +139,7 @@ export class HomeComponent implements OnDestroy {
     this.showSuggestions.set(false);
   }
 
-  // ── Búsqueda por geolocalización ──────────────────────────────────────────
+  /** Solicita la geolocalización del navegador y busca las farmacias más cercanas. */
   async searchByGeo(): Promise<void> {
     this.loading.set(true);
     this.error.set(null);
@@ -153,7 +156,7 @@ export class HomeComponent implements OnDestroy {
     }
   }
 
-  // ── Lógica compartida ─────────────────────────────────────────────────────
+  /** Consulta la API y hace scroll suave al panel de resultados. */
   private findNearest(lat: number, lng: number): void {
     this.loading.set(true);
     this.error.set(null);
@@ -164,7 +167,6 @@ export class HomeComponent implements OnDestroy {
         this.results.set(list);
         this.searched.set(true);
         this.loading.set(false);
-        // Scroll suave al panel de resultados
         setTimeout(() => {
           this.resultsPanel()?.nativeElement.scrollIntoView({
             behavior: 'smooth',
@@ -179,6 +181,7 @@ export class HomeComponent implements OnDestroy {
     });
   }
 
+  /** Formatea una distancia en metros a texto legible (`350 m` / `2.5 km`). */
   formatDistance(meters: number | undefined): string {
     if (meters == null) return '';
     if (meters < 1000) return `${Math.round(meters)} m`;

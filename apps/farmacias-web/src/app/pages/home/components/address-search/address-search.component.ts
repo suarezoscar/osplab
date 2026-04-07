@@ -2,6 +2,12 @@ import { Component, input, output } from '@angular/core';
 import type { GeocodingSuggestion } from '../../../../services/geocoding.service';
 import { PinIconComponent, SearchIconComponent, SpinnerIconComponent } from '../../icons/icons';
 
+/**
+ * Campo de búsqueda con autocompletado de direcciones.
+ *
+ * Muestra un dropdown de sugerencias de geocodificación que el
+ * componente padre alimenta a través de los inputs.
+ */
 @Component({
   selector: 'app-address-search',
   imports: [PinIconComponent, SearchIconComponent, SpinnerIconComponent],

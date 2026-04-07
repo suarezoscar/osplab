@@ -8,6 +8,12 @@ import {
   StarIconComponent,
 } from '../../icons/icons';
 
+/**
+ * Tarjeta de farmacia de guardia.
+ *
+ * La primera tarjeta (index 0) recibe un estilo destacado con franja ámbar.
+ * Las demás muestran un badge numérico con su posición en el ranking.
+ */
 @Component({
   selector: 'app-pharmacy-card',
   imports: [
@@ -63,12 +69,14 @@ export class PharmacyCardComponent {
       : 'text-green-200 text-xs leading-snug italic pl-9 -mt-0.5 truncate',
   );
 
+  /** Formatea una distancia en metros a texto legible (`350 m` / `2.5 km`). */
   formatDistance(meters: number | undefined): string {
     if (meters == null) return '';
     if (meters < 1000) return `${Math.round(meters)} m`;
     return `${(meters / 1000).toFixed(1)} km`;
   }
 
+  /** Devuelve la etiqueta de ranking accesible para `aria-label`. */
   rankLabel(): string {
     return ['La más cercana', 'Segunda más cercana', 'Tercera más cercana'][this.index()] ?? '';
   }

@@ -2,8 +2,6 @@ import { render, screen } from '@testing-library/angular';
 import { PharmacyCardComponent } from './pharmacy-card.component';
 import type { PharmacyDto } from '@osplab/shared-interfaces';
 
-// ── Fixtures ────────────────────────────────────────────────────────────────
-
 const BASE_PHARMACY: PharmacyDto = {
   id: 'ph-1',
   name: 'Farmacia Central',
@@ -34,15 +32,11 @@ const PHARMACY_24H: PharmacyDto = {
   endTime: '00:00',
 };
 
-// ── Helper ───────────────────────────────────────────────────────────────────
-
 async function renderCard(pharmacy: PharmacyDto, index = 0) {
   return render(PharmacyCardComponent, {
     componentInputs: { pharmacy, index },
   });
 }
-
-// ── Tests ────────────────────────────────────────────────────────────────────
 
 describe('PharmacyCardComponent', () => {
   describe('Primera tarjeta (index = 0)', () => {

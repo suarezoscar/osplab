@@ -2,12 +2,14 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 
+/** Sugerencia normalizada devuelta por el autocompletado de direcciones. */
 export interface GeocodingSuggestion {
   displayName: string;
   lat: number;
   lng: number;
 }
 
+/** Resultado crudo de la API Nominatim. */
 interface NominatimResult {
   place_id: number;
   display_name: string;
@@ -17,7 +19,7 @@ interface NominatimResult {
   addresstype: string;
 }
 
-/** Tipos de resultado que queremos priorizar (de mayor a menor relevancia) */
+/** Prioridad de tipos de resultado de Nominatim (mayor = más relevante). */
 const ADDRESS_TYPE_PRIORITY: Record<string, number> = {
   city: 10,
   town: 9,
@@ -30,6 +32,12 @@ const ADDRESS_TYPE_PRIORITY: Record<string, number> = {
   administrative: 1,
 };
 
+/**
+ * Geocodificación mediante Nominatim (OpenStreetMap).
+ *
+ * Deduplica resultados por `display_name` y prioriza los tipos
+ * de dirección más específicos para mejorar la relevancia.
+ */
 @Injectable({ providedIn: 'root' })
 export class GeocodingService {
   private readonly http = inject(HttpClient);
@@ -44,7 +52,7 @@ export class GeocodingService {
         params: {
           q: query,
           format: 'json',
-          limit: '10', // pedimos más para poder filtrar mejor
+          limit: '10',
           countrycodes: 'es',
           addressdetails: '1',
           'accept-language': 'es',
@@ -53,7 +61,6 @@ export class GeocodingService {
       })
       .pipe(
         map((results) => {
-          // Agrupar por display_name normalizado → quedarse con el mejor de cada grupo
           const groups = new Map<string, NominatimResult>();
 
           for (const r of results) {
@@ -63,7 +70,6 @@ export class GeocodingService {
             if (!existing) {
               groups.set(key, r);
             } else {
-              // Preferir el resultado con tipo más específico, luego mayor importance
               const newPriority = ADDRESS_TYPE_PRIORITY[r.addresstype] ?? 0;
               const curPriority = ADDRESS_TYPE_PRIORITY[existing.addresstype] ?? 0;
               if (
