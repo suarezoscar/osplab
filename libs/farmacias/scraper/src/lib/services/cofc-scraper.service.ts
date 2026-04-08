@@ -13,6 +13,7 @@ import {
 } from '../parsers/cofc.parser';
 import { cleanOldSchedules } from './schedule-cleanup.util';
 import { getSpainToday } from '../utils/spain-date.util';
+import type { ScrapeResult } from '../interfaces/scraper.interfaces';
 
 /** Pausa entre peticiones (ms) — respetar el rate limit */
 const REQUEST_DELAY_MS = 300;
@@ -46,13 +47,13 @@ export class CofcScraperService {
     await this.scrapeToday();
   }
 
-  async scrapeToday(): Promise<void> {
+  async scrapeToday(): Promise<ScrapeResult> {
     const today = getSpainToday();
     await cleanOldSchedules(this.prisma, this.logger, 'COF A Coruña');
-    await this.scrapeForDate(today);
+    return this.scrapeForDate(today);
   }
 
-  async scrapeForDate(targetDate: Date): Promise<void> {
+  async scrapeForDate(targetDate: Date): Promise<ScrapeResult> {
     this.logger.debug(`📋 COF A Coruña: ${COFC_MUNICIPIOS.length} municipio(s) a consultar`);
 
     const session = await this.fetchSession();
@@ -60,7 +61,7 @@ export class CofcScraperService {
       this.logger.warn(
         '⚠️ COF A Coruña: no se pudo obtener sesión antiforgery, scraping cancelado',
       );
-      return;
+      return { saved: 0, errors: 1, municipalities: COFC_MUNICIPIOS.length };
     }
 
     let totalSaved = 0;
@@ -71,6 +72,7 @@ export class CofcScraperService {
     }
 
     this.logger.log(`✅ COF A Coruña: ${totalSaved} turno(s) guardados en total`);
+    return { saved: totalSaved, errors: 0, municipalities: COFC_MUNICIPIOS.length };
   }
 
   // ── Métodos privados ──────────────────────────────────────────────────────

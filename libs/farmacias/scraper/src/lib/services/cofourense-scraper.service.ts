@@ -10,6 +10,7 @@ import {
 } from '../parsers/cofourense.parser';
 import { cleanOldSchedules } from './schedule-cleanup.util';
 import { getSpainToday } from '../utils/spain-date.util';
+import type { ScrapeResult } from '../interfaces/scraper.interfaces';
 
 @Injectable()
 export class CofourenseScraperService {
@@ -33,12 +34,12 @@ export class CofourenseScraperService {
   /**
    * Scraping de las farmacias de guardia de Ourense para hoy.
    */
-  async scrapeToday(): Promise<void> {
+  async scrapeToday(): Promise<ScrapeResult> {
     const now = new Date();
     const today = getSpainToday();
 
     await cleanOldSchedules(this.prisma, this.logger, 'COF Ourense');
-    await this.scrapeForDate(now, today);
+    return this.scrapeForDate(now, today);
   }
 
   /**
@@ -47,7 +48,7 @@ export class CofourenseScraperService {
    * @param queryDate - Fecha/hora usada para construir la URL (ahora mismo)
    * @param targetDate - Fecha de guardia a almacenar (sin hora)
    */
-  async scrapeForDate(queryDate: Date, targetDate: Date): Promise<void> {
+  async scrapeForDate(queryDate: Date, targetDate: Date): Promise<ScrapeResult> {
     const url = buildCofourenseUrl(queryDate);
     this.logger.debug(`🔍 Consultando API COF Ourense: ${url}`);
 
@@ -67,7 +68,7 @@ export class CofourenseScraperService {
       data = response.data;
     } catch (err) {
       this.logger.warn(`⚠️  No se pudo consultar la API de COF Ourense: ${(err as Error).message}`);
-      return; // Fallo silencioso
+      return { saved: 0, errors: 1, municipalities: 1 };
     }
 
     const schedules = parseCofourenseResponse(data, targetDate, url);
@@ -77,7 +78,7 @@ export class CofourenseScraperService {
         `⚠️  COF Ourense: respuesta recibida pero 0 farmacias parseadas. ` +
           `La estructura de la API puede haber cambiado.`,
       );
-      return;
+      return { saved: 0, errors: 0, municipalities: 1 };
     }
 
     this.logger.debug(`📋 COF Ourense: ${schedules.length} farmacias de guardia encontradas`);
@@ -87,5 +88,6 @@ export class CofourenseScraperService {
       schedules,
     );
     this.logger.log(`💾 COF Ourense: ${saved} turnos guardados, ${skipped} omitidos`);
+    return { saved, errors: 0, municipalities: 1 };
   }
 }

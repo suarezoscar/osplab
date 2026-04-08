@@ -103,29 +103,38 @@ jobs:
       # ── Lugo: relay via API server (EU) ──────────────────────────────────
       # coflugo.org bloquea/rate-limita IPs de datacenters (EEUU).
       # Delegamos al API desplegado en Render (EU) que ya tiene el scraper.
+      # El endpoint es SÍNCRONO — espera a que termine y devuelve el resultado.
       - name: 'Seed — lugo (via API relay EU)'
         if: matrix.province == 'lugo'
         run: |
           echo "🌐 Delegando scraping de Lugo al API server (EU)..."
           echo "   Endpoint: ${{ env.API_BASE_URL }}/admin/scrape/coflugo"
+          echo "   ⏳ Esto tarda ~60s (66 municipios con delay entre requests)"
           echo ""
 
           HTTP_STATUS=$(curl -sS -o /tmp/api-response.json -w "%{http_code}" \
             -X POST \
             -H "X-Admin-Key: ${{ secrets.ADMIN_API_KEY }}" \
-            --max-time 30 \
+            --max-time 300 \
             "${{ env.API_BASE_URL }}/admin/scrape/coflugo")
 
-          echo "📡 HTTP $HTTP_STATUS — $(cat /tmp/api-response.json)"
+          echo "📡 HTTP $HTTP_STATUS"
+          cat /tmp/api-response.json | python3 -m json.tool 2>/dev/null || cat /tmp/api-response.json
+          echo ""
 
-          if [ "$HTTP_STATUS" != "202" ]; then
-            echo ""
-            echo "❌ El API respondió con HTTP $HTTP_STATUS en lugar de 202."
+          if [ "$HTTP_STATUS" != "200" ]; then
+            echo "❌ El API respondió con HTTP $HTTP_STATUS en lugar de 200."
             echo "   Verifica que ADMIN_API_KEY sea correcta y que el API esté levantado."
             exit 1
           fi
 
-          echo ""
-          echo "✅ Scraping de Lugo delegado al servidor API (EU)."
-          echo "   El API procesará los 66 municipios en background (~30s)."
-          echo "   Los datos se escriben en la misma BD de Supabase."
+          # Verificar que se guardaron turnos
+          SAVED=$(python3 -c "import json; print(json.load(open('/tmp/api-response.json'))['result']['saved'])" 2>/dev/null || echo "0")
+          ERRORS=$(python3 -c "import json; print(json.load(open('/tmp/api-response.json'))['result']['errors'])" 2>/dev/null || echo "?")
+
+          echo "✅ Lugo completado: ${SAVED} turnos guardados, ${ERRORS} errores HTTP"
+
+          if [ "$SAVED" = "0" ]; then
+            echo "⚠️  0 turnos guardados — posible problema con coflugo.org"
+            exit 1
+          fi

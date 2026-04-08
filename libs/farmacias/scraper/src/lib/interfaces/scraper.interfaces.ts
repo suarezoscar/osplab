@@ -26,3 +26,10 @@ export interface ScraperResult {
   errors: string[];
   scrapedAt: Date;
 }
+
+/** Resultado devuelto por scrapeToday() / admin endpoints. */
+export interface ScrapeResult {
+  saved: number;
+  errors: number;
+  municipalities: number;
+}

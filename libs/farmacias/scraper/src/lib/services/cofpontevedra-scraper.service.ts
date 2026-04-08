@@ -13,6 +13,7 @@ import {
 } from '../parsers/cofpontevedra.parser';
 import { cleanOldSchedules } from './schedule-cleanup.util';
 import { getSpainToday } from '../utils/spain-date.util';
+import type { ScrapeResult } from '../interfaces/scraper.interfaces';
 
 /** Pausa entre peticiones a la API (ms) — respetar el rate limit */
 const REQUEST_DELAY_MS = 150;
@@ -40,18 +41,18 @@ export class CofpontevedraScraperService {
     await this.scrapeToday();
   }
 
-  async scrapeToday(): Promise<void> {
+  async scrapeToday(): Promise<ScrapeResult> {
     const today = getSpainToday();
     await cleanOldSchedules(this.prisma, this.logger, 'COF Pontevedra');
-    await this.scrapeForDate(today);
+    return this.scrapeForDate(today);
   }
 
-  async scrapeForDate(targetDate: Date): Promise<void> {
+  async scrapeForDate(targetDate: Date): Promise<ScrapeResult> {
     // 1. Obtener lista de municipios
     const municipios = await this.fetchMunicipios();
     if (municipios.length === 0) {
       this.logger.warn('⚠️  COF Pontevedra: no se obtuvo la lista de municipios');
-      return;
+      return { saved: 0, errors: 1, municipalities: 0 };
     }
     this.logger.debug(`📋 COF Pontevedra: ${municipios.length} municipios a consultar`);
 
@@ -64,6 +65,7 @@ export class CofpontevedraScraperService {
     }
 
     this.logger.log(`✅ COF Pontevedra: ${totalSaved} turnos guardados en total`);
+    return { saved: totalSaved, errors: 0, municipalities: municipios.length };
   }
 
   // ── Métodos privados ──────────────────────────────────────────────────────

@@ -10,6 +10,7 @@ import {
 } from '../parsers/cofm.parser';
 import { cleanOldSchedules } from './schedule-cleanup.util';
 import { getSpainToday } from '../utils/spain-date.util';
+import type { ScrapeResult } from '../interfaces/scraper.interfaces';
 
 @Injectable()
 export class CofmScraperService {
@@ -33,11 +34,11 @@ export class CofmScraperService {
   /**
    * Scraping de las farmacias de guardia de Madrid para hoy.
    */
-  async scrapeToday(): Promise<void> {
+  async scrapeToday(): Promise<ScrapeResult> {
     const today = getSpainToday();
 
     await cleanOldSchedules(this.prisma, this.logger, 'COFM Madrid');
-    await this.scrapeForDate(today);
+    return this.scrapeForDate(today);
   }
 
   /**
@@ -48,7 +49,7 @@ export class CofmScraperService {
    *
    * @param targetDate - Fecha de guardia a almacenar (sin hora)
    */
-  async scrapeForDate(targetDate: Date): Promise<void> {
+  async scrapeForDate(targetDate: Date): Promise<ScrapeResult> {
     const url = COFM_API_URL;
     this.logger.debug(`🔍 Consultando API COFM Madrid: ${url}`);
 
@@ -68,7 +69,7 @@ export class CofmScraperService {
       data = response.data;
     } catch (err) {
       this.logger.warn(`⚠️  No se pudo consultar la API de COFM Madrid: ${(err as Error).message}`);
-      return; // Fallo silencioso
+      return { saved: 0, errors: 1, municipalities: 1 };
     }
 
     const schedules = parseCofmResponse(data, targetDate, url);
@@ -78,7 +79,7 @@ export class CofmScraperService {
         `⚠️  COFM Madrid: respuesta recibida pero 0 farmacias de guardia parseadas. ` +
           `La estructura de la API puede haber cambiado.`,
       );
-      return;
+      return { saved: 0, errors: 0, municipalities: 1 };
     }
 
     this.logger.debug(`📋 COFM Madrid: ${schedules.length} turnos de guardia encontrados`);
@@ -88,5 +89,6 @@ export class CofmScraperService {
       schedules,
     );
     this.logger.log(`💾 COFM Madrid: ${saved} turnos guardados, ${skipped} omitidos`);
+    return { saved, errors: 0, municipalities: 1 };
   }
 }

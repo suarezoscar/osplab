@@ -76,6 +76,7 @@ export type {
   ScrapedDutySchedule,
   ScrapedPharmacy,
   ScraperResult,
+  ScrapeResult,
 } from './lib/interfaces/scraper.interfaces';
 export {
   getSpainToday,

@@ -13,6 +13,7 @@ import {
 } from '../parsers/farmaguia.parser';
 import { cleanOldSchedules } from './schedule-cleanup.util';
 import { getSpainToday } from '../utils/spain-date.util';
+import type { ScrapeResult } from '../interfaces/scraper.interfaces';
 
 const HEADERS = {
   'User-Agent':
@@ -52,11 +53,11 @@ export class FarmaguiaScraperService {
   /**
    * Scraping de las farmacias de guardia de Barcelona para hoy.
    */
-  async scrapeToday(): Promise<void> {
+  async scrapeToday(): Promise<ScrapeResult> {
     const today = getSpainToday();
 
     await cleanOldSchedules(this.prisma, this.logger, 'Farmaguia Barcelona');
-    await this.scrapeForDate(today);
+    return this.scrapeForDate(today);
   }
 
   /**
@@ -71,7 +72,7 @@ export class FarmaguiaScraperService {
    *
    * @param targetDate - Fecha de guardia a almacenar (sin hora)
    */
-  async scrapeForDate(targetDate: Date): Promise<void> {
+  async scrapeForDate(targetDate: Date): Promise<ScrapeResult> {
     let cookies = '';
 
     // ── Paso 1: Inicializar sesión ───────────────────────────────────
@@ -85,7 +86,7 @@ export class FarmaguiaScraperService {
       cookies = mergeCookies(indexResp, cookies);
     } catch (err) {
       this.logger.warn(`⚠️  No se pudo inicializar sesión en Farmaguia: ${(err as Error).message}`);
-      return;
+      return { saved: 0, errors: 1, municipalities: 1 };
     }
 
     // ── Paso 2: Obtener MagicKey ─────────────────────────────────────
@@ -103,14 +104,14 @@ export class FarmaguiaScraperService {
       cookies = mergeCookies(langResp, cookies);
     } catch (err) {
       this.logger.warn(`⚠️  No se pudo obtener MagicKey de Farmaguia: ${(err as Error).message}`);
-      return;
+      return { saved: 0, errors: 1, municipalities: 1 };
     }
 
     if (!magicKey) {
       this.logger.warn(
         `⚠️  Farmaguia: MagicKey no encontrada en lang.js. La estructura puede haber cambiado.`,
       );
-      return;
+      return { saved: 0, errors: 1, municipalities: 1 };
     }
 
     this.logger.debug(`✅ MagicKey obtenida, sesión inicializada`);
@@ -130,7 +131,7 @@ export class FarmaguiaScraperService {
       data = response.data;
     } catch (err) {
       this.logger.warn(`⚠️  No se pudo consultar la API de Farmaguia: ${(err as Error).message}`);
-      return;
+      return { saved: 0, errors: 1, municipalities: 1 };
     }
 
     const schedules = parseFarmaguiaResponse(data, targetDate, url);
@@ -140,7 +141,7 @@ export class FarmaguiaScraperService {
         `⚠️  Farmaguia Barcelona: respuesta recibida pero 0 farmacias de guardia parseadas. ` +
           `La estructura de la API puede haber cambiado.`,
       );
-      return;
+      return { saved: 0, errors: 0, municipalities: 1 };
     }
 
     this.logger.debug(`📋 Farmaguia Barcelona: ${schedules.length} turnos de guardia encontrados`);
@@ -180,5 +181,6 @@ export class FarmaguiaScraperService {
     this.logger.log(
       `💾 Farmaguia Barcelona: ${totalSaved} turnos guardados, ${totalSkipped} omitidos (${byProvince.size} provincias)`,
     );
+    return { saved: totalSaved, errors: 0, municipalities: byProvince.size };
   }
 }

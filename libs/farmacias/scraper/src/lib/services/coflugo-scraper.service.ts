@@ -11,6 +11,7 @@ import {
 } from '../parsers/coflugo.parser';
 import { cleanOldSchedules } from './schedule-cleanup.util';
 import { getSpainToday } from '../utils/spain-date.util';
+import type { ScrapeResult } from '../interfaces/scraper.interfaces';
 
 /** Pausa entre peticiones (ms) — respetar el rate limit del servidor */
 const REQUEST_DELAY_MS = 300;
@@ -44,26 +45,32 @@ export class CoflugoScraperService {
     await this.scrapeToday();
   }
 
-  async scrapeToday(): Promise<void> {
+  async scrapeToday(): Promise<ScrapeResult> {
     const today = getSpainToday();
     await cleanOldSchedules(this.prisma, this.logger, 'COF Lugo');
-    await this.scrapeForDate(today);
+    return this.scrapeForDate(today);
   }
 
-  async scrapeForDate(targetDate: Date): Promise<void> {
+  async scrapeForDate(targetDate: Date): Promise<ScrapeResult> {
     this.logger.debug(
       `🔍 COF Lugo: consultando ${COFLUGO_MUNICIPIOS.length} municipios para ${targetDate.toISOString().slice(0, 10)}`,
     );
 
     let totalSaved = 0;
+    let totalErrors = 0;
 
     for (const municipio of COFLUGO_MUNICIPIOS) {
       const saved = await this.scrapeMunicipio(municipio, targetDate);
-      totalSaved += saved;
+      if (saved < 0) {
+        totalErrors++;
+      } else {
+        totalSaved += saved;
+      }
       await sleep(REQUEST_DELAY_MS);
     }
 
-    this.logger.log(`✅ COF Lugo: ${totalSaved} turnos guardados en total`);
+    this.logger.log(`✅ COF Lugo: ${totalSaved} turnos guardados, ${totalErrors} errores`);
+    return { saved: totalSaved, errors: totalErrors, municipalities: COFLUGO_MUNICIPIOS.length };
   }
 
   // ── Métodos privados ──────────────────────────────────────────────────────
@@ -95,7 +102,7 @@ export class CoflugoScraperService {
           this.logger.warn(
             `⚠️  ${municipio.nombre}: error al consultar COFLugo tras ${MAX_RETRIES + 1} intentos — ${(err as Error).message}`,
           );
-          return 0;
+          return -1; // Señal de error HTTP
         }
       }
     }
