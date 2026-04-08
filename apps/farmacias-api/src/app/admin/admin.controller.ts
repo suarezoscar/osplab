@@ -1,4 +1,4 @@
-import { Controller, Post, HttpCode, HttpStatus, UseGuards } from '@nestjs/common';
+import { Controller, Post, HttpCode, HttpStatus, Logger, UseGuards } from '@nestjs/common';
 import { SkipThrottle } from '@nestjs/throttler';
 import {
   CofourenseScraperService,
@@ -8,7 +8,6 @@ import {
   CofmScraperService,
   FarmaguiaScraperService,
 } from '@osplab/farmacias-scraper';
-import type { ScrapeResult } from '@osplab/farmacias-scraper';
 import { AdminApiKeyGuard } from './admin-api-key.guard';
 
 /**
@@ -21,11 +20,17 @@ import { AdminApiKeyGuard } from './admin-api-key.guard';
  *
  * Protegidos por AdminApiKeyGuard (cabecera X-Admin-Key).
  * SkipThrottle porque estas rutas son llamadas sólo por el propio cron/admin.
+ *
+ * Patrón fire-and-forget: devuelven 202 Accepted de inmediato y
+ * ejecutan el scraping en background. Esto evita timeouts en proxies
+ * (Render, Cloudflare) para scrapers lentos como COF Lugo (~60 s).
  */
 @Controller('admin')
 @UseGuards(AdminApiKeyGuard)
 @SkipThrottle()
 export class AdminController {
+  private readonly logger = new Logger(AdminController.name);
+
   constructor(
     private readonly cofourenseScraper: CofourenseScraperService,
     private readonly cofpontevedraScraper: CofpontevedraScraperService,
@@ -36,62 +41,56 @@ export class AdminController {
   ) {}
 
   @Post('scrape/cofourense')
-  @HttpCode(HttpStatus.OK)
-  async triggerCofourenseScrape(): Promise<{ message: string; result: ScrapeResult }> {
-    const result = await this.cofourenseScraper.scrapeToday();
-    return {
-      message: `COF Ourense: ${result.saved} turnos guardados, ${result.errors} errores`,
-      result,
-    };
+  @HttpCode(HttpStatus.ACCEPTED)
+  triggerCofourenseScrape(): { message: string } {
+    this.cofourenseScraper.scrapeToday().catch((err) => {
+      this.logger.error(`❌ COF Ourense scraping falló: ${err.message}`, err.stack);
+    });
+    return { message: 'Scraping de COF Ourense iniciado en background' };
   }
 
   @Post('scrape/cofpontevedra')
-  @HttpCode(HttpStatus.OK)
-  async triggerCofpontevedraScrape(): Promise<{ message: string; result: ScrapeResult }> {
-    const result = await this.cofpontevedraScraper.scrapeToday();
-    return {
-      message: `COF Pontevedra: ${result.saved} turnos guardados, ${result.errors} errores (${result.municipalities} municipios)`,
-      result,
-    };
+  @HttpCode(HttpStatus.ACCEPTED)
+  triggerCofpontevedraScrape(): { message: string } {
+    this.cofpontevedraScraper.scrapeToday().catch((err) => {
+      this.logger.error(`❌ COF Pontevedra scraping falló: ${err.message}`, err.stack);
+    });
+    return { message: 'Scraping de COF Pontevedra iniciado en background' };
   }
 
   @Post('scrape/coflugo')
-  @HttpCode(HttpStatus.OK)
-  async triggerCoflugoScrape(): Promise<{ message: string; result: ScrapeResult }> {
-    const result = await this.coflugoScraper.scrapeToday();
-    return {
-      message: `COF Lugo: ${result.saved} turnos guardados, ${result.errors} errores (${result.municipalities} municipios)`,
-      result,
-    };
+  @HttpCode(HttpStatus.ACCEPTED)
+  triggerCoflugoScrape(): { message: string } {
+    this.coflugoScraper.scrapeToday().catch((err) => {
+      this.logger.error(`❌ COF Lugo scraping falló: ${err.message}`, err.stack);
+    });
+    return { message: 'Scraping de COF Lugo iniciado en background' };
   }
 
   @Post('scrape/cofc')
-  @HttpCode(HttpStatus.OK)
-  async triggerCofcScrape(): Promise<{ message: string; result: ScrapeResult }> {
-    const result = await this.cofcScraper.scrapeToday();
-    return {
-      message: `COF A Coruña: ${result.saved} turnos guardados, ${result.errors} errores (${result.municipalities} municipios)`,
-      result,
-    };
+  @HttpCode(HttpStatus.ACCEPTED)
+  triggerCofcScrape(): { message: string } {
+    this.cofcScraper.scrapeToday().catch((err) => {
+      this.logger.error(`❌ COF A Coruña scraping falló: ${err.message}`, err.stack);
+    });
+    return { message: 'Scraping de COF A Coruña iniciado en background' };
   }
 
   @Post('scrape/cofm')
-  @HttpCode(HttpStatus.OK)
-  async triggerCofmScrape(): Promise<{ message: string; result: ScrapeResult }> {
-    const result = await this.cofmScraper.scrapeToday();
-    return {
-      message: `COFM Madrid: ${result.saved} turnos guardados, ${result.errors} errores`,
-      result,
-    };
+  @HttpCode(HttpStatus.ACCEPTED)
+  triggerCofmScrape(): { message: string } {
+    this.cofmScraper.scrapeToday().catch((err) => {
+      this.logger.error(`❌ COFM Madrid scraping falló: ${err.message}`, err.stack);
+    });
+    return { message: 'Scraping de COFM Madrid iniciado en background' };
   }
 
   @Post('scrape/farmaguia')
-  @HttpCode(HttpStatus.OK)
-  async triggerFarmaguiaScrape(): Promise<{ message: string; result: ScrapeResult }> {
-    const result = await this.farmaguiaScraper.scrapeToday();
-    return {
-      message: `Farmaguia Barcelona: ${result.saved} turnos guardados, ${result.errors} errores (${result.municipalities} provincias)`,
-      result,
-    };
+  @HttpCode(HttpStatus.ACCEPTED)
+  triggerFarmaguiaScrape(): { message: string } {
+    this.farmaguiaScraper.scrapeToday().catch((err) => {
+      this.logger.error(`❌ Farmaguia Barcelona scraping falló: ${err.message}`, err.stack);
+    });
+    return { message: 'Scraping de Farmaguia Barcelona iniciado en background' };
   }
 }
