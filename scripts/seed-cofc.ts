@@ -55,7 +55,7 @@ async function fetchSession(): Promise<{ token: string; cookie: string } | null>
 }
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
-runSeed('🌿 Seed — COF A Coruña (COFC)', async ({ prisma, log, sleep }) => {
+runSeed('🌿 Seed — COF A Coruña (COFC)', async ({ prisma, log, sleep, cleanup }) => {
   const today = getSpainToday();
   const dateStr = formatDateForCofc(today);
   log(`📅 Fecha: ${dateStr}`);
@@ -114,7 +114,8 @@ runSeed('🌿 Seed — COF A Coruña (COFC)', async ({ prisma, log, sleep }) => 
     return;
   }
 
-  // ── FASE 2: Bulk write ──────────────────────────────────────────────
+  // ── FASE 2: Bulk write (cleanup + insert) ─────────────────────────
+  await cleanup();
   const { saved, skipped } = await bulkWriteSchedules(
     prisma,
     { provinceName: COFC_PROVINCE, provinceCode: COFC_PROVINCE_CODE },

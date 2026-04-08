@@ -28,7 +28,7 @@ const COMMON_HEADERS = {
 };
 
 // ─── Main ────────────────────────────────────────────────────────────────────
-runSeed('🌿 Seed — COF Lugo', async ({ prisma, log, sleep }) => {
+runSeed('🌿 Seed — COF Lugo', async ({ prisma, log, sleep, cleanup }) => {
   const today = getSpainToday();
 
   // ── FASE 1: Scrape todos los municipios ─────────────────────────────
@@ -82,7 +82,8 @@ runSeed('🌿 Seed — COF Lugo', async ({ prisma, log, sleep }) => {
     return;
   }
 
-  // ── FASE 2: Bulk write ──────────────────────────────────────────────
+  // ── FASE 2: Bulk write (cleanup + insert) ─────────────────────────
+  await cleanup();
   const { saved, skipped } = await bulkWriteSchedules(
     prisma,
     { provinceName: COFLUGO_PROVINCE, provinceCode: COFLUGO_PROVINCE_CODE },

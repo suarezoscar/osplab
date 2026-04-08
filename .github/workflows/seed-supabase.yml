@@ -15,7 +15,7 @@ on:
           - lugo
           - coruña
           - madrid
-          - cataluña
+          - barcelona
       confirm:
         description: '⚠️ Escribe "yes" para confirmar el seed en producción'
         required: true
@@ -31,21 +31,48 @@ env:
   SUPABASE_DB: 'postgres'
 
 jobs:
-  seed:
-    name: 'Seed Supabase — ${{ github.event.inputs.province }}'
+  # ── 1. Validar confirmación ──────────────────────────────────────────────────
+  validate:
+    name: Validar confirmación
     runs-on: ubuntu-latest
-    timeout-minutes: 60
-    permissions:
-      contents: read
-
     steps:
-      - name: Validar confirmación
+      - name: Comprobar "yes"
         run: |
           if [ "${{ github.event.inputs.confirm }}" != "yes" ]; then
             echo "❌ Debes escribir 'yes' para confirmar. Abortando."
             exit 1
           fi
 
+  # ── 2. Resolver qué provincias ejecutar ──────────────────────────────────────
+  resolve:
+    name: Resolver provincias
+    needs: validate
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - id: set-matrix
+        run: |
+          if [ "${{ github.event.inputs.province }}" = "all" ]; then
+            echo 'matrix=["ourense","pontevedra","lugo","coruña","madrid","barcelona"]' >> "$GITHUB_OUTPUT"
+          else
+            echo 'matrix=["${{ github.event.inputs.province }}"]' >> "$GITHUB_OUTPUT"
+          fi
+
+  # ── 3. Seed por provincia (jobs paralelos e independientes) ──────────────────
+  seed:
+    name: '${{ matrix.province }}'
+    needs: resolve
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        province: ${{ fromJson(needs.resolve.outputs.matrix) }}
+
+    steps:
       - name: Checkout
         uses: actions/checkout@v4
 
@@ -66,7 +93,7 @@ jobs:
           DATABASE_URL: postgresql://${{ env.SUPABASE_USER }}:placeholder@${{ env.SUPABASE_HOST }}:${{ env.SUPABASE_PORT }}/${{ env.SUPABASE_DB }}
         run: pnpm prisma:generate
 
-      - name: Run seeds (${{ github.event.inputs.province }})
+      - name: 'Seed — ${{ matrix.province }}'
         env:
           DATABASE_URL: postgresql://${{ env.SUPABASE_USER }}:${{ secrets.SUPABASE_PASSWORD }}@${{ env.SUPABASE_HOST }}:${{ env.SUPABASE_PORT }}/${{ env.SUPABASE_DB }}
-        run: bash scripts/seed-supabase.sh "${{ github.event.inputs.province }}"
+        run: bash scripts/seed-supabase.sh "${{ matrix.province }}"

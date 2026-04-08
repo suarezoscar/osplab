@@ -29,7 +29,7 @@ const HEADERS = {
 };
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
-runSeed('🌿 Seed — COF Pontevedra', async ({ prisma, log, sleep }) => {
+runSeed('🌿 Seed — COF Pontevedra', async ({ prisma, log, sleep, cleanup }) => {
   const today = getSpainToday();
   const dateStr = formatDateForCofpo(today);
   log(`📅 Fecha: ${dateStr}`);
@@ -84,7 +84,8 @@ runSeed('🌿 Seed — COF Pontevedra', async ({ prisma, log, sleep }) => {
     return;
   }
 
-  // ── FASE 2: Bulk write ──────────────────────────────────────────────
+  // ── FASE 2: Bulk write (cleanup + insert) ─────────────────────────
+  await cleanup();
   const { saved, skipped } = await bulkWriteSchedules(
     prisma,
     { provinceName: COFPONTEVEDRA_PROVINCE, provinceCode: COFPONTEVEDRA_PROVINCE_CODE },

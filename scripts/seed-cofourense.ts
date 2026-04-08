@@ -18,7 +18,7 @@ import { getSpainToday } from '../libs/farmacias/scraper/src/lib/utils/spain-dat
 import { bulkWriteSchedules, runSeed } from './lib/seed-helpers';
 
 // ─── Main ────────────────────────────────────────────────────────────────────
-runSeed('🌿 Seed — COF Ourense', async ({ prisma, log }) => {
+runSeed('🌿 Seed — COF Ourense', async ({ prisma, log, cleanup }) => {
   const now = new Date();
   const today = getSpainToday();
 
@@ -44,7 +44,8 @@ runSeed('🌿 Seed — COF Ourense', async ({ prisma, log }) => {
   }
   log(`📋 ${schedules.length} farmacias de guardia encontradas para hoy`);
 
-  // ── FASE 2: Bulk write ──────────────────────────────────────────────
+  // ── FASE 2: Bulk write (cleanup + insert) ─────────────────────────
+  await cleanup();
   const { saved, skipped } = await bulkWriteSchedules(
     prisma,
     { provinceName: COFOURENSE_PROVINCE, provinceCode: COFOURENSE_PROVINCE_CODE },

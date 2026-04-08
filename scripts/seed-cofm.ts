@@ -18,7 +18,7 @@ import { getSpainToday } from '../libs/farmacias/scraper/src/lib/utils/spain-dat
 import { bulkWriteSchedules, runSeed } from './lib/seed-helpers';
 
 // ─── Main ────────────────────────────────────────────────────────────────────
-runSeed('🌿 Seed — COFM Madrid', async ({ prisma, log }) => {
+runSeed('🌿 Seed — COFM Madrid', async ({ prisma, log, cleanup }) => {
   const today = getSpainToday();
 
   // ── FASE 1: Scrape ──────────────────────────────────────────────────
@@ -42,7 +42,8 @@ runSeed('🌿 Seed — COFM Madrid', async ({ prisma, log }) => {
   }
   log(`📋 ${schedules.length} turnos de guardia encontrados para hoy`);
 
-  // ── FASE 2: Bulk write ──────────────────────────────────────────────
+  // ── FASE 2: Bulk write (cleanup + insert) ─────────────────────────
+  await cleanup();
   const { saved, skipped } = await bulkWriteSchedules(
     prisma,
     { provinceName: COFM_PROVINCE, provinceCode: COFM_PROVINCE_CODE },

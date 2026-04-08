@@ -27,6 +27,12 @@ export interface SeedContext {
   log: Logger;
   section: (title: string) => void;
   sleep: (ms: number) => Promise<void>;
+  /**
+   * Elimina turnos de guardia anteriores a hoy.
+   * Llamar SOLO después de confirmar que el scrape fue exitoso
+   * y hay datos nuevos para insertar — así nunca borramos sin reemplazo.
+   */
+  cleanup: () => Promise<void>;
 }
 
 // ─── Helpers de consola ──────────────────────────────────────────────────────
@@ -87,17 +93,16 @@ export async function printSummary(prisma: PrismaClient): Promise<void> {
 // ─── Orquestador ─────────────────────────────────────────────────────────────
 
 export interface RunSeedOptions {
-  skipCleanup?: boolean;
   skipSummary?: boolean;
 }
 
 /**
  * Orquesta el ciclo de vida de un seed script:
  *   1. Crea la conexión a BD
- *   2. Limpia turnos antiguos (salvo skipCleanup)
- *   3. Ejecuta la lógica específica del seed
- *   4. Imprime resumen (salvo skipSummary)
- *   5. Desconecta y maneja errores
+ *   2. Ejecuta la lógica específica del seed
+ *      → El seed llama ctx.cleanup() SOLO si el scrape fue exitoso
+ *   3. Imprime resumen (salvo skipSummary)
+ *   4. Desconecta y maneja errores
  */
 export function runSeed(
   name: string,
@@ -105,16 +110,13 @@ export function runSeed(
   options?: RunSeedOptions,
 ): void {
   const prisma = createPrisma();
-  const ctx: SeedContext = { prisma, log, section, sleep };
+  const cleanup = () => deleteOldSchedules(prisma);
+  const ctx: SeedContext = { prisma, log, section, sleep, cleanup };
 
   const main = async () => {
     section(name);
     await prisma.$connect();
     log('✅ Conectado a PostgreSQL');
-
-    if (!options?.skipCleanup) {
-      await deleteOldSchedules(prisma);
-    }
 
     await seedFn(ctx);
 

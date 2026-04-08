@@ -40,7 +40,7 @@ function extractCookies(resp: { headers: Record<string, unknown> }, existing: st
 }
 
 // ─── Main ────────────────────────────────────────────────────────────────────
-runSeed('🌿 Seed — Farmaguia Barcelona', async ({ prisma, log }) => {
+runSeed('🌿 Seed — Farmaguia Barcelona', async ({ prisma, log, cleanup }) => {
   const today = getSpainToday();
   let cookies = '';
 
@@ -89,6 +89,8 @@ runSeed('🌿 Seed — Farmaguia Barcelona', async ({ prisma, log }) => {
 
   // ── FASE 4: Agrupar por provincia y bulk write ─────────────────────
   // Cada farmacia ya tiene su provinceName asignado por código postal.
+  // Cleanup solo si hay datos nuevos — no borramos sin reemplazo.
+  await cleanup();
   const byProvince = new Map<string, typeof schedules>();
   for (const s of schedules) {
     const prov = s.pharmacy.provinceName;
@@ -99,7 +101,7 @@ runSeed('🌿 Seed — Farmaguia Barcelona', async ({ prisma, log }) => {
 
   // Construir lookup inverso: provinceName → { name, code }
   const provinceCodeMap = new Map<string, { name: string; code: string }>();
-  for (const info of FARMAGUIA_PROVINCES.values()) {
+  for (const info of Array.from(FARMAGUIA_PROVINCES.values())) {
     provinceCodeMap.set(info.name, info);
   }
   provinceCodeMap.set(FARMAGUIA_DEFAULT_PROVINCE.name, FARMAGUIA_DEFAULT_PROVINCE);
@@ -107,7 +109,7 @@ runSeed('🌿 Seed — Farmaguia Barcelona', async ({ prisma, log }) => {
   let totalSaved = 0;
   let totalSkipped = 0;
 
-  for (const [provinceName, provinceSchedules] of byProvince) {
+  for (const [provinceName, provinceSchedules] of Array.from(byProvince)) {
     const info = provinceCodeMap.get(provinceName) ?? FARMAGUIA_DEFAULT_PROVINCE;
     log(`\n🗺️  Escribiendo ${provinceSchedules.length} turnos de ${provinceName}...`);
 

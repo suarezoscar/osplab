@@ -28,8 +28,7 @@ declare -A PROVINCE_SEEDS=(
   [coruña]="seed-cofc.ts"
   [coruna]="seed-cofc.ts"
   [madrid]="seed-cofm.ts"
-  [cataluña]="seed-farmaguia.ts"
-  [cataluna]="seed-farmaguia.ts"
+  [barcelona]="seed-farmaguia.ts"
 )
 
 ALL_SEEDS=(
@@ -54,7 +53,7 @@ elif [ -n "${PROVINCE_SEEDS[$PROVINCE_LOWER]+x}" ]; then
 else
   echo "❌ Provincia desconocida: '${PROVINCE}'"
   echo ""
-   echo "   Provincias válidas: ourense, pontevedra, lugo, coruña, madrid, barcelona (o 'all')"
+  echo "   Provincias válidas: ourense, pontevedra, lugo, coruña, madrid, barcelona (o 'all')"
   exit 1
 fi
 
