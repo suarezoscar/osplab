@@ -29,6 +29,7 @@ env:
   SUPABASE_PORT: '5432'
   SUPABASE_USER: 'postgres.vrqaamkqoiuppqtrzpbu'
   SUPABASE_DB: 'postgres'
+  API_BASE_URL: 'https://farmacias.osplab.dev/api'
 
 jobs:
   # ── 1. Validar confirmación ──────────────────────────────────────────────────
@@ -93,7 +94,38 @@ jobs:
           DATABASE_URL: postgresql://${{ env.SUPABASE_USER }}:placeholder@${{ env.SUPABASE_HOST }}:${{ env.SUPABASE_PORT }}/${{ env.SUPABASE_DB }}
         run: pnpm prisma:generate
 
-      - name: 'Seed — ${{ matrix.province }}'
+      - name: 'Seed — ${{ matrix.province }} (direct)'
+        if: matrix.province != 'lugo'
         env:
           DATABASE_URL: postgresql://${{ env.SUPABASE_USER }}:${{ secrets.SUPABASE_PASSWORD }}@${{ env.SUPABASE_HOST }}:${{ env.SUPABASE_PORT }}/${{ env.SUPABASE_DB }}
         run: bash scripts/seed-supabase.sh "${{ matrix.province }}"
+
+      # ── Lugo: relay via API server (EU) ──────────────────────────────────
+      # coflugo.org bloquea/rate-limita IPs de datacenters (EEUU).
+      # Delegamos al API desplegado en Render (EU) que ya tiene el scraper.
+      - name: 'Seed — lugo (via API relay EU)'
+        if: matrix.province == 'lugo'
+        run: |
+          echo "🌐 Delegando scraping de Lugo al API server (EU)..."
+          echo "   Endpoint: ${{ env.API_BASE_URL }}/admin/scrape/coflugo"
+          echo ""
+
+          HTTP_STATUS=$(curl -sS -o /tmp/api-response.json -w "%{http_code}" \
+            -X POST \
+            -H "X-Admin-Key: ${{ secrets.ADMIN_API_KEY }}" \
+            --max-time 30 \
+            "${{ env.API_BASE_URL }}/admin/scrape/coflugo")
+
+          echo "📡 HTTP $HTTP_STATUS — $(cat /tmp/api-response.json)"
+
+          if [ "$HTTP_STATUS" != "202" ]; then
+            echo ""
+            echo "❌ El API respondió con HTTP $HTTP_STATUS en lugar de 202."
+            echo "   Verifica que ADMIN_API_KEY sea correcta y que el API esté levantado."
+            exit 1
+          fi
+
+          echo ""
+          echo "✅ Scraping de Lugo delegado al servidor API (EU)."
+          echo "   El API procesará los 66 municipios en background (~30s)."
+          echo "   Los datos se escriben en la misma BD de Supabase."
