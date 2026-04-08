@@ -63,6 +63,15 @@ jobs:
     if: needs.changes.outputs.farmacias-api == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    # Session pooler de Supabase (puerto 5432): soporta DDL + advisory locks
+    # y es accesible desde GitHub Actions sin necesidad del IPv4 add-on.
+    # La URL directa (db.vrqaamkqoiuppqtrzpbu.supabase.co:5432) NO es accesible
+    # desde las IPs dinámicas de los runners de GH Actions.
+    env:
+      SUPABASE_SESSION_HOST: 'aws-1-eu-north-1.pooler.supabase.com'
+      SUPABASE_SESSION_PORT: '5432'
+      SUPABASE_USER: 'postgres.vrqaamkqoiuppqtrzpbu'
+      SUPABASE_DB: 'postgres'
     steps:
       - uses: actions/checkout@v4
 
@@ -78,8 +87,8 @@ jobs:
       - name: Apply migrations
         run: pnpm prisma:migrate:deploy
         env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          DIRECT_URL: ${{ secrets.DIRECT_URL }}
+          DATABASE_URL: postgresql://${{ env.SUPABASE_USER }}:${{ secrets.SUPABASE_PASSWORD }}@${{ env.SUPABASE_SESSION_HOST }}:${{ env.SUPABASE_SESSION_PORT }}/${{ env.SUPABASE_DB }}
+          DIRECT_URL: postgresql://${{ env.SUPABASE_USER }}:${{ secrets.SUPABASE_PASSWORD }}@${{ env.SUPABASE_SESSION_HOST }}:${{ env.SUPABASE_SESSION_PORT }}/${{ env.SUPABASE_DB }}
 
   # ── Deploy Landing → Cloudflare Pages ─────────────────────────────
   deploy-landing:

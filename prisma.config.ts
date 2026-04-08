@@ -11,9 +11,13 @@ try {
 export default defineConfig({
   schema: 'libs/farmacias/data-access/prisma/schema.prisma',
   datasource: {
-    // Prisma Migrate necesita conexión directa a PostgreSQL.
-    // En producción/CI: DIRECT_URL → conexión directa a Supabase (sin pooler).
-    // En local: DIRECT_URL no suele existir → cae back a DATABASE_URL.
+    // Prisma Migrate necesita una conexión que soporte advisory locks y DDL.
+    // En CI (GitHub Actions): DIRECT_URL se establece al Session Pooler de Supabase
+    //   (aws-X-eu-north-1.pooler.supabase.com:5432) — accesible desde IPs dinámicas
+    //   sin necesidad del add-on IPv4 de Supabase.
+    //   ⚠️  NO usar la URL directa (db.vrqaamkqoiuppqtrzpbu.supabase.co:5432) en CI:
+    //       está bloqueada para IPs dinámicas a menos que el add-on IPv4 esté activo.
+    // En local: DIRECT_URL no suele existir → cae back a DATABASE_URL (.env).
     url: process.env['DIRECT_URL'] || env('DATABASE_URL'),
   },
 });
