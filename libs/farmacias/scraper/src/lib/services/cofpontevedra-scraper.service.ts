@@ -13,10 +13,17 @@ import {
 } from '../parsers/cofpontevedra.parser';
 import { cleanOldSchedules } from './schedule-cleanup.util';
 import { getSpainToday } from '../utils/spain-date.util';
+import { isHardConnectionError } from '../utils/http-errors.util';
 import type { ScrapeResult } from '../interfaces/scraper.interfaces';
 
 /** Pausa entre peticiones a la API (ms) — respetar el rate limit */
 const REQUEST_DELAY_MS = 150;
+
+/**
+ * Circuit breaker: si N municipios consecutivos fallan por error de conexión
+ * duro, abortamos el scrape completo.
+ */
+const CIRCUIT_BREAKER_THRESHOLD = 3;
 
 const COMMON_HEADERS = {
   'User-Agent':
@@ -58,14 +65,40 @@ export class CofpontevedraScraperService {
 
     // 2. Scraping de cada municipio con pequeña pausa entre peticiones
     let totalSaved = 0;
+    let totalErrors = 0;
+    let consecutiveHardFails = 0;
+
     for (const municipio of municipios) {
       const saved = await this.scrapeMunicipio(municipio, targetDate);
-      totalSaved += saved;
+
+      if (saved === -2) {
+        // Hard connection error
+        totalErrors++;
+        consecutiveHardFails++;
+
+        if (consecutiveHardFails >= CIRCUIT_BREAKER_THRESHOLD) {
+          this.logger.warn(
+            `🔌 COF Pontevedra: circuit breaker activado tras ${consecutiveHardFails} fallos consecutivos de conexión. Abortando scrape.`,
+          );
+          return {
+            saved: totalSaved,
+            errors: municipios.length - totalSaved,
+            municipalities: municipios.length,
+          };
+        }
+      } else if (saved < 0) {
+        totalErrors++;
+        consecutiveHardFails = 0;
+      } else {
+        totalSaved += saved;
+        consecutiveHardFails = 0;
+      }
+
       await sleep(REQUEST_DELAY_MS);
     }
 
     this.logger.log(`✅ COF Pontevedra: ${totalSaved} turnos guardados en total`);
-    return { saved: totalSaved, errors: 0, municipalities: municipios.length };
+    return { saved: totalSaved, errors: totalErrors, municipalities: municipios.length };
   }
 
   // ── Métodos privados ──────────────────────────────────────────────────────
@@ -108,10 +141,16 @@ export class CofpontevedraScraperService {
       );
       data = response.data;
     } catch (err) {
+      if (isHardConnectionError(err)) {
+        this.logger.warn(
+          `⚠️  ${municipio.nombre}: conexión rechazada (${(err as NodeJS.ErrnoException).code ?? (err as Error).message})`,
+        );
+        return -2; // Hard connection error → circuit breaker
+      }
       this.logger.warn(
         `⚠️  ${municipio.nombre}: error al consultar la API — ${(err as Error).message}`,
       );
-      return 0;
+      return -1;
     }
 
     const schedules = parseCofpontevedraItems(data, targetDate, sourceUrl);

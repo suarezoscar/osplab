@@ -13,10 +13,17 @@ import {
 } from '../parsers/cofc.parser';
 import { cleanOldSchedules } from './schedule-cleanup.util';
 import { getSpainToday } from '../utils/spain-date.util';
+import { isHardConnectionError } from '../utils/http-errors.util';
 import type { ScrapeResult } from '../interfaces/scraper.interfaces';
 
 /** Pausa entre peticiones (ms) — respetar el rate limit */
 const REQUEST_DELAY_MS = 300;
+
+/**
+ * Circuit breaker: si N municipios consecutivos fallan por error de conexión
+ * duro, abortamos el scrape completo.
+ */
+const CIRCUIT_BREAKER_THRESHOLD = 3;
 
 const COMMON_HEADERS = {
   'User-Agent':
@@ -65,14 +72,39 @@ export class CofcScraperService {
     }
 
     let totalSaved = 0;
+    let totalErrors = 0;
+    let consecutiveHardFails = 0;
+
     for (const municipio of COFC_MUNICIPIOS) {
       const saved = await this.scrapeMunicipio(municipio, targetDate, session);
-      totalSaved += saved;
+
+      if (saved === -2) {
+        totalErrors++;
+        consecutiveHardFails++;
+
+        if (consecutiveHardFails >= CIRCUIT_BREAKER_THRESHOLD) {
+          this.logger.warn(
+            `🔌 COF A Coruña: circuit breaker activado tras ${consecutiveHardFails} fallos consecutivos de conexión. Abortando scrape.`,
+          );
+          return {
+            saved: totalSaved,
+            errors: COFC_MUNICIPIOS.length - totalSaved,
+            municipalities: COFC_MUNICIPIOS.length,
+          };
+        }
+      } else if (saved < 0) {
+        totalErrors++;
+        consecutiveHardFails = 0;
+      } else {
+        totalSaved += saved;
+        consecutiveHardFails = 0;
+      }
+
       await sleep(REQUEST_DELAY_MS);
     }
 
     this.logger.log(`✅ COF A Coruña: ${totalSaved} turno(s) guardados en total`);
-    return { saved: totalSaved, errors: 0, municipalities: COFC_MUNICIPIOS.length };
+    return { saved: totalSaved, errors: totalErrors, municipalities: COFC_MUNICIPIOS.length };
   }
 
   // ── Métodos privados ──────────────────────────────────────────────────────
@@ -133,10 +165,16 @@ export class CofcScraperService {
       );
       data = response.data;
     } catch (err) {
+      if (isHardConnectionError(err)) {
+        this.logger.warn(
+          `⚠️  ${municipio.nombre}: conexión rechazada (${(err as NodeJS.ErrnoException).code ?? (err as Error).message})`,
+        );
+        return -2;
+      }
       this.logger.warn(
         `⚠️  ${municipio.nombre}: error al consultar la API — ${(err as Error).message}`,
       );
-      return 0;
+      return -1;
     }
 
     const schedules = parseCofcResponse(data, municipio.nombre, targetDate, sourceUrl);

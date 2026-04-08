@@ -11,6 +11,7 @@ import {
 } from '../parsers/coflugo.parser';
 import { cleanOldSchedules } from './schedule-cleanup.util';
 import { getSpainToday } from '../utils/spain-date.util';
+import { isHardConnectionError } from '../utils/http-errors.util';
 import type { ScrapeResult } from '../interfaces/scraper.interfaces';
 
 /** Pausa entre peticiones (ms) — respetar el rate limit del servidor */
@@ -19,8 +20,19 @@ const REQUEST_DELAY_MS = 300;
 /** Timeout HTTP (ms) — coflugo.org puede ser lento desde fuera de España */
 const HTTP_TIMEOUT_MS = 30_000;
 
-/** Número máximo de reintentos por municipio */
+/** Número máximo de reintentos por municipio (solo para errores transitorios) */
 const MAX_RETRIES = 2;
+
+/**
+ * Circuit breaker: si N municipios consecutivos fallan por error de conexión
+ * duro (ECONNREFUSED, ENOTFOUND…), abortamos el scrape completo.
+ */
+const CIRCUIT_BREAKER_THRESHOLD = 3;
+
+/** Resultado especial de scrapeMunicipio: error HTTP transitorio */
+const ERR_SOFT = -1;
+/** Resultado especial de scrapeMunicipio: error de conexión duro (circuit breaker) */
+const ERR_HARD = -2;
 
 const COMMON_HEADERS = {
   'User-Agent':
@@ -58,14 +70,34 @@ export class CoflugoScraperService {
 
     let totalSaved = 0;
     let totalErrors = 0;
+    let consecutiveHardFails = 0;
 
     for (const municipio of COFLUGO_MUNICIPIOS) {
       const saved = await this.scrapeMunicipio(municipio, targetDate);
-      if (saved < 0) {
+
+      if (saved === ERR_HARD) {
         totalErrors++;
+        consecutiveHardFails++;
+
+        if (consecutiveHardFails >= CIRCUIT_BREAKER_THRESHOLD) {
+          this.logger.warn(
+            `🔌 COF Lugo: circuit breaker activado tras ${consecutiveHardFails} fallos consecutivos de conexión. ` +
+              `Servidor probablemente caído o bloqueando la IP. Abortando scrape.`,
+          );
+          return {
+            saved: totalSaved,
+            errors: COFLUGO_MUNICIPIOS.length - totalSaved,
+            municipalities: COFLUGO_MUNICIPIOS.length,
+          };
+        }
+      } else if (saved === ERR_SOFT) {
+        totalErrors++;
+        consecutiveHardFails = 0; // Reset: el error no es de conexión
       } else {
         totalSaved += saved;
+        consecutiveHardFails = 0; // Reset: municipio OK
       }
+
       await sleep(REQUEST_DELAY_MS);
     }
 
@@ -92,6 +124,14 @@ export class CoflugoScraperService {
         html = response.data;
         break;
       } catch (err) {
+        // Error de conexión duro → no reintentar, activar circuit breaker
+        if (isHardConnectionError(err)) {
+          this.logger.warn(
+            `⚠️  ${municipio.nombre}: conexión rechazada (${(err as NodeJS.ErrnoException).code ?? (err as Error).message})`,
+          );
+          return ERR_HARD;
+        }
+
         if (attempt < MAX_RETRIES) {
           const backoff = (attempt + 1) * 1_000;
           this.logger.debug(
@@ -102,7 +142,7 @@ export class CoflugoScraperService {
           this.logger.warn(
             `⚠️  ${municipio.nombre}: error al consultar COFLugo tras ${MAX_RETRIES + 1} intentos — ${(err as Error).message}`,
           );
-          return -1; // Señal de error HTTP
+          return ERR_SOFT;
         }
       }
     }
