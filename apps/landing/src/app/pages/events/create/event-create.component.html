@@ -1,19 +1,22 @@
 <div class="flex min-h-screen flex-col text-[#dce6ef]">
   <!-- ─── HEADER ────────────────────────────────────────────────────────── -->
-  <header class="mx-auto w-full max-w-lg px-6 pt-10 pb-6">
-    <div class="flex flex-col items-center gap-4 text-center">
-      <a routerLink="/" class="transition-opacity hover:opacity-80">
+  <header class="mx-auto w-full max-w-lg px-6 pt-10 pb-8">
+    <div class="flex flex-col items-center gap-5 text-center">
+      <a routerLink="/" class="group flex items-center gap-2.5 transition-opacity hover:opacity-80">
         <img
-          src="/assets/svg/osp-logo.svg"
+          src="/assets/svg/osp-logo-horizontal-light.svg"
           alt="OSPLab"
-          class="h-16 w-auto select-none"
-          draggable="false"
-          width="120"
-          height="66" />
+          class="h-7 w-auto select-none"
+          draggable="false" />
+        <span class="h-5 w-px bg-[#1a3050]"></span>
+        <span class="text-[0.85rem] font-semibold text-[#f59e0b]">Eventos</span>
       </a>
       <div>
-        <h1 class="text-2xl font-bold text-white">Crear evento</h1>
-        <p class="mt-1 text-[0.92rem] text-[#8badc4]">Comparte el enlace en WhatsApp y deja que la gente se apunte.</p>
+        <h1 class="text-[1.75rem] font-bold tracking-tight text-white sm:text-3xl">Crear evento</h1>
+        <p class="mt-2 text-[0.92rem] leading-relaxed text-[#8badc4]">
+          Comparte el enlace y deja que la gente se apunte.<br class="hidden sm:block" />
+          Sin registro. Sin complicaciones.
+        </p>
       </div>
     </div>
   </header>
@@ -222,6 +225,16 @@
 
   <!-- ─── FOOTER ────────────────────────────────────────────────────────── -->
   <footer class="border-t border-[#0e2236] py-6">
-    <p class="text-center text-[0.7rem] text-[#2e5a7a]">osplab.dev</p>
+    <div class="flex items-center justify-center gap-2">
+      <img
+        src="/assets/svg/osp-logo-horizontal-light.svg"
+        alt="OSPLab"
+        class="h-4 w-auto opacity-30"
+        draggable="false" />
+      <span class="text-[0.7rem] text-[#2e5a7a]">·</span>
+      <a href="https://osplab.dev" class="text-[0.7rem] text-[#2e5a7a] transition-colors hover:text-[#5a8fb5]"
+        >osplab.dev</a
+      >
+    </div>
   </footer>
 </div>
