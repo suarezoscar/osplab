@@ -11,5 +11,6 @@
  */
 export const SUPABASE_CONFIG = {
   url: 'https://vrqaamkqoiuppqtrzpbu.supabase.co',
-  anonKey: 'SUPABASE_ANON_KEY', // TODO: Reemplazar con la anon key real
+  anonKey:
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZycWFhbWtxb2l1cHBxdHJ6cGJ1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU0NzEyNDMsImV4cCI6MjA5MTA0NzI0M30.HXjvJBgyIxJIrYzpCiTHI0lsy8KUZvc3ryiTGJzE2Ko',
 } as const;

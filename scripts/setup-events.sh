@@ -65,5 +65,5 @@ echo "   ⚠️  Recuerda activar pg_cron para el borrado automático:"
 echo "   1. Supabase Dashboard → Database → Extensions → pg_cron"
 echo "   2. Ejecuta en SQL Editor:"
 echo "      SELECT cron.schedule('cleanup-expired-events', '0 * * * *',"
-echo "        \$\$DELETE FROM events WHERE end_date + INTERVAL '24 hours' < now()\$\$);"
+echo "        \$\$DELETE FROM events WHERE event_date + INTERVAL '24 hours' < now()\$\$);"
 
