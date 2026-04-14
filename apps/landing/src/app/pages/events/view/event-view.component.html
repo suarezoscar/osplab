@@ -1,0 +1,291 @@
+<div class="flex min-h-screen flex-col text-[#dce6ef]">
+  <!-- ─── LOADING ───────────────────────────────────────────────────────── -->
+  @if (loading()) {
+    <div class="flex flex-1 items-center justify-center">
+      <div class="flex flex-col items-center gap-3">
+        <svg class="h-8 w-8 animate-spin text-[#f59e0b]" viewBox="0 0 24 24" fill="none">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+        </svg>
+        <p class="text-[0.88rem] text-[#6a9abe]">Cargando evento…</p>
+      </div>
+    </div>
+  }
+
+  <!-- ─── NOT FOUND ─────────────────────────────────────────────────────── -->
+  @if (notFound()) {
+    <div class="flex flex-1 flex-col items-center justify-center gap-4 px-6">
+      <span class="text-5xl">🔍</span>
+      <h1 class="text-xl font-bold text-white">Evento no encontrado</h1>
+      <p class="text-[0.92rem] text-[#8badc4]">Este evento no existe o ya ha sido eliminado.</p>
+      <a routerLink="/" class="mt-2 text-[0.88rem] text-[#f59e0b] transition-colors hover:text-[#fbbf24]">
+        ← Volver al inicio
+      </a>
+    </div>
+  }
+
+  <!-- ─── EVENT VIEW ────────────────────────────────────────────────────── -->
+  @if (event(); as ev) {
+    <!-- Header -->
+    <header class="mx-auto w-full max-w-lg px-6 pt-8 pb-2">
+      <a
+        routerLink="/"
+        class="inline-flex items-center gap-1 text-[0.82rem] text-[#5a8fb5] transition-colors hover:text-white">
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round">
+          <path d="M19 12H5M12 19l-7-7 7-7" />
+        </svg>
+        osplab.dev
+      </a>
+    </header>
+
+    <main class="mx-auto w-full max-w-lg flex-1 px-6 pb-16">
+      <!-- ── Error global ────────────────────────────────────────────── -->
+      @if (error()) {
+        <div class="mb-4 rounded-lg border border-red-800/50 bg-red-950/40 px-4 py-3 text-[0.88rem] text-red-300">
+          {{ error() }}
+        </div>
+      }
+
+      <!-- ── Event details card ──────────────────────────────────────── -->
+      @if (!editMode()) {
+        <div class="ev-card mb-6 border-[#2a1f0a] bg-[#100c04]/80">
+          <!-- Expired badge -->
+          @if (isExpired()) {
+            <div
+              class="mb-4 inline-flex items-center gap-1.5 rounded-full border border-red-800/40 bg-red-950/50 px-3 py-1 text-[0.78rem] font-medium text-red-400">
+              ⏰ Evento finalizado
+            </div>
+          }
+
+          <h1 class="text-2xl font-bold leading-tight text-white sm:text-3xl">🎉 {{ ev.title }}</h1>
+
+          <div class="mt-5 flex flex-col gap-3">
+            <!-- Location -->
+            <a
+              [href]="mapsUrl()"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="group flex items-start gap-3 rounded-lg transition-colors hover:bg-[#ffffff06] -mx-2 px-2 py-1">
+              <span class="mt-0.5 text-lg">📍</span>
+              <div>
+                <p class="text-[0.95rem] text-[#c8dce8] group-hover:text-white transition-colors">
+                  {{ ev.location_name }}
+                </p>
+                <p class="text-[0.75rem] text-[#4d7a9a]">Abrir en Google Maps ↗</p>
+              </div>
+            </a>
+
+            <!-- Date -->
+            <div class="flex items-start gap-3 -mx-2 px-2 py-1">
+              <span class="mt-0.5 text-lg">📅</span>
+              <p class="text-[0.95rem] text-[#c8dce8]">{{ formatDate(ev.event_date) }}</p>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- ── Edit form ───────────────────────────────────────────────── -->
+      @if (editMode()) {
+        <div class="ev-card mb-6 border-[#3d2e0e] bg-[#100c04]/80">
+          <h2 class="mb-4 text-lg font-bold text-white">✏️ Editar evento</h2>
+
+          <div class="mb-4">
+            <label class="ev-label">Título</label>
+            <input
+              type="text"
+              [ngModel]="editTitle()"
+              (ngModelChange)="editTitle.set($event)"
+              name="editTitle"
+              class="ev-input" />
+          </div>
+
+          <div class="mb-4">
+            <label class="ev-label">Lugar</label>
+            <input
+              type="text"
+              [ngModel]="editLocation()"
+              (ngModelChange)="editLocation.set($event)"
+              name="editLocation"
+              class="ev-input" />
+          </div>
+
+          <div class="mb-4">
+            <label class="ev-label">Fecha y hora</label>
+            <input
+              type="datetime-local"
+              [ngModel]="editEventDate()"
+              (ngModelChange)="editEventDate.set($event)"
+              name="editEventDate"
+              class="ev-input [color-scheme:dark]" />
+          </div>
+
+          <div class="flex gap-3">
+            <button
+              (click)="saveEdit()"
+              [disabled]="saving()"
+              class="flex items-center gap-2 rounded-lg bg-[#f59e0b] px-5 py-2.5 text-[0.88rem] font-semibold text-[#1a0e00] transition-colors hover:bg-[#d97706] disabled:opacity-50">
+              Guardar
+            </button>
+            <button
+              (click)="cancelEdit()"
+              class="rounded-lg border border-[#1a3050] px-5 py-2.5 text-[0.88rem] text-[#8badc4] transition-colors hover:border-[#2a4060] hover:text-white">
+              Cancelar
+            </button>
+          </div>
+        </div>
+      }
+
+      <!-- ── Attendees ───────────────────────────────────────────────── -->
+      <div class="ev-card mb-6">
+        <h2 class="mb-4 text-lg font-bold text-white">
+          Apuntados
+          <span class="ml-1.5 text-[0.88rem] font-normal text-[#6a9abe]">({{ attendees().length }})</span>
+        </h2>
+
+        @if (attendees().length === 0) {
+          <p class="mb-4 text-[0.88rem] text-[#4d7a9a]">Nadie se ha apuntado todavía. ¡Sé el primero!</p>
+        } @else {
+          <ul class="mb-4 flex flex-col gap-1.5">
+            @for (attendee of attendees(); track attendee.id; let i = $index) {
+              <li class="group flex items-center gap-3 rounded-lg px-3 py-2 transition-colors hover:bg-[#ffffff06]">
+                <span
+                  class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#1a2e45] text-[0.75rem] font-bold text-[#6aade0]">
+                  {{ i + 1 }}
+                </span>
+                <span class="flex-1 text-[0.92rem] text-[#c8dce8]">{{ attendee.name }}</span>
+                <!-- Remove button (only if organizer) -->
+                @if (editPasswordHash()) {
+                  <button
+                    (click)="removeAttendee(attendee)"
+                    class="opacity-0 group-hover:opacity-100 transition-opacity text-[#5a3030] hover:text-red-400"
+                    title="Eliminar asistente">
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round">
+                      <path d="M18 6L6 18M6 6l12 12" />
+                    </svg>
+                  </button>
+                }
+              </li>
+            }
+          </ul>
+        }
+
+        <!-- Join form -->
+        @if (!isExpired()) {
+          <form (ngSubmit)="onJoin()" class="flex gap-2">
+            <input
+              type="text"
+              placeholder="Tu nombre"
+              [ngModel]="joinName()"
+              (ngModelChange)="joinName.set($event)"
+              name="joinName"
+              maxlength="80"
+              class="ev-input flex-1" />
+            <button
+              type="submit"
+              [disabled]="joining() || !joinName().trim()"
+              class="shrink-0 rounded-lg bg-[#f59e0b] px-5 py-2.5 text-[0.88rem] font-semibold text-[#1a0e00] transition-all hover:bg-[#d97706] disabled:cursor-not-allowed disabled:opacity-50">
+              @if (joining()) {
+                Apuntando…
+              } @else {
+                Apuntarme
+              }
+            </button>
+          </form>
+        }
+      </div>
+
+      <!-- ── Share buttons ───────────────────────────────────────────── -->
+      <div class="mb-6 flex flex-col gap-2 sm:flex-row">
+        <a
+          [href]="whatsappUrl()"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-[#25d366] px-5 py-3 text-[0.9rem] font-semibold text-white shadow-lg shadow-[#25d366]/15 transition-all hover:bg-[#20bd5a] hover:shadow-[#25d366]/25">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+          </svg>
+          Compartir en WhatsApp
+        </a>
+
+        <button
+          (click)="copyLink()"
+          class="flex flex-1 items-center justify-center gap-2 rounded-lg border border-[#1a3050] px-5 py-3 text-[0.9rem] font-medium text-[#8badc4] transition-all hover:border-[#2a4060] hover:text-white">
+          @if (copied()) {
+            ✓ ¡Copiado!
+          } @else {
+            🔗 Copiar enlace
+          }
+        </button>
+      </div>
+
+      <!-- ── Organizer section ───────────────────────────────────────── -->
+      @if (!editPasswordHash()) {
+        <div class="ev-card bg-[#060e1a]/50">
+          <p class="mb-3 text-[0.85rem] font-medium text-[#6a9abe]">¿Eres el organizador?</p>
+          <form (ngSubmit)="onVerifyPassword()" class="flex gap-2">
+            <input
+              type="password"
+              placeholder="Contraseña del evento"
+              [ngModel]="editPassword()"
+              (ngModelChange)="editPassword.set($event)"
+              name="editPassword"
+              class="ev-input flex-1" />
+            <button
+              type="submit"
+              [disabled]="verifying() || !editPassword().trim()"
+              class="shrink-0 rounded-lg border border-[#f59e0b]/30 bg-[#f59e0b]/10 px-4 py-2.5 text-[0.85rem] font-medium text-[#f59e0b] transition-all hover:bg-[#f59e0b]/20 disabled:opacity-50">
+              @if (verifying()) {
+                Verificando…
+              } @else {
+                🔐 Acceder
+              }
+            </button>
+          </form>
+          @if (passwordError()) {
+            <p class="mt-2 text-[0.82rem] text-red-400">{{ passwordError() }}</p>
+          }
+        </div>
+      } @else {
+        <!-- Organizer tools -->
+        <div class="ev-card border-[#2a1f0a] bg-[#100c04]/50">
+          <div class="flex items-center gap-2 mb-1">
+            <span
+              class="inline-flex items-center gap-1 rounded-full bg-[#f59e0b]/10 border border-[#f59e0b]/30 px-2.5 py-0.5 text-[0.75rem] font-semibold text-[#f59e0b]">
+              🔓 Organizador
+            </span>
+          </div>
+          <p class="text-[0.82rem] text-[#6a9abe] mb-3">Puedes editar el evento y gestionar los asistentes.</p>
+          @if (!editMode()) {
+            <button
+              (click)="enterEditMode()"
+              class="rounded-lg border border-[#f59e0b]/30 bg-[#f59e0b]/10 px-4 py-2 text-[0.85rem] font-medium text-[#f59e0b] transition-all hover:bg-[#f59e0b]/20">
+              ✏️ Editar evento
+            </button>
+          }
+        </div>
+      }
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-[#0e2236] py-6">
+      <p class="text-center text-[0.7rem] text-[#2e5a7a]">osplab.dev</p>
+    </footer>
+  }
+</div>
