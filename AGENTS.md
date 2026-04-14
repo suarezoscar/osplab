@@ -9,11 +9,20 @@ Cada herramienta vive bajo un subdominio de `osplab.dev`.
 | -------------------- | ---------------------- | --------------------------------- |
 | Portal principal     | `osplab.dev`           | `landing`                         |
 | Farmacias de Guardia | `farmacias.osplab.dev` | `farmacias-web` + `farmacias-api` |
+| Eventos              | `osplab.dev/events/*`  | `landing` (feature interna)       |
+
+## Principios de Codificación
+
+- **KISS** (Keep It Simple, Stupid): La solución más simple que funcione es la correcta. Si puedes resolver algo con 10 líneas, no escribas 50.
+- **YAGNI** (You Aren't Gonna Need It): No implementes funcionalidad "por si acaso". Añádela cuando la necesites de verdad.
+- **DRY** (Don't Repeat Yourself): Extrae lógica duplicada a funciones, servicios o librerías compartidas. Pero no sobreabstraigas — duplicar es mejor que una abstracción incorrecta.
+- **No Overengineering**: Evita capas de abstracción innecesarias, patrones de diseño forzados y arquitecturas anticipadas. Código simple > código "elegante" que nadie entiende. Si un servicio de Angular puede resolver el problema, no crees una store, un facade y un adapter.
 
 ## Reglas de Codificación
 
 - **General:** Usa siempre TypeScript estricto. Prefiere composición sobre herencia.
-- **Angular:** - Usa **Standalone Components**.
+- **Angular:**
+  - Usa **Standalone Components**.
   - Usa **Signals** para la gestión de estado local y reactividad.
   - Estilo: Tailwind CSS (clases utilitarias, evita archivos .scss grandes).
   - Control Flow: Usa la nueva sintaxis `@if`, `@for`.
@@ -21,6 +30,9 @@ Cada herramienta vive bajo un subdominio de `osplab.dev`.
   - Sigue el patrón modular.
   - Usa DTOs validados con `class-validator`.
   - Inyección de dependencias estricta.
+- **Supabase (Events):**
+  - Acceso directo desde Angular con `@supabase/supabase-js` (sin backend intermedio).
+  - Seguridad via Row Level Security (RLS) y funciones RPC `SECURITY DEFINER`.
 - **Nx:**
   - No permitas importaciones cruzadas prohibidas. Respeta los `tags` de las librerías.
   - `scope:farmacias` no puede importar `scope:osplab` y viceversa. Solo pueden compartir `scope:shared`.
@@ -39,18 +51,34 @@ Cada herramienta vive bajo un subdominio de `osplab.dev`.
 
 ```
 apps/
-  landing/           → SPA Angular (osplab.dev)
-  farmacias-api/     → API REST NestJS (farmacias.osplab.dev/api)
-    e2e/             → Tests end-to-end del API (Vitest)
-  farmacias-web/     → SPA Angular (farmacias.osplab.dev)
+  landing/              → SPA Angular (osplab.dev)
+    functions/events/   → Cloudflare Function (OG tags dinámicos para WhatsApp)
+  farmacias-api/        → API REST NestJS (farmacias.osplab.dev/api)
+    e2e/                → Tests end-to-end del API (Vitest)
+  farmacias-web/        → SPA Angular (farmacias.osplab.dev)
 libs/
   farmacias/
-    data-access/     → PrismaService + migraciones (PostgreSQL + PostGIS)
-    scraper/         → Scrapers + parsers por COF
-    web/ui/          → Componentes UI reutilizables del proyecto farmacias
+    data-access/        → PrismaService + migraciones (PostgreSQL + PostGIS)
+    scraper/            → Scrapers + parsers por COF
+    web/ui/             → Componentes UI reutilizables del proyecto farmacias
   shared/
-    interfaces/      → DTOs e interfaces compartidas (Nest ↔ Angular)
-    ui/              → Componentes UI compartidos entre proyectos
+    interfaces/         → DTOs e interfaces compartidas (Nest ↔ Angular)
+    ui/                 → Componentes UI compartidos entre proyectos
+```
+
+### Estructura del feature Events (dentro de landing)
+
+```
+apps/landing/src/app/
+  config/supabase.config.ts    → URL + anon key de Supabase
+  models/event.model.ts        → Interfaces EventRow, AttendeeRow, CreateEventPayload
+  services/
+    supabase.service.ts        → Cliente Supabase singleton
+    events.service.ts          → CRUD eventos + slug generator + password hashing
+    seo.service.ts             → Meta tags dinámicos (OG, Twitter)
+  pages/events/
+    create/                    → Formulario de creación de evento
+    view/                      → Vista del evento + apuntarse + editar + compartir
 ```
 
 ## Testing
@@ -64,16 +92,19 @@ libs/
 
 ## Lógica de Negocio Crítica
 
+### Farmacias
+
 1. **Geolocalización:** El cálculo de "cercanía" debe ocurrir en la base de datos (PostgreSQL), no en el cliente.
 2. **Scraping:** Las funciones de scraping deben ser resilientes. Si el HTML cambia, el scraper debe fallar silenciosamente y notificar, sin corromper los datos existentes.
 3. **Privacidad:** No guardes geolocalización de usuarios. Solo úsala para la consulta en tiempo real.
 
-## Tareas Pendientes Inmediatas
+### Eventos
 
-- Configurar el esquema de Prisma con soporte para tipos `Geography`.
-- Implementar el primer scraper para el SERGAS (Galicia).
-- Crear el componente de mapa en Angular usando `@angular/google-maps` o Leaflet.
-- Añadir más proyectos al portal `osplab.dev` a medida que se desarrollen.
+1. **Datos efímeros:** Los eventos se borran automáticamente 24h después de `event_date` (pg_cron en Supabase).
+2. **Contraseña de edición:** Hash SHA-256 client-side, verificada en Supabase via funciones RPC (`SECURITY DEFINER`). Nunca se devuelve `password_hash` al cliente.
+3. **URLs humanas:** Formato `slug-dd-mm-yyyy-token` (token de 6 chars alfanuméricos para evitar acceso por fuerza bruta).
+4. **Un solo campo de fecha:** Cada evento tiene una única `event_date` (sin start/end). Simplifica el formulario y la lógica.
+5. **OG tags para WhatsApp:** Cloudflare Function detecta bots y devuelve HTML con meta tags dinámicos del evento.
 
 <!-- nx configuration start-->
 <!-- Leave the start & end comments to automatically receive updates. -->
