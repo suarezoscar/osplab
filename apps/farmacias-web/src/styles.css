@@ -1,4 +1,17 @@
 @import 'tailwindcss';
+@import '../../../libs/shared/ui/src/lib/styles/osp-theme.css';
+
+/* ── Tailwind dark mode via class ────────────────────────────────────── */
+@variant dark (&:where(.dark, .dark *));
+
+/* ── Global dark/light body transition ───────────────────────────────── */
+body {
+  background-color: var(--osp-bg);
+  color: var(--osp-text);
+  transition:
+    background-color var(--osp-duration-slow),
+    color var(--osp-duration-slow);
+}
 
 /* ── Pharmacy design tokens ──────────────────────────────────────────── */
 :root {
@@ -110,12 +123,31 @@
     0 24px 56px rgba(22, 163, 74, 0.1);
 }
 
+:root.dark .pharmacy-card-primary {
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.3),
+    0 8px 24px rgba(22, 163, 74, 0.2),
+    0 20px 48px rgba(22, 163, 74, 0.12);
+}
+
+:root.dark .pharmacy-card-primary:hover {
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.4),
+    0 12px 32px rgba(22, 163, 74, 0.3),
+    0 24px 56px rgba(22, 163, 74, 0.15);
+}
+
 /* ── Loading shimmer skeleton ────────────────────────────────────────── */
 .skeleton {
   background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
   background-size: 200% 100%;
   animation: shimmer 1.4s ease-in-out infinite;
   border-radius: 0.5rem;
+}
+
+:root.dark .skeleton {
+  background: linear-gradient(90deg, #1f2937 25%, #374151 50%, #1f2937 75%);
+  background-size: 200% 100%;
 }
 
 /* ── Focus ring (accessibility) ──────────────────────────────────────── */

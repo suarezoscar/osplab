@@ -6,7 +6,7 @@ import { Component } from '@angular/core';
     <div class="flex flex-col gap-4" aria-hidden="true">
       @for (n of [1, 2, 3]; track n; let i = $index) {
         <div
-          class="rounded-2xl overflow-hidden border border-gray-100 shadow-sm"
+          class="rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-800 shadow-sm"
           [style.animation-delay]="i * 60 + 'ms'"
         >
           <div class="skeleton h-20 rounded-none"></div>

@@ -80,7 +80,8 @@ interface NominatimResult {
       <button
         type="button"
         (click)="showMap()"
-        class="flex items-center gap-2 rounded-lg border border-dashed border-[#1a3050] px-4 py-3 text-[0.88rem] text-[#5a8fb5] transition-colors hover:border-[#f59e0b]/50 hover:text-[#f59e0b]"
+        class="flex w-full items-center gap-2 rounded-lg border border-dashed px-4 py-3 text-[0.88rem] transition-colors"
+        style="border-color: var(--osp-border); color: var(--osp-text-muted)"
       >
         <svg
           width="18"
@@ -115,20 +116,24 @@ interface NominatimResult {
         />
 
         @if (searching()) {
-          <div class="absolute right-3 top-3 text-[0.78rem] text-[#4d7a9a]">Buscando…</div>
+          <div class="absolute right-3 top-3 text-[0.78rem]" style="color: var(--osp-text-faint)">
+            Buscando…
+          </div>
         }
 
         <!-- Suggestions dropdown -->
         @if (showSuggestions() && suggestions().length > 0) {
           <ul
-            class="absolute mt-1 max-h-48 w-full overflow-y-auto rounded-lg border border-[#1a3050] bg-[#0a1929] shadow-xl"
+            class="absolute mt-1 max-h-48 w-full overflow-y-auto rounded-lg border shadow-xl"
+            style="border-color: var(--osp-border); background: var(--osp-bg-surface)"
           >
             @for (s of suggestions(); track $index) {
               <li>
                 <button
                   type="button"
                   (mousedown)="selectSuggestion(s)"
-                  class="w-full px-4 py-2.5 text-left text-[0.88rem] text-[#c8dce8] transition-colors hover:bg-[#f59e0b]/10 hover:text-white"
+                  class="w-full px-4 py-2.5 text-left text-[0.88rem] transition-colors hover:bg-[var(--osp-bg-hover)]"
+                  style="color: var(--osp-text)"
                 >
                   {{ s.displayName }}
                 </button>
@@ -138,14 +143,15 @@ interface NominatimResult {
         }
       </div>
 
-      <p class="mb-2 text-[0.75rem] text-[#4d7a9a]">
+      <p class="mb-2 text-[0.75rem]" style="color: var(--osp-text-faint)">
         También puedes hacer clic en el mapa para fijar la ubicación.
       </p>
 
       <!-- Map -->
       <div
         #mapContainer
-        class="relative z-0 h-56 w-full overflow-hidden rounded-lg border border-[#1a3050]"
+        class="relative z-0 h-56 w-full overflow-hidden rounded-lg border"
+        style="border-color: var(--osp-border)"
       ></div>
 
       <!-- Remove location button -->
@@ -153,7 +159,8 @@ interface NominatimResult {
         <button
           type="button"
           (click)="clearLocation()"
-          class="mt-2 text-[0.78rem] text-[#8b5a5a] transition-colors hover:text-red-400"
+          class="mt-2 text-[0.78rem] transition-colors"
+          style="color: var(--osp-error)"
         >
           ✕ Quitar ubicación del mapa
         </button>

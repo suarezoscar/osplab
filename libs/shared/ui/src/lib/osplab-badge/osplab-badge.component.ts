@@ -1,10 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { OspThemeService } from '../services/osp-theme.service';
 
 /**
  * Badge "osplab.dev" reutilizable para los footers de todos los proyectos.
- *
- * Muestra un link sutil a la landing con el logo horizontal de la marca.
- * El SVG horizontal usa colores oscuros para texto, funciona sobre fondos claros.
+ * Adapta el logo según el tema actual (dark/light).
  *
  * Uso:
  *   <osplab-badge />
@@ -18,18 +17,43 @@ import { Component } from '@angular/core';
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Ir a osplab.dev — herramientas open source"
-      class="inline-flex items-center rounded-full px-4 py-2 no-underline
-              transition-all duration-300 ease-out
-             hover:-translate-y-0.5"
+      class="osp-badge-link"
     >
       <img
-        src="/assets/svg/osp-logo-horizontal-light.svg"
+        [src]="
+          themeService.isDark()
+            ? '/assets/svg/osp-logo-horizontal-dark.svg'
+            : '/assets/svg/osp-logo-horizontal-light.svg'
+        "
         alt="osplab.dev"
         width="200"
         height="40"
-        class="shrink-0"
+        class="osp-badge-logo"
       />
     </a>
   `,
+  styles: [
+    `
+      .osp-badge-link {
+        display: inline-flex;
+        align-items: center;
+        border-radius: 9999px;
+        padding: 0.5rem 1rem;
+        text-decoration: none;
+        transition: all 300ms ease-out;
+      }
+
+      .osp-badge-link:hover {
+        transform: translateY(-2px);
+        opacity: 0.85;
+      }
+
+      .osp-badge-logo {
+        flex-shrink: 0;
+      }
+    `,
+  ],
 })
-export class OspLabBadgeComponent {}
+export class OspLabBadgeComponent {
+  readonly themeService = inject(OspThemeService);
+}

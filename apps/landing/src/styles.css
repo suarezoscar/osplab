@@ -1,17 +1,26 @@
 @import 'tailwindcss';
 @import 'leaflet/dist/leaflet.css';
+@import '../../../libs/shared/ui/src/lib/styles/osp-theme.css';
 
 /* You can add global styles to this file, and also import other style files */
 
 /* landing global styles */
 
 body {
-  background-color: #040d18;
+  background-color: var(--osp-bg);
   background-image: radial-gradient(ellipse 90% 55% at 50% -5%, #0c2a50 0%, transparent 65%);
   min-height: 100vh;
+  color: var(--osp-text);
+  transition:
+    background-color var(--osp-duration-slow),
+    color var(--osp-duration-slow);
 }
 
-/* ── Card shine effect ─────────────────────────────────────────────── */
+:root.light body {
+  background-image: radial-gradient(ellipse 90% 55% at 50% -5%, #dbeafe 0%, transparent 65%);
+}
+
+/* ── Card shine effect (legacy compat — prefer <osp-card shine>) ───── */
 @keyframes card-shine-slide {
   from {
     translate: -100% 0;
@@ -91,28 +100,34 @@ body {
   backface-visibility: hidden;
 }
 
-/* ── Events — reusable form styles (DRY) ─────────────────────────── */
+/* ── Events — reusable form styles (legacy compat — prefer osp-* components) */
 
 .ev-input {
   width: 100%;
-  border-radius: 0.5rem;
-  border: 1px solid #1a3050;
-  background-color: #0a1929;
+  border-radius: 0.625rem;
+  border: 1px solid var(--osp-border);
+  background-color: var(--osp-bg-surface);
   padding: 0.75rem 1rem;
-  color: white;
+  color: var(--osp-text);
+  font-size: 0.935rem;
   transition:
-    border-color 0.15s,
-    box-shadow 0.15s;
+    border-color var(--osp-duration-fast),
+    box-shadow var(--osp-duration-fast),
+    background-color var(--osp-duration-fast);
 }
 
 .ev-input::placeholder {
-  color: #3d6080;
+  color: var(--osp-text-faint);
+}
+
+.ev-input:hover {
+  border-color: var(--osp-border-hover);
 }
 
 .ev-input:focus {
-  border-color: #f59e0b;
+  border-color: var(--osp-accent);
   outline: none;
-  box-shadow: 0 0 0 1px rgb(245 158 11 / 0.5);
+  box-shadow: 0 0 0 3px var(--osp-ring);
 }
 
 .ev-label {
@@ -122,13 +137,17 @@ body {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: #6aade0;
+  color: var(--osp-info);
 }
 
 .ev-card {
   border-radius: 1rem;
-  border: 1px solid #1a2e45;
-  background: rgb(6 14 26 / 0.8);
+  border: 1px solid var(--osp-border);
+  background: var(--osp-bg-surface);
   padding: 1.5rem;
-  box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.2);
+  box-shadow: var(--osp-shadow-lg);
+  transition:
+    border-color var(--osp-duration),
+    background-color var(--osp-duration),
+    box-shadow var(--osp-duration);
 }

@@ -36,8 +36,8 @@ export class PharmacyCardComponent {
 
   readonly articleClass = computed(() =>
     this.isFirst()
-      ? 'animate-card-enter animate-glow-once pharmacy-card-primary bg-white rounded-3xl overflow-hidden border-2 border-amber-200/70 transition-all duration-300 hover:scale-[1.01]'
-      : 'animate-card-enter bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-md hover:shadow-lg transition-all duration-300',
+      ? 'animate-card-enter animate-glow-once pharmacy-card-primary bg-white dark:bg-gray-900 rounded-3xl overflow-hidden border-2 border-amber-200/70 dark:border-amber-700/50 transition-all duration-300 hover:scale-[1.01]'
+      : 'animate-card-enter bg-white dark:bg-gray-900 rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-800 shadow-md hover:shadow-lg transition-all duration-300',
   );
 
   readonly headerClass = computed(() =>

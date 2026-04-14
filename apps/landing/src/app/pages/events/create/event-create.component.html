@@ -1,19 +1,24 @@
-<div class="flex min-h-screen flex-col text-[#dce6ef]">
+<div class="flex min-h-screen flex-col" style="color: var(--osp-text)">
   <!-- ─── HEADER ────────────────────────────────────────────────────────── -->
-  <header class="mx-auto w-full max-w-lg px-6 pt-10 pb-8">
+  <header class="mx-auto w-full max-w-lg px-6 pt-10 pb-8 osp-animate-in">
     <div class="flex flex-col items-center gap-5 text-center">
-      <a routerLink="/" class="group flex items-center gap-2.5 transition-opacity hover:opacity-80">
-        <img
-          src="/assets/svg/osp-logo-horizontal-light.svg"
-          alt="OSPLab"
-          class="h-7 w-auto select-none"
-          draggable="false" />
-        <span class="h-5 w-px bg-[#1a3050]"></span>
-        <span class="text-[0.85rem] font-semibold text-[#f59e0b]">Eventos</span>
-      </a>
+      <div class="flex items-center gap-3">
+        <a routerLink="/" class="group flex items-center gap-2.5 transition-opacity hover:opacity-80">
+          <img
+            src="/assets/svg/osp-logo-horizontal-light.svg"
+            alt="OSPLab"
+            class="h-7 w-auto select-none"
+            draggable="false" />
+          <span class="h-5 w-px" style="background: var(--osp-border)"></span>
+          <span class="text-[0.85rem] font-semibold" style="color: var(--osp-accent)">Eventos</span>
+        </a>
+        <osp-theme-toggle />
+      </div>
       <div>
-        <h1 class="text-[1.75rem] font-bold tracking-tight text-white sm:text-3xl">Crear evento</h1>
-        <p class="mt-2 text-[0.92rem] leading-relaxed text-[#8badc4]">
+        <h1 class="text-[1.75rem] font-bold tracking-tight sm:text-3xl" style="color: var(--osp-text-heading)">
+          Crear evento
+        </h1>
+        <p class="mt-2 text-[0.92rem] leading-relaxed" style="color: var(--osp-text-muted)">
           Comparte el enlace y deja que la gente se apunte.<br class="hidden sm:block" />
           Sin registro. Sin complicaciones.
         </p>
@@ -23,10 +28,12 @@
 
   <!-- ─── FORMULARIO ────────────────────────────────────────────────────── -->
   <main class="mx-auto w-full max-w-lg flex-1 px-6 pb-16">
-    <form (ngSubmit)="onSubmit()" class="ev-card backdrop-blur-sm">
+    <form (ngSubmit)="onSubmit()" class="ev-card backdrop-blur-sm osp-animate-slide-up">
       <!-- Error -->
       @if (error()) {
-        <div class="mb-5 rounded-lg border border-red-800/50 bg-red-950/40 px-4 py-3 text-[0.88rem] text-red-300">
+        <div
+          class="mb-5 rounded-lg border px-4 py-3 text-[0.88rem] osp-animate-in"
+          style="border-color: var(--osp-error-border); background: var(--osp-error-bg); color: var(--osp-error)">
           {{ error() }}
         </div>
       }
@@ -48,8 +55,8 @@
       <!-- Descripción (opcional) -->
       <div class="mb-5">
         <label for="description" class="ev-label">
-          📝 Descripción
-          <span class="font-normal normal-case tracking-normal text-[#4d7a9a]">(opcional)</span>
+          <osp-icon name="note-pencil" [size]="14" /> Descripción
+          <span class="font-normal normal-case tracking-normal" style="color: var(--osp-text-faint)">(opcional)</span>
         </label>
         <textarea
           id="description"
@@ -64,7 +71,7 @@
 
       <!-- Nombre del lugar -->
       <div class="mb-5">
-        <label for="locationName" class="ev-label">📍 Nombre del lugar</label>
+        <label for="locationName" class="ev-label"><osp-icon name="map-pin" [size]="14" /> Nombre del lugar</label>
         <input
           id="locationName"
           type="text"
@@ -79,15 +86,15 @@
       <!-- Ubicación en mapa (opcional) -->
       <div class="mb-5">
         <label for="mapSearch" class="ev-label">
-          🗺️ Ubicación en mapa
-          <span class="font-normal normal-case tracking-normal text-[#4d7a9a]">(opcional)</span>
+          <osp-icon name="map-trifold" [size]="14" /> Ubicación en mapa
+          <span class="font-normal normal-case tracking-normal" style="color: var(--osp-text-faint)">(opcional)</span>
         </label>
         <app-location-picker (coordsSelected)="onCoordsSelected($event)" />
       </div>
 
       <!-- Fecha -->
       <div class="mb-5">
-        <label for="eventDate" class="ev-label">📅 Fecha y hora</label>
+        <label for="eventDate" class="ev-label"><osp-icon name="calendar" [size]="14" /> Fecha y hora</label>
         <input
           id="eventDate"
           type="datetime-local"
@@ -101,8 +108,8 @@
       <!-- Fecha límite de inscripción (opcional) -->
       <div class="mb-5">
         <label for="registrationDeadline" class="ev-label">
-          ⏰ Fecha límite de inscripción
-          <span class="font-normal normal-case tracking-normal text-[#4d7a9a]">(opcional)</span>
+          <osp-icon name="clock" [size]="14" /> Fecha límite de inscripción
+          <span class="font-normal normal-case tracking-normal" style="color: var(--osp-text-faint)">(opcional)</span>
         </label>
         <input
           id="registrationDeadline"
@@ -112,7 +119,7 @@
           (ngModelChange)="registrationDeadline.set($event)"
           name="registrationDeadline"
           class="ev-input scheme-dark" />
-        <p class="mt-1.5 text-[0.78rem] text-[#4d7a9a]">
+        <p class="mt-1.5 text-[0.78rem]" style="color: var(--osp-text-faint)">
           Si no se indica, se podrán apuntar hasta la fecha del evento.
         </p>
       </div>
@@ -120,10 +127,12 @@
       <!-- Opciones / Choices (opcional) -->
       <div class="mb-5">
         <label class="ev-label">
-          🎯 Opciones a elegir
-          <span class="font-normal normal-case tracking-normal text-[#4d7a9a]">(opcional, mín. 2)</span>
+          <osp-icon name="crosshair" [size]="14" /> Opciones a elegir
+          <span class="font-normal normal-case tracking-normal" style="color: var(--osp-text-faint)"
+            >(opcional, mín. 2)</span
+          >
         </label>
-        <p class="mb-2 text-[0.78rem] text-[#4d7a9a]">
+        <p class="mb-2 text-[0.78rem]" style="color: var(--osp-text-faint)">
           Si añades opciones, cada asistente tendrá que elegir una al apuntarse (ej: menús).
         </p>
         <div class="flex gap-2 mb-2">
@@ -140,27 +149,31 @@
             type="button"
             (click)="addOption()"
             [disabled]="!newOption().trim()"
-            class="shrink-0 rounded-lg border border-[#1a3050] px-4 py-2.5 text-[0.85rem] text-[#8badc4] transition-colors hover:border-[#2a4060] hover:text-white disabled:opacity-40">
+            class="shrink-0 rounded-lg border px-4 py-2.5 text-[0.85rem] transition-all disabled:opacity-40 active:scale-[0.97]"
+            style="border-color: var(--osp-border); color: var(--osp-text-muted)">
             + Añadir
           </button>
         </div>
         @if (options().length > 0) {
           <ul class="flex flex-col gap-1.5">
             @for (opt of options(); track $index; let i = $index) {
-              <li class="flex items-center gap-2 rounded-lg bg-[#0a1929]/50 px-3 py-2">
-                <span class="flex-1 text-[0.88rem] text-[#c8dce8]">{{ opt }}</span>
+              <li class="flex items-center gap-2 rounded-lg px-3 py-2" style="background: var(--osp-bg-elevated)">
+                <span class="flex-1 text-[0.88rem]" style="color: var(--osp-text)">{{ opt }}</span>
                 <button
                   type="button"
                   (click)="removeOption(i)"
-                  class="text-[#5a3030] transition-colors hover:text-red-400"
+                  class="transition-all hover:scale-110"
+                  style="color: var(--osp-error)"
                   title="Quitar opción">
-                  ✕
+                  <osp-icon name="x" [size]="14" />
                 </button>
               </li>
             }
           </ul>
           @if (options().length === 1) {
-            <p class="mt-1.5 text-[0.78rem] text-[#f59e0b]/70">Añade al menos 2 opciones para activarlas.</p>
+            <p class="mt-1.5 text-[0.78rem]" style="color: var(--osp-warning)">
+              Añade al menos 2 opciones para activarlas.
+            </p>
           }
         }
       </div>
@@ -168,8 +181,8 @@
       <!-- Contraseña -->
       <div class="mb-6">
         <label for="password" class="ev-label">
-          🔒 Contraseña de edición
-          <span class="font-normal normal-case tracking-normal text-[#4d7a9a]">(opcional)</span>
+          <osp-icon name="lock" [size]="14" /> Contraseña de edición
+          <span class="font-normal normal-case tracking-normal" style="color: var(--osp-text-faint)">(opcional)</span>
         </label>
         <input
           id="password"
@@ -181,7 +194,7 @@
           maxlength="100"
           autocomplete="off"
           class="ev-input" />
-        <p class="mt-1.5 text-[0.78rem] text-[#4d7a9a]">
+        <p class="mt-1.5 text-[0.78rem]" style="color: var(--osp-text-faint)">
           Si no pones contraseña, nadie podrá editar el evento después.
         </p>
       </div>
@@ -190,7 +203,12 @@
       <button
         type="submit"
         [disabled]="submitting()"
-        class="group flex w-full items-center justify-center gap-2 rounded-lg bg-[#f59e0b] px-6 py-3.5 text-[0.95rem] font-semibold text-[#1a0e00] shadow-lg shadow-[#f59e0b]/20 transition-all duration-200 hover:bg-[#d97706] hover:shadow-[#f59e0b]/30 disabled:cursor-not-allowed disabled:opacity-50">
+        class="group flex w-full items-center justify-center gap-2 rounded-lg px-6 py-3.5 text-[0.95rem] font-semibold shadow-lg transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50 active:scale-[0.97]"
+        style="
+          background: var(--osp-accent);
+          color: var(--osp-accent-text);
+          box-shadow: 0 8px 24px var(--osp-accent-muted);
+        ">
         @if (submitting()) {
           <svg class="h-5 w-5 animate-spin" viewBox="0 0 24 24" fill="none">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
@@ -217,24 +235,12 @@
 
     <!-- Volver -->
     <div class="mt-6 text-center">
-      <a routerLink="/" class="text-[0.85rem] text-[#5a8fb5] transition-colors hover:text-white">
+      <a routerLink="/" class="text-[0.85rem] transition-colors" style="color: var(--osp-text-muted)">
         ← Volver al inicio
       </a>
     </div>
   </main>
 
   <!-- ─── FOOTER ────────────────────────────────────────────────────────── -->
-  <footer class="border-t border-[#0e2236] py-6">
-    <div class="flex items-center justify-center gap-2">
-      <img
-        src="/assets/svg/osp-logo-horizontal-light.svg"
-        alt="OSPLab"
-        class="h-4 w-auto opacity-30"
-        draggable="false" />
-      <span class="text-[0.7rem] text-[#2e5a7a]">·</span>
-      <a href="https://osplab.dev" class="text-[0.7rem] text-[#2e5a7a] transition-colors hover:text-[#5a8fb5]"
-        >osplab.dev</a
-      >
-    </div>
-  </footer>
+  <osplab-footer />
 </div>
