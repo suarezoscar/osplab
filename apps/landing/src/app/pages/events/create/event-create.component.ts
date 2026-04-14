@@ -2,7 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { EventsService } from '../../../services/events.service';
-import { LocationPickerComponent, LocationResult } from './location-picker.component';
+import { LocationPickerComponent, MapCoords } from './location-picker.component';
 
 @Component({
   selector: 'app-event-create',
@@ -25,15 +25,11 @@ export class EventCreateComponent {
   // ── UI state ──────────────────────────────────────────────────────────────
   submitting = signal(false);
   error = signal<string | null>(null);
+  minDateTime = new Date().toISOString().slice(0, 16);
 
-  get minDateTime(): string {
-    return new Date().toISOString().slice(0, 16);
-  }
-
-  onLocationSelected(result: LocationResult): void {
-    this.locationName.set(result.name);
-    this.locationLat.set(result.lat);
-    this.locationLng.set(result.lng);
+  onCoordsSelected(coords: MapCoords | null): void {
+    this.locationLat.set(coords?.lat ?? null);
+    this.locationLng.set(coords?.lng ?? null);
   }
 
   async onSubmit(): Promise<void> {

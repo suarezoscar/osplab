@@ -42,10 +42,27 @@
           class="ev-input" />
       </div>
 
-      <!-- Lugar -->
+      <!-- Nombre del lugar -->
       <div class="mb-5">
-        <label class="ev-label">📍 Lugar</label>
-        <app-location-picker (locationSelected)="onLocationSelected($event)" />
+        <label for="locationName" class="ev-label">📍 Nombre del lugar</label>
+        <input
+          id="locationName"
+          type="text"
+          placeholder="Ej: Restaurante Casa Juan, Mi casa…"
+          [ngModel]="locationName()"
+          (ngModelChange)="locationName.set($event)"
+          name="locationName"
+          maxlength="200"
+          class="ev-input" />
+      </div>
+
+      <!-- Ubicación en mapa (opcional) -->
+      <div class="mb-5">
+        <label for="mapSearch" class="ev-label">
+          🗺️ Ubicación en mapa
+          <span class="font-normal normal-case tracking-normal text-[#4d7a9a]">(opcional)</span>
+        </label>
+        <app-location-picker (coordsSelected)="onCoordsSelected($event)" />
       </div>
 
       <!-- Fecha -->
@@ -58,7 +75,7 @@
           [ngModel]="eventDate()"
           (ngModelChange)="eventDate.set($event)"
           name="eventDate"
-          class="ev-input [color-scheme:dark]" />
+          class="ev-input scheme-dark" />
       </div>
 
       <!-- Contraseña -->
@@ -75,6 +92,7 @@
           (ngModelChange)="password.set($event)"
           name="password"
           maxlength="100"
+          autocomplete="off"
           class="ev-input" />
         <p class="mt-1.5 text-[0.78rem] text-[#4d7a9a]">
           Si no pones contraseña, nadie podrá editar el evento después.

@@ -47,15 +47,19 @@ export class EventsService {
     return data;
   }
 
-  /** Añade un asistente a un evento. */
+  /** Añade un asistente a un evento. Genera un token de auto-eliminación y lo guarda en localStorage. */
   async addAttendee(eventId: string, name: string): Promise<AttendeeRow> {
+    const removalToken = this.generateToken(32);
+
     const { data, error } = await this.db
       .from('event_attendees')
-      .insert({ event_id: eventId, name })
+      .insert({ event_id: eventId, name, removal_token: removalToken })
       .select('id, event_id, name, joined_at')
       .single();
 
     if (error) throw error;
+
+    this.storeAttendeeToken(data.id, removalToken);
     return data;
   }
 
@@ -106,6 +110,40 @@ export class EventsService {
     return data === true;
   }
 
+  /** Elimina un evento completo y todos sus asistentes (via RPC, requiere contraseña). */
+  async deleteEvent(eventId: string, passwordHash: string): Promise<boolean> {
+    const { data, error } = await this.db.rpc('delete_event_with_password', {
+      p_event_id: eventId,
+      p_password_hash: passwordHash,
+    });
+
+    if (error) throw error;
+    return data === true;
+  }
+
+  /** Elimina un asistente usando su token de auto-eliminación (sin contraseña de organizador). */
+  async removeAttendeeByToken(attendeeId: string): Promise<boolean> {
+    const token = this.getAttendeeToken(attendeeId);
+    if (!token) return false;
+
+    const { data, error } = await this.db.rpc('remove_attendee_with_token', {
+      p_attendee_id: attendeeId,
+      p_removal_token: token,
+    });
+
+    if (error) throw error;
+
+    if (data === true) {
+      this.clearAttendeeToken(attendeeId);
+    }
+    return data === true;
+  }
+
+  /** Comprueba si el usuario actual tiene el token de un asistente (lo apuntó él). */
+  hasAttendeeToken(attendeeId: string): boolean {
+    return !!this.getAttendeeToken(attendeeId);
+  }
+
   // ── Helpers ──────────────────────────────────────────────────────────────
 
   /** Genera un slug humano a partir del título y la fecha del evento. */
@@ -136,6 +174,44 @@ export class EventsService {
     return Array.from(new Uint8Array(hash))
       .map((b) => b.toString(16).padStart(2, '0'))
       .join('');
+  }
+
+  // ── Attendee token storage (localStorage) ────────────────────────────────
+
+  private storeAttendeeToken(attendeeId: string, token: string): void {
+    try {
+      const tokens = this.getAllAttendeeTokens();
+      tokens[attendeeId] = token;
+      localStorage.setItem('osplab_attendee_tokens', JSON.stringify(tokens));
+    } catch {
+      /* localStorage no disponible */
+    }
+  }
+
+  private getAttendeeToken(attendeeId: string): string | null {
+    try {
+      return this.getAllAttendeeTokens()[attendeeId] ?? null;
+    } catch {
+      return null;
+    }
+  }
+
+  private clearAttendeeToken(attendeeId: string): void {
+    try {
+      const tokens = this.getAllAttendeeTokens();
+      delete tokens[attendeeId];
+      localStorage.setItem('osplab_attendee_tokens', JSON.stringify(tokens));
+    } catch {
+      /* ignore */
+    }
+  }
+
+  private getAllAttendeeTokens(): Record<string, string> {
+    try {
+      return JSON.parse(localStorage.getItem('osplab_attendee_tokens') ?? '{}');
+    } catch {
+      return {};
+    }
   }
 
   private generateToken(length: number): string {
