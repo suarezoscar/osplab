@@ -10,7 +10,16 @@ import {
 } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
-import { Subject, debounceTime, distinctUntilChanged, switchMap, of, catchError } from 'rxjs';
+import {
+  Subject,
+  debounceTime,
+  distinctUntilChanged,
+  switchMap,
+  of,
+  catchError,
+  forkJoin,
+  map,
+} from 'rxjs';
 import * as L from 'leaflet';
 
 // Fix Leaflet default marker icon broken by bundlers
@@ -25,12 +34,36 @@ const DefaultIcon = L.icon({
 });
 L.Marker.prototype.options.icon = DefaultIcon;
 
-export interface LocationResult {
-  name: string;
+export interface MapCoords {
   lat: number;
   lng: number;
 }
 
+interface SearchResult {
+  displayName: string;
+  lat: number;
+  lng: number;
+}
+
+/** Photon (Komoot) — good for place names / fuzzy search */
+interface PhotonResponse {
+  features: {
+    geometry: { coordinates: [number, number] };
+    properties: {
+      name?: string;
+      housenumber?: string;
+      street?: string;
+      district?: string;
+      city?: string;
+      county?: string;
+      state?: string;
+      country?: string;
+      postcode?: string;
+    };
+  }[];
+}
+
+/** Nominatim — good for street addresses with numbers */
 interface NominatimResult {
   display_name: string;
   lat: string;
@@ -42,70 +75,112 @@ interface NominatimResult {
   standalone: true,
   imports: [FormsModule],
   template: `
-    <div class="relative">
-      <!-- Search input -->
-      <input
-        type="text"
-        [ngModel]="query()"
-        (ngModelChange)="onQueryChange($event)"
-        (focus)="showSuggestions.set(suggestions().length > 0)"
-        placeholder="Buscar lugar…"
-        name="locationSearch"
-        class="ev-input"
-        autocomplete="off"
-      />
-
-      <!-- Suggestions dropdown -->
-      @if (showSuggestions() && suggestions().length > 0) {
-        <ul
-          class="absolute z-50 mt-1 max-h-48 w-full overflow-y-auto rounded-lg border border-[#1a3050] bg-[#0a1929] shadow-xl"
+    <!-- Toggle button -->
+    @if (!mapVisible()) {
+      <button
+        type="button"
+        (click)="showMap()"
+        class="flex items-center gap-2 rounded-lg border border-dashed border-[#1a3050] px-4 py-3 text-[0.88rem] text-[#5a8fb5] transition-colors hover:border-[#f59e0b]/50 hover:text-[#f59e0b]"
+      >
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
         >
-          @for (s of suggestions(); track s.displayName) {
-            <li>
-              <button
-                type="button"
-                (click)="selectSuggestion(s)"
-                class="w-full px-4 py-2.5 text-left text-[0.88rem] text-[#c8dce8] transition-colors hover:bg-[#f59e0b]/10 hover:text-white"
-              >
-                {{ s.displayName }}
-              </button>
-            </li>
-          }
-        </ul>
-      }
+          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+          <circle cx="12" cy="10" r="3" />
+        </svg>
+        Añadir ubicación en mapa
+      </button>
+    }
 
-      @if (searching()) {
-        <div class="absolute right-3 top-3 text-[0.78rem] text-[#4d7a9a]">Buscando…</div>
-      }
-    </div>
+    @if (mapVisible()) {
+      <!-- Search (z-[1000] to stay above Leaflet's internal z-indexes) -->
+      <div class="relative z-1000 mb-2">
+        <input
+          type="text"
+          [ngModel]="query()"
+          (ngModelChange)="onQueryChange($event)"
+          (focus)="showSuggestions.set(suggestions().length > 0)"
+          (blur)="onBlurSearch()"
+          placeholder="Buscar dirección…"
+          name="mapSearch"
+          class="ev-input pr-10!"
+          autocomplete="off"
+        />
 
-    <!-- Map -->
-    @if (selected()) {
+        @if (searching()) {
+          <div class="absolute right-3 top-3 text-[0.78rem] text-[#4d7a9a]">Buscando…</div>
+        }
+
+        <!-- Suggestions dropdown -->
+        @if (showSuggestions() && suggestions().length > 0) {
+          <ul
+            class="absolute mt-1 max-h-48 w-full overflow-y-auto rounded-lg border border-[#1a3050] bg-[#0a1929] shadow-xl"
+          >
+            @for (s of suggestions(); track $index) {
+              <li>
+                <button
+                  type="button"
+                  (mousedown)="selectSuggestion(s)"
+                  class="w-full px-4 py-2.5 text-left text-[0.88rem] text-[#c8dce8] transition-colors hover:bg-[#f59e0b]/10 hover:text-white"
+                >
+                  {{ s.displayName }}
+                </button>
+              </li>
+            }
+          </ul>
+        }
+      </div>
+
+      <p class="mb-2 text-[0.75rem] text-[#4d7a9a]">
+        También puedes hacer clic en el mapa para fijar la ubicación.
+      </p>
+
+      <!-- Map -->
       <div
         #mapContainer
-        class="mt-3 h-48 w-full overflow-hidden rounded-lg border border-[#1a3050]"
+        class="relative z-0 h-56 w-full overflow-hidden rounded-lg border border-[#1a3050]"
       ></div>
+
+      <!-- Remove location button -->
+      @if (hasCoords()) {
+        <button
+          type="button"
+          (click)="clearLocation()"
+          class="mt-2 text-[0.78rem] text-[#8b5a5a] transition-colors hover:text-red-400"
+        >
+          ✕ Quitar ubicación del mapa
+        </button>
+      }
     }
   `,
 })
 export class LocationPickerComponent implements AfterViewInit, OnDestroy {
   private readonly http = inject(HttpClient);
 
-  /** Emits when user selects a location. */
-  locationSelected = output<LocationResult>();
+  /** Emits coordinates when user picks a location on the map. Emits null when cleared. */
+  coordsSelected = output<MapCoords | null>();
 
   query = signal('');
   suggestions = signal<{ displayName: string; lat: number; lng: number }[]>([]);
   showSuggestions = signal(false);
   searching = signal(false);
-  selected = signal<LocationResult | null>(null);
+  mapVisible = signal(false);
+  hasCoords = signal(false);
 
   mapContainer = viewChild<ElementRef<HTMLDivElement>>('mapContainer');
 
   private map: L.Map | null = null;
   private marker: L.Marker | null = null;
-  private userLat: number | null = null;
-  private userLng: number | null = null;
+  private userLat = 40.4168; // Default: Madrid
+  private userLng = -3.7038;
+  private gotUserLocation = false;
   private search$ = new Subject<string>();
   private sub = this.search$
     .pipe(
@@ -114,46 +189,25 @@ export class LocationPickerComponent implements AfterViewInit, OnDestroy {
       switchMap((q) => {
         if (q.length < 3) {
           this.suggestions.set([]);
-          return of([]);
+          return of([] as SearchResult[]);
         }
         this.searching.set(true);
 
-        const params: Record<string, string> = {
-          q,
-          format: 'json',
-          limit: '5',
-          'accept-language': 'es',
-        };
+        // Query both APIs in parallel for best results
+        const photon$ = this.searchPhoton(q);
+        const nominatim$ = this.searchNominatim(q);
 
-        // Si tenemos ubicación del usuario, sesgar resultados hacia su zona
-        if (this.userLat != null && this.userLng != null) {
-          const offset = 0.5; // ~50 km
-          params['viewbox'] = [
-            this.userLng - offset,
-            this.userLat + offset,
-            this.userLng + offset,
-            this.userLat - offset,
-          ].join(',');
-          params['bounded'] = '0'; // Priorizar la zona pero no limitar
-        }
-
-        return this.http
-          .get<NominatimResult[]>('https://nominatim.openstreetmap.org/search', {
-            params,
-            headers: { Referer: 'https://osplab.dev' },
-          })
-          .pipe(catchError(() => of([])));
+        return forkJoin([photon$, nominatim$]).pipe(
+          map(([photonResults, nominatimResults]) =>
+            this.mergeAndDeduplicate(photonResults, nominatimResults),
+          ),
+        );
       }),
     )
     .subscribe((results) => {
       this.searching.set(false);
-      const mapped = (results as NominatimResult[]).map((r) => ({
-        displayName: r.display_name,
-        lat: parseFloat(r.lat),
-        lng: parseFloat(r.lon),
-      }));
-      this.suggestions.set(mapped);
-      this.showSuggestions.set(mapped.length > 0);
+      this.suggestions.set(results);
+      this.showSuggestions.set(results.length > 0);
     });
 
   ngAfterViewInit(): void {
@@ -165,46 +219,167 @@ export class LocationPickerComponent implements AfterViewInit, OnDestroy {
     this.map?.remove();
   }
 
+  showMap(): void {
+    this.mapVisible.set(true);
+    setTimeout(() => this.initMap(), 0);
+  }
+
   onQueryChange(value: string): void {
     this.query.set(value);
     this.search$.next(value);
   }
 
-  selectSuggestion(s: { displayName: string; lat: number; lng: number }): void {
-    const result: LocationResult = { name: s.displayName, lat: s.lat, lng: s.lng };
-    this.query.set(s.displayName);
-    this.selected.set(result);
-    this.suggestions.set([]);
-    this.showSuggestions.set(false);
-    this.locationSelected.emit(result);
-
-    // Render map after view updates
-    setTimeout(() => this.renderMap(s.lat, s.lng), 0);
+  onBlurSearch(): void {
+    setTimeout(() => this.showSuggestions.set(false), 150);
   }
 
-  private renderMap(lat: number, lng: number): void {
-    const el = this.mapContainer()?.nativeElement;
-    if (!el) return;
+  selectSuggestion(s: { displayName: string; lat: number; lng: number }): void {
+    this.query.set(s.displayName);
+    this.suggestions.set([]);
+    this.showSuggestions.set(false);
+    this.placePin(s.lat, s.lng);
+    this.map?.setView([s.lat, s.lng], 16);
+  }
 
-    if (this.map) {
-      this.map.setView([lat, lng], 15);
-      this.marker?.setLatLng([lat, lng]);
-      return;
+  clearLocation(): void {
+    if (this.marker) {
+      this.marker.remove();
+      this.marker = null;
     }
+    this.hasCoords.set(false);
+    this.coordsSelected.emit(null);
+  }
 
-    this.map = L.map(el, { zoomControl: false, attributionControl: false }).setView([lat, lng], 15);
+  // ── Private ────────────────────────────────────────────────────────────
+
+  private initMap(): void {
+    const el = this.mapContainer()?.nativeElement;
+    if (!el || this.map) return;
+
+    const center: L.LatLngExpression = [this.userLat, this.userLng];
+    const zoom = this.gotUserLocation ? 13 : 6;
+
+    this.map = L.map(el, { zoomControl: false, attributionControl: false }).setView(center, zoom);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
     }).addTo(this.map);
 
-    this.marker = L.marker([lat, lng]).addTo(this.map);
+    // Click to pin
+    this.map.on('click', (e: L.LeafletMouseEvent) => {
+      this.placePin(e.latlng.lat, e.latlng.lng);
+    });
 
-    // Fix Leaflet tile rendering on dynamic containers
     setTimeout(() => this.map?.invalidateSize(), 100);
   }
 
-  /** Pide geolocalización al usuario para mejorar las sugerencias. */
+  private placePin(lat: number, lng: number): void {
+    if (!this.map) return;
+
+    if (this.marker) {
+      this.marker.setLatLng([lat, lng]);
+    } else {
+      this.marker = L.marker([lat, lng]).addTo(this.map);
+    }
+
+    this.hasCoords.set(true);
+    this.coordsSelected.emit({ lat, lng });
+  }
+
+  /** Photon: better for place names and fuzzy search. */
+  private searchPhoton(q: string) {
+    const params: Record<string, string> = { q, limit: '5' };
+    if (this.gotUserLocation) {
+      params['lat'] = this.userLat.toString();
+      params['lon'] = this.userLng.toString();
+    }
+
+    return this.http.get<PhotonResponse>('https://photon.komoot.io/api/', { params }).pipe(
+      map((res) =>
+        res.features.map((f) => ({
+          displayName: this.formatPhotonName(f.properties),
+          lat: f.geometry.coordinates[1],
+          lng: f.geometry.coordinates[0],
+        })),
+      ),
+      catchError(() => of([] as SearchResult[])),
+    );
+  }
+
+  /** Nominatim: better for street addresses with numbers. */
+  private searchNominatim(q: string) {
+    const params: Record<string, string> = {
+      q,
+      format: 'json',
+      limit: '3',
+      'accept-language': 'es',
+      countrycodes: 'es',
+    };
+
+    if (this.gotUserLocation) {
+      const offset = 0.5;
+      params['viewbox'] = [
+        this.userLng - offset,
+        this.userLat + offset,
+        this.userLng + offset,
+        this.userLat - offset,
+      ].join(',');
+      params['bounded'] = '0';
+    }
+
+    return this.http
+      .get<NominatimResult[]>('https://nominatim.openstreetmap.org/search', {
+        params,
+      })
+      .pipe(
+        map((results) =>
+          results.map((r) => ({
+            displayName: r.display_name,
+            lat: parseFloat(r.lat),
+            lng: parseFloat(r.lon),
+          })),
+        ),
+        catchError(() => of([] as SearchResult[])),
+      );
+  }
+
+  /** Merge results from both APIs, deduplicate by proximity (~100m). */
+  private mergeAndDeduplicate(photon: SearchResult[], nominatim: SearchResult[]): SearchResult[] {
+    const combined = [...photon, ...nominatim];
+    const unique: SearchResult[] = [];
+
+    for (const item of combined) {
+      const isDupe = unique.some(
+        (u) => Math.abs(u.lat - item.lat) < 0.001 && Math.abs(u.lng - item.lng) < 0.001,
+      );
+      if (!isDupe) unique.push(item);
+    }
+
+    return unique.slice(0, 6);
+  }
+
+  private formatPhotonName(p: PhotonResponse['features'][number]['properties']): string {
+    // Build primary part: "Name" or "Street Number"
+    let primary = '';
+    if (p.name && p.street) {
+      // Named place with address: "Restaurante El Faro, Rúa de Cuba 24"
+      const addr = p.housenumber ? `${p.street} ${p.housenumber}` : p.street;
+      primary = `${p.name}, ${addr}`;
+    } else if (p.street) {
+      // Address only: "Rúa de Cuba 24"
+      primary = p.housenumber ? `${p.street} ${p.housenumber}` : p.street;
+    } else if (p.name) {
+      primary = p.name;
+    }
+
+    // Context: city, state (deduplicated)
+    const context = [p.city ?? p.district ?? p.county, p.state]
+      .filter(Boolean)
+      .filter((v, i, arr) => i === 0 || v !== arr[i - 1]);
+
+    return [primary, ...context].filter(Boolean).join(', ');
+  }
+
   private requestUserLocation(): void {
     if (!navigator.geolocation) return;
 
@@ -212,9 +387,14 @@ export class LocationPickerComponent implements AfterViewInit, OnDestroy {
       (pos) => {
         this.userLat = pos.coords.latitude;
         this.userLng = pos.coords.longitude;
+        this.gotUserLocation = true;
+        // If map is already open, recenter
+        if (this.map && !this.hasCoords()) {
+          this.map.setView([this.userLat, this.userLng], 13);
+        }
       },
       () => {
-        // Si el usuario deniega, seguimos sin ubicación — sin problema
+        // User denied geolocation — no problem
       },
       { timeout: 5000, maximumAge: 300_000 },
     );
