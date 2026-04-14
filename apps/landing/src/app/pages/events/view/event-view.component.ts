@@ -69,7 +69,8 @@ export class EventViewComponent implements OnInit, OnDestroy {
   whatsappUrl = computed(() => {
     const e = this.event();
     if (!e) return '';
-    const text = `¡Apúntate a "${e.title}"! 📍 ${e.location_name}\n${this.eventUrl()}`;
+    const dateStr = this.formatDate(e.event_date);
+    const text = `¡Apúntate a "${e.title}"!\n📅 ${dateStr}\n📍 ${e.location_name}\n${this.eventUrl()}`;
     return `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
   });
 
@@ -127,6 +128,7 @@ export class EventViewComponent implements OnInit, OnDestroy {
         location: event.location_name,
         date: this.formatDate(event.event_date),
         slug: event.slug,
+        description: event.description,
       });
 
       // Auto-unlock edit mode if password was passed from create page

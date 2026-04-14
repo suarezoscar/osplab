@@ -93,11 +93,14 @@ function formatDate(iso: string): string {
 function buildOgHtml(event: EventData, pageUrl: string): string {
   const title = escapeHtml(event.title);
   const dateStr = formatDate(event.event_date);
-  const description = escapeHtml(
-    event.description
-      ? event.description
-      : `📍 ${event.location_name} · 📅 ${dateStr} — ¡Apúntate al evento!`,
-  );
+  const location = escapeHtml(event.location_name);
+
+  // Always show date + location; append custom description if present
+  let description = `📅 ${dateStr} · 📍 ${location}`;
+  if (event.description) {
+    description += ` — ${escapeHtml(event.description)}`;
+  }
+
   const ogImage = 'https://osplab.dev/assets/images/og-image.png';
 
   return `<!DOCTYPE html>
