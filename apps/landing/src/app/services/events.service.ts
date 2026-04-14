@@ -25,7 +25,7 @@ export class EventsService {
   async getAttendees(eventId: string): Promise<AttendeeRow[]> {
     const { data, error } = await this.db
       .from('event_attendees')
-      .select('id, event_id, name, joined_at')
+      .select('id, event_id, name, selected_option, joined_at')
       .eq('event_id', eventId)
       .order('joined_at', { ascending: true });
 
@@ -48,13 +48,22 @@ export class EventsService {
   }
 
   /** Añade un asistente a un evento. Genera un token de auto-eliminación y lo guarda en localStorage. */
-  async addAttendee(eventId: string, name: string): Promise<AttendeeRow> {
+  async addAttendee(
+    eventId: string,
+    name: string,
+    selectedOption?: string | null,
+  ): Promise<AttendeeRow> {
     const removalToken = this.generateToken(32);
 
     const { data, error } = await this.db
       .from('event_attendees')
-      .insert({ event_id: eventId, name, removal_token: removalToken })
-      .select('id, event_id, name, joined_at')
+      .insert({
+        event_id: eventId,
+        name,
+        removal_token: removalToken,
+        ...(selectedOption ? { selected_option: selectedOption } : {}),
+      })
+      .select('id, event_id, name, selected_option, joined_at')
       .single();
 
     if (error) throw error;
@@ -67,16 +76,30 @@ export class EventsService {
   async updateWithPassword(
     eventId: string,
     passwordHash: string,
-    updates: Partial<Pick<EventRow, 'title' | 'location_name' | 'event_date'>>,
+    updates: Partial<
+      Pick<
+        EventRow,
+        | 'title'
+        | 'description'
+        | 'location_name'
+        | 'event_date'
+        | 'registration_deadline'
+        | 'options'
+      >
+    >,
   ): Promise<boolean> {
     const { data, error } = await this.db.rpc('update_event_with_password', {
       p_event_id: eventId,
       p_password_hash: passwordHash,
       p_title: updates.title ?? null,
+      p_description: updates.description ?? null,
       p_location_name: updates.location_name ?? null,
       p_lat: null,
       p_lng: null,
       p_event_date: updates.event_date ?? null,
+      p_registration_deadline: updates.registration_deadline ?? null,
+      p_options: updates.options ?? null,
+      p_clear_deadline: updates.registration_deadline === null,
     });
 
     if (error) throw error;
@@ -164,6 +187,30 @@ export class EventsService {
     const token = this.generateToken(6);
 
     return `${slugified}-${dd}-${mm}-${yyyy}-${token}`;
+  }
+
+  /** Genera un enlace de Google Calendar para un evento. */
+  generateCalendarUrl(event: EventRow): string {
+    const start = new Date(event.event_date);
+    const end = new Date(start.getTime() + 2 * 60 * 60 * 1000); // +2h por defecto
+
+    const fmt = (d: Date) =>
+      d
+        .toISOString()
+        .replace(/[-:]/g, '')
+        .replace(/\.\d{3}/, '');
+
+    const params = new URLSearchParams({
+      action: 'TEMPLATE',
+      text: event.title,
+      dates: `${fmt(start)}/${fmt(end)}`,
+      location: event.location_name,
+      details: event.description
+        ? `${event.description}\n\nhttps://osplab.dev/events/${event.slug}`
+        : `https://osplab.dev/events/${event.slug}`,
+    });
+
+    return `https://calendar.google.com/calendar/render?${params}`;
   }
 
   /** Genera un hash SHA-256 de una contraseña. */

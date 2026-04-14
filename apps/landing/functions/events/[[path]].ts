@@ -22,6 +22,7 @@ interface Env {
 
 interface EventData {
   title: string;
+  description: string | null;
   location_name: string;
   event_date: string;
 }
@@ -63,7 +64,7 @@ async function serveApp(context: { request: Request; env: Env }): Promise<Respon
 }
 
 async function fetchEvent(slug: string, env: Env): Promise<EventData | null> {
-  const url = `${env.SUPABASE_URL}/rest/v1/events?slug=eq.${encodeURIComponent(slug)}&select=title,location_name,event_date&limit=1`;
+  const url = `${env.SUPABASE_URL}/rest/v1/events?slug=eq.${encodeURIComponent(slug)}&select=title,description,location_name,event_date&limit=1`;
 
   const res = await fetch(url, {
     headers: {
@@ -93,7 +94,9 @@ function buildOgHtml(event: EventData, pageUrl: string): string {
   const title = escapeHtml(event.title);
   const dateStr = formatDate(event.event_date);
   const description = escapeHtml(
-    `📍 ${event.location_name} · 📅 ${dateStr} — ¡Apúntate al evento!`,
+    event.description
+      ? event.description
+      : `📍 ${event.location_name} · 📅 ${dateStr} — ¡Apúntate al evento!`,
   );
   const ogImage = 'https://osplab.dev/assets/images/og-image.png';
 

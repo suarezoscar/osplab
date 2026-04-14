@@ -25,6 +25,7 @@ export class EventViewComponent implements OnInit, OnDestroy {
   loading = signal(true);
   notFound = signal(false);
   joinName = signal('');
+  joinOption = signal('');
   joining = signal(false);
   copied = signal(false);
   error = signal<string | null>(null);
@@ -41,8 +42,12 @@ export class EventViewComponent implements OnInit, OnDestroy {
 
   // Edit form fields
   editTitle = signal('');
+  editDescription = signal('');
   editLocation = signal('');
   editEventDate = signal('');
+  editDeadline = signal('');
+  editOptions = signal<string[]>([]);
+  editNewOption = signal('');
 
   // ── Computed ──────────────────────────────────────────────────────────
   eventUrl = computed(() => {
@@ -57,6 +62,11 @@ export class EventViewComponent implements OnInit, OnDestroy {
     return `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
   });
 
+  calendarUrl = computed(() => {
+    const e = this.event();
+    return e ? this.eventsService.generateCalendarUrl(e) : '';
+  });
+
   mapsUrl = computed(() => {
     const e = this.event();
     if (!e) return '';
@@ -67,6 +77,13 @@ export class EventViewComponent implements OnInit, OnDestroy {
   isExpired = computed(() => {
     const e = this.event();
     return e ? new Date(e.event_date) < new Date() : false;
+  });
+
+  isRegistrationClosed = computed(() => {
+    const e = this.event();
+    if (!e) return false;
+    const deadline = e.registration_deadline ?? e.event_date;
+    return new Date(deadline) < new Date();
   });
 
   async ngOnInit(): Promise<void> {
@@ -128,13 +145,18 @@ export class EventViewComponent implements OnInit, OnDestroy {
     const name = this.joinName().trim();
     if (!e || !name) return;
 
+    // Si el evento tiene opciones, la selección es obligatoria
+    const option = this.joinOption();
+    if (e.options?.length && !option) return;
+
     this.joining.set(true);
     this.error.set(null);
 
     try {
-      const attendee = await this.eventsService.addAttendee(e.id, name);
+      const attendee = await this.eventsService.addAttendee(e.id, name, option || null);
       this.attendees.update((list) => [...list, attendee]);
       this.joinName.set('');
+      this.joinOption.set('');
     } catch (err) {
       this.error.set('Error al apuntarse. Inténtalo de nuevo.');
       console.error('Join error:', err);
@@ -191,8 +213,13 @@ export class EventViewComponent implements OnInit, OnDestroy {
     if (!e) return;
 
     this.editTitle.set(e.title);
+    this.editDescription.set(e.description ?? '');
     this.editLocation.set(e.location_name);
     this.editEventDate.set(this.toLocalDatetime(e.event_date));
+    this.editDeadline.set(
+      e.registration_deadline ? this.toLocalDatetime(e.registration_deadline) : '',
+    );
+    this.editOptions.set(e.options ?? []);
     this.editMode.set(true);
   }
 
@@ -209,10 +236,18 @@ export class EventViewComponent implements OnInit, OnDestroy {
     this.error.set(null);
 
     try {
+      const opts = this.editOptions()
+        .map((opt) => opt.trim())
+        .filter(Boolean);
       const ok = await this.eventsService.updateWithPassword(e.id, hash, {
         title: this.editTitle().trim(),
+        description: this.editDescription().trim() || null,
         location_name: this.editLocation().trim(),
         event_date: new Date(this.editEventDate()).toISOString(),
+        registration_deadline: this.editDeadline()
+          ? new Date(this.editDeadline()).toISOString()
+          : null,
+        options: opts.length >= 2 ? opts : null,
       });
 
       if (ok) {

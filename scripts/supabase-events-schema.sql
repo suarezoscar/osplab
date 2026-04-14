@@ -7,15 +7,18 @@
 
 -- ── Tabla de eventos ────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS events (
-  id             UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  slug           TEXT NOT NULL UNIQUE,        -- "cena-de-navidad-25-12-2026-a3x9kf"
-  title          TEXT NOT NULL,
-  location_name  TEXT NOT NULL,               -- "Restaurante El Faro, Ourense"
-  lat            DOUBLE PRECISION,
-  lng            DOUBLE PRECISION,
-  event_date     TIMESTAMPTZ NOT NULL,        -- Fecha y hora del evento
-  password_hash  TEXT,                        -- SHA-256 hash (null = sin contraseña)
-  created_at     TIMESTAMPTZ NOT NULL DEFAULT now()
+  id                      UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  slug                    TEXT NOT NULL UNIQUE,
+  title                   TEXT NOT NULL,
+  description             TEXT,                        -- Descripción del evento (opcional)
+  location_name           TEXT NOT NULL,
+  lat                     DOUBLE PRECISION,
+  lng                     DOUBLE PRECISION,
+  event_date              TIMESTAMPTZ NOT NULL,
+  registration_deadline   TIMESTAMPTZ,                 -- Fecha límite de inscripción (null = event_date)
+  options                 JSONB,                       -- Array de strings: opciones a elegir (null = sin opciones)
+  password_hash           TEXT,                        -- SHA-256 hash (null = sin contraseña)
+  created_at              TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 -- ── Tabla de asistentes ─────────────────────────────────────────────────────
@@ -23,7 +26,8 @@ CREATE TABLE IF NOT EXISTS event_attendees (
   id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   event_id        UUID NOT NULL REFERENCES events(id) ON DELETE CASCADE,
   name            TEXT NOT NULL,
-  removal_token   TEXT,                        -- Token para auto-eliminación (quien te apuntó puede darte de baja)
+  selected_option TEXT,                        -- Opción elegida por el asistente (si el evento tiene options)
+  removal_token   TEXT,                        -- Token para auto-eliminación
   joined_at       TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
@@ -60,23 +64,27 @@ CREATE POLICY "attendees_insert" ON event_attendees
 
 -- events: ocultar password_hash
 REVOKE ALL ON events FROM anon, authenticated;
-GRANT SELECT (id, slug, title, location_name, lat, lng, event_date, created_at) ON events TO anon, authenticated;
+GRANT SELECT (id, slug, title, description, location_name, lat, lng, event_date, registration_deadline, options, created_at) ON events TO anon, authenticated;
 GRANT INSERT ON events TO anon, authenticated;
 
 -- event_attendees: ocultar removal_token
 REVOKE ALL ON event_attendees FROM anon, authenticated;
-GRANT SELECT (id, event_id, name, joined_at) ON event_attendees TO anon, authenticated;
+GRANT SELECT (id, event_id, name, selected_option, joined_at) ON event_attendees TO anon, authenticated;
 GRANT INSERT ON event_attendees TO anon, authenticated;
 
 -- ── RPC: Actualizar evento con contraseña ───────────────────────────────────
 CREATE OR REPLACE FUNCTION update_event_with_password(
-  p_event_id      UUID,
-  p_password_hash  TEXT,
-  p_title          TEXT         DEFAULT NULL,
-  p_location_name  TEXT         DEFAULT NULL,
-  p_lat            DOUBLE PRECISION DEFAULT NULL,
-  p_lng            DOUBLE PRECISION DEFAULT NULL,
-  p_event_date     TIMESTAMPTZ  DEFAULT NULL
+  p_event_id                UUID,
+  p_password_hash           TEXT,
+  p_title                   TEXT           DEFAULT NULL,
+  p_description             TEXT           DEFAULT NULL,
+  p_location_name           TEXT           DEFAULT NULL,
+  p_lat                     DOUBLE PRECISION DEFAULT NULL,
+  p_lng                     DOUBLE PRECISION DEFAULT NULL,
+  p_event_date              TIMESTAMPTZ    DEFAULT NULL,
+  p_registration_deadline   TIMESTAMPTZ    DEFAULT NULL,
+  p_options                 JSONB          DEFAULT NULL,
+  p_clear_deadline          BOOLEAN        DEFAULT FALSE
 )
 RETURNS BOOLEAN
 LANGUAGE plpgsql
@@ -93,11 +101,14 @@ BEGIN
   END IF;
 
   UPDATE events SET
-    title         = COALESCE(p_title, title),
-    location_name = COALESCE(p_location_name, location_name),
-    lat           = COALESCE(p_lat, lat),
-    lng           = COALESCE(p_lng, lng),
-    event_date    = COALESCE(p_event_date, event_date)
+    title                   = COALESCE(p_title, title),
+    description             = COALESCE(p_description, description),
+    location_name           = COALESCE(p_location_name, location_name),
+    lat                     = COALESCE(p_lat, lat),
+    lng                     = COALESCE(p_lng, lng),
+    event_date              = COALESCE(p_event_date, event_date),
+    registration_deadline   = CASE WHEN p_clear_deadline THEN NULL ELSE COALESCE(p_registration_deadline, registration_deadline) END,
+    options                 = COALESCE(p_options, options)
   WHERE id = p_event_id;
 
   RETURN TRUE;
