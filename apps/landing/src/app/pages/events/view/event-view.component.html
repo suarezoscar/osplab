@@ -165,7 +165,7 @@
                 @if (editPasswordHash()) {
                   <button
                     (click)="removeAttendee(attendee)"
-                    class="opacity-0 group-hover:opacity-100 transition-opacity text-[#5a3030] hover:text-red-400"
+                    class="text-[#5a3030] opacity-0 transition-opacity group-hover:opacity-100 max-sm:opacity-100 hover:text-red-400"
                     title="Eliminar asistente">
                     <svg
                       width="16"
@@ -182,7 +182,7 @@
                 } @else if (canSelfRemove(attendee.id)) {
                   <button
                     (click)="selfRemoveAttendee(attendee)"
-                    class="opacity-0 group-hover:opacity-100 transition-opacity text-[#5a3030] hover:text-red-400"
+                    class="text-[#5a3030] transition-opacity hover:text-red-400"
                     title="Darme de baja">
                     <svg
                       width="16"
