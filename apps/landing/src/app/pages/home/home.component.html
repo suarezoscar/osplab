@@ -1,11 +1,16 @@
-<div class="flex min-h-screen flex-col text-[#dce6ef]">
+<div class="flex min-h-screen flex-col" style="color: var(--osp-text)">
   <!-- ─── HEADER ──────────────────────────────────────────────────────────── -->
-  <header class="mx-auto w-full max-w-2xl px-6 pt-16 pb-12">
+  <header class="mx-auto w-full max-w-2xl px-6 pt-16 pb-12 osp-animate-in">
+    <!-- Theme toggle — top right -->
+    <div class="flex justify-end mb-6">
+      <osp-theme-toggle />
+    </div>
+
     <div class="flex flex-col items-center gap-6 text-center">
       <!-- Logo — apaisado, grande, animado -->
       <div class="logo-glow w-full max-w-sm sm:max-w-md">
         <img
-          src="/assets/svg/osp-logo.svg"
+          [src]="themeService.isDark() ? '/assets/svg/osp-logo.svg' : '/assets/svg/osp-logo-light.svg'"
           alt="OSPLab — Suite de herramientas open source"
           class="logo-animate w-full h-auto select-none"
           draggable="false"
@@ -13,8 +18,8 @@
           height="262" />
       </div>
 
-      <!-- Tagline: contraste ≥ 4.5:1 en #040d18 -->
-      <p class="text-[1rem] leading-relaxed text-[#b5d0e4] max-w-xs">
+      <!-- Tagline -->
+      <p class="text-[1rem] leading-relaxed max-w-xs" style="color: var(--osp-text-muted)">
         Suite de herramientas open source.<br />
         Sin publicidad. Sin rastreo. Datos útiles.
       </p>
@@ -23,26 +28,34 @@
 
   <!-- ─── PROYECTOS ────────────────────────────────────────────────────────── -->
   <main class="mx-auto w-full max-w-2xl flex-1 px-6 pb-20" id="proyectos">
-    <!-- Label accesible — contraste ≥ 3:1 (texto grande/decorativo uppercase) -->
+    <!-- Label -->
     <p
-      class="mb-5 text-[0.8rem] font-semibold uppercase tracking-[0.15em] text-[#6aade0]"
+      class="mb-5 text-[0.8rem] font-semibold uppercase tracking-[0.15em]"
+      style="color: var(--osp-info)"
       aria-label="Lista de proyectos">
       Proyectos
     </p>
 
     <ul class="flex flex-col gap-3" role="list" aria-label="Proyectos de OSPLab">
-      @for (project of projects; track project.id) {
-        <li>
+      @for (project of projects; track project.id; let i = $index) {
+        <li class="osp-animate-slide-up" [style.animation-delay]="i * 80 + 'ms'">
           @if (project.routerLink) {
             <a
               [routerLink]="project.routerLink"
               [attr.aria-label]="project.name + ' — ' + project.description"
-              class="card-shine group relative flex w-full items-center gap-5 overflow-hidden rounded-xl border px-5 py-4 transition-all duration-200 hover:-translate-y-px hover:shadow-lg hover:shadow-black/30"
-              [class]="cardClass(project.theme)">
+              class="card-shine group relative flex w-full items-center gap-5 overflow-hidden rounded-xl border px-5 py-4 transition-all duration-200 hover:-translate-y-px"
+              [style]="{
+                'border-color': 'var(--osp-' + project.theme + '-card-border)',
+                background: 'var(--osp-' + project.theme + '-card-bg)',
+                'box-shadow': '0 4px 20px var(--osp-' + project.theme + '-shadow)',
+              }">
               <!-- Icon box -->
               <span
-                class="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg"
-                [class]="iconBoxClass(project.theme)"
+                class="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg transition-all duration-200"
+                [style]="{
+                  background: 'var(--osp-' + project.theme + '-icon-bg)',
+                  color: 'var(--osp-' + project.theme + '-icon)',
+                }"
                 aria-hidden="true">
                 @if (project.theme === 'green') {
                   <svg viewBox="0 0 32 32" fill="currentColor" width="22" height="22" aria-hidden="true">
@@ -76,25 +89,36 @@
               <!-- Content -->
               <div class="flex min-w-0 flex-1 flex-col gap-1.5">
                 <div class="flex flex-wrap items-center gap-2">
-                  <span class="text-[1.05rem] font-semibold text-white leading-snug">
+                  <span class="text-[1.05rem] font-semibold leading-snug" style="color: var(--osp-text-heading)">
                     {{ project.name }}
                   </span>
                   <span
-                    class="rounded-full px-2 py-0.5 text-[0.78rem] font-semibold"
-                    [class]="statusClass(project.status)">
+                    class="rounded-full border px-2 py-0.5 text-[0.78rem] font-semibold"
+                    [style]="{
+                      background: 'var(--osp-' + project.theme + '-status-bg)',
+                      color: 'var(--osp-' + project.theme + '-status-text)',
+                      'border-color': 'var(--osp-' + project.theme + '-status-border)',
+                    }">
                     {{ statusLabel(project.status) }}
                   </span>
                   @if (project.version) {
-                    <span class="text-[0.72rem] font-medium text-[#4d8ab0]"> v{{ project.version }} </span>
+                    <span class="text-[0.72rem] font-medium" style="color: var(--osp-text-faint)">
+                      v{{ project.version }}
+                    </span>
                   }
                 </div>
-                <p class="text-[0.92rem] leading-relaxed text-[#aec8db]">
+                <p class="text-[0.92rem] leading-relaxed" style="color: var(--osp-text-muted)">
                   {{ project.description }}
                 </p>
                 <div class="flex flex-wrap gap-1.5 pt-0.5">
                   @for (tag of project.tags; track tag) {
                     <span
-                      class="rounded-full border border-[#1a3a5c] bg-[#0a1e36] px-2.5 py-0.5 text-[0.8rem] font-medium text-[#98bfd8]">
+                      class="rounded-full border px-2.5 py-0.5 text-[0.8rem] font-medium transition-colors"
+                      style="
+                        border-color: var(--osp-tag-border);
+                        background: var(--osp-tag-bg);
+                        color: var(--osp-tag-text);
+                      ">
                       {{ tag }}
                     </span>
                   }
@@ -104,7 +128,7 @@
               <!-- Arrow -->
               <svg
                 class="shrink-0 transition-all duration-200 group-hover:translate-x-0.5"
-                [class]="arrowClass(project.theme)"
+                [style]="{ color: 'var(--osp-' + project.theme + '-arrow)' }"
                 width="18"
                 height="18"
                 viewBox="0 0 24 24"
@@ -123,12 +147,19 @@
               target="_blank"
               rel="noopener noreferrer"
               [attr.aria-label]="project.name + ' — ' + project.description"
-              class="card-shine group relative flex w-full items-center gap-5 overflow-hidden rounded-xl border px-5 py-4 transition-all duration-200 hover:-translate-y-px hover:shadow-lg hover:shadow-black/30"
-              [class]="cardClass(project.theme)">
+              class="card-shine group relative flex w-full items-center gap-5 overflow-hidden rounded-xl border px-5 py-4 transition-all duration-200 hover:-translate-y-px"
+              [style]="{
+                'border-color': 'var(--osp-' + project.theme + '-card-border)',
+                background: 'var(--osp-' + project.theme + '-card-bg)',
+                'box-shadow': '0 4px 20px var(--osp-' + project.theme + '-shadow)',
+              }">
               <!-- Icon box -->
               <span
-                class="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg"
-                [class]="iconBoxClass(project.theme)"
+                class="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg transition-all duration-200"
+                [style]="{
+                  background: 'var(--osp-' + project.theme + '-icon-bg)',
+                  color: 'var(--osp-' + project.theme + '-icon)',
+                }"
                 aria-hidden="true">
                 @if (project.theme === 'green') {
                   <svg viewBox="0 0 32 32" fill="currentColor" width="22" height="22" aria-hidden="true">
@@ -162,25 +193,36 @@
               <!-- Content -->
               <div class="flex min-w-0 flex-1 flex-col gap-1.5">
                 <div class="flex flex-wrap items-center gap-2">
-                  <span class="text-[1.05rem] font-semibold text-white leading-snug">
+                  <span class="text-[1.05rem] font-semibold leading-snug" style="color: var(--osp-text-heading)">
                     {{ project.name }}
                   </span>
                   <span
-                    class="rounded-full px-2 py-0.5 text-[0.78rem] font-semibold"
-                    [class]="statusClass(project.status)">
+                    class="rounded-full border px-2 py-0.5 text-[0.78rem] font-semibold"
+                    [style]="{
+                      background: 'var(--osp-' + project.theme + '-status-bg)',
+                      color: 'var(--osp-' + project.theme + '-status-text)',
+                      'border-color': 'var(--osp-' + project.theme + '-status-border)',
+                    }">
                     {{ statusLabel(project.status) }}
                   </span>
                   @if (project.version) {
-                    <span class="text-[0.72rem] font-medium text-[#4d8ab0]"> v{{ project.version }} </span>
+                    <span class="text-[0.72rem] font-medium" style="color: var(--osp-text-faint)">
+                      v{{ project.version }}
+                    </span>
                   }
                 </div>
-                <p class="text-[0.92rem] leading-relaxed text-[#aec8db]">
+                <p class="text-[0.92rem] leading-relaxed" style="color: var(--osp-text-muted)">
                   {{ project.description }}
                 </p>
                 <div class="flex flex-wrap gap-1.5 pt-0.5">
                   @for (tag of project.tags; track tag) {
                     <span
-                      class="rounded-full border border-[#1a3a5c] bg-[#0a1e36] px-2.5 py-0.5 text-[0.8rem] font-medium text-[#98bfd8]">
+                      class="rounded-full border px-2.5 py-0.5 text-[0.8rem] font-medium transition-colors"
+                      style="
+                        border-color: var(--osp-tag-border);
+                        background: var(--osp-tag-bg);
+                        color: var(--osp-tag-text);
+                      ">
                       {{ tag }}
                     </span>
                   }
@@ -190,7 +232,7 @@
               <!-- Arrow -->
               <svg
                 class="shrink-0 transition-all duration-200 group-hover:translate-x-0.5"
-                [class]="arrowClass(project.theme)"
+                [style]="{ color: 'var(--osp-' + project.theme + '-arrow)' }"
                 width="18"
                 height="18"
                 viewBox="0 0 24 24"
@@ -207,73 +249,19 @@
         </li>
       }
 
-      <!-- Placeholder próximo proyecto — aria-hidden, solo decorativo -->
+      <!-- Placeholder próximo proyecto -->
       <li
-        class="flex w-full items-center justify-center gap-3 rounded-xl border border-dashed border-[#0e2540] px-5 py-5 text-[0.92rem] text-[#6a9abe]"
+        class="flex w-full items-center justify-center gap-3 rounded-xl border border-dashed px-5 py-5 text-[0.92rem] osp-animate-slide-up"
+        style="border-color: var(--osp-placeholder-border); color: var(--osp-placeholder-text); animation-delay: 180ms"
         aria-hidden="true">
-        <span class="text-lg" aria-hidden="true">＋</span>
+        <osp-icon name="plus" [size]="18" aria-hidden="true" />
         Más herramientas en desarrollo…
       </li>
     </ul>
   </main>
 
   <!-- ─── FOOTER ───────────────────────────────────────────────────────────── -->
-  <footer class="border-t border-[#0e2236] py-8">
-    <nav aria-label="Redes sociales y apoyo" class="mx-auto flex max-w-2xl items-center justify-center gap-3 px-6">
-      <a
-        href="https://github.com/suarezoscar"
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label="GitHub"
-        class="group flex h-10 w-10 items-center justify-center rounded-full text-[#5a8fb5] transition-all duration-200 hover:bg-[#ffffff0d] hover:text-white hover:shadow-[0_0_12px_#ffffff15]">
-        <svg
-          width="18"
-          height="18"
-          viewBox="0 0 24 24"
-          fill="currentColor"
-          aria-hidden="true"
-          class="transition-transform duration-200 group-hover:scale-110">
-          <path
-            d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844a9.59 9.59 0 012.504.337c1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.02 10.02 0 0022 12.017C22 6.484 17.522 2 12 2z" />
-        </svg>
-      </a>
-
-      <a
-        href="https://www.linkedin.com/in/oscarsuarezpayo/"
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label="LinkedIn"
-        class="group flex h-10 w-10 items-center justify-center rounded-full text-[#5a8fb5] transition-all duration-200 hover:bg-[#0a66c20d] hover:text-[#5b9bd5] hover:shadow-[0_0_12px_#0a66c215]">
-        <svg
-          width="18"
-          height="18"
-          viewBox="0 0 24 24"
-          fill="currentColor"
-          aria-hidden="true"
-          class="transition-transform duration-200 group-hover:scale-110">
-          <path
-            d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
-        </svg>
-      </a>
-
-      <a
-        href="https://ko-fi.com/osplab"
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label="Apoya en Ko-fi"
-        class="group flex h-10 w-10 items-center justify-center rounded-full text-[#5a8fb5] transition-all duration-200 hover:bg-[#f5a62315] hover:text-amber-400 hover:shadow-[0_0_12px_#f5a62320]">
-        <svg
-          width="18"
-          height="18"
-          viewBox="0 0 24 24"
-          fill="currentColor"
-          aria-hidden="true"
-          class="transition-transform duration-200 group-hover:scale-110">
-          <path
-            d="M23.881 8.948c-.773-4.085-4.859-4.593-4.859-4.593H.723c-.604 0-.679.798-.679.798s-.082 5.966-.082 8.123c0 7.197 5.988 7.276 6.691 7.276l.323.001c.525 0 2.149-.047 3.374-.684 1.132-.589 1.659-1.567 1.659-1.567s1.147 1.869 4.914 1.869c4.853 0 5.074-4.702 5.074-4.702 0-2.197-.777-4.007-1.816-5.521zm-2.456 5.559c-.256 1.504-1.487 2.393-2.817 2.393-3.087 0-3.846-2.665-3.846-2.665s-.812 2.665-3.899 2.665c-1.33 0-2.561-.889-2.818-2.393-.289-1.695.029-3.553.029-3.553h13.322s.318 1.858.029 3.553zm-4.979-3.553h-5.887v-1.667h5.887v1.667zm2.021 0v-1.667h1.667v1.667h-1.667z" />
-        </svg>
-      </a>
-    </nav>
-    <p class="mt-4 text-center text-[0.7rem] text-[#2e5a7a]">v{{ appVersion }}</p>
-  </footer>
+  <osplab-footer>
+    <p class="text-[0.7rem]" style="color: var(--osp-footer-text)">v{{ appVersion }}</p>
+  </osplab-footer>
 </div>

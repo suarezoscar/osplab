@@ -15,15 +15,12 @@ import { PharmaciesApiService } from '../../services/pharmacies-api.service';
 import { GeolocationService } from '../../services/geolocation.service';
 import { GeocodingService, type GeocodingSuggestion } from '../../services/geocoding.service';
 import type { PharmacyDto } from '@osplab/shared-interfaces';
-import { OspLabBadgeComponent } from '@osplab/shared-ui';
+import { OspLabFooterComponent, OspThemeToggleComponent } from '@osplab/shared-ui';
 import { APP_VERSION } from '../../../version';
 import {
   AlertTriangleIconComponent,
-  GithubIconComponent,
   GpsIconComponent,
   InfoCircleIconComponent,
-  KofiIconComponent,
-  LinkedinIconComponent,
   NoResultsIconComponent,
   PharmacyCrossIconComponent,
   PinIconComponent,
@@ -48,14 +45,12 @@ import { WelcomeStateComponent } from './components/welcome-state/welcome-state.
     NoResultsIconComponent,
     PinIconComponent,
     RefreshIconComponent,
-    GithubIconComponent,
-    LinkedinIconComponent,
-    KofiIconComponent,
     AddressSearchComponent,
     PharmacyCardComponent,
     WelcomeStateComponent,
     LoadingSkeletonComponent,
-    OspLabBadgeComponent,
+    OspLabFooterComponent,
+    OspThemeToggleComponent,
   ],
   templateUrl: './home.component.html',
 })

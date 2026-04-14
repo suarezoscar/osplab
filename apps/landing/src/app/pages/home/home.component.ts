@@ -1,6 +1,12 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { APP_VERSION } from '../../../version';
+import {
+  OspThemeToggleComponent,
+  OspThemeService,
+  OspIconComponent,
+  OspLabFooterComponent,
+} from '@osplab/shared-ui';
 
 interface Project {
   id: string;
@@ -8,7 +14,7 @@ interface Project {
   description: string;
   url: string;
   routerLink?: string;
-  theme: 'green' | 'blue' | 'amber';
+  theme: 'green' | 'amber';
   status: 'live' | 'wip' | 'planned';
   tags: string[];
   version?: string;
@@ -16,11 +22,12 @@ interface Project {
 
 @Component({
   selector: 'app-home',
-  imports: [RouterLink],
+  imports: [RouterLink, OspThemeToggleComponent, OspIconComponent, OspLabFooterComponent],
   templateUrl: './home.component.html',
 })
 export class HomeComponent {
   readonly appVersion = APP_VERSION;
+  readonly themeService = inject(OspThemeService);
 
   readonly projects: Project[] = [
     {
@@ -49,37 +56,5 @@ export class HomeComponent {
 
   statusLabel(s: Project['status']): string {
     return { live: 'Activo', wip: 'En desarrollo', planned: 'Próximamente' }[s];
-  }
-
-  statusClass(s: Project['status']): string {
-    return {
-      live: 'bg-emerald-900/60 text-emerald-300 border border-emerald-700/50',
-      wip: 'bg-amber-900/60 text-amber-300 border border-amber-700/50',
-      planned: 'bg-blue-950/60 text-blue-400 border border-blue-800/50',
-    }[s];
-  }
-
-  cardClass(theme: Project['theme']): string {
-    return {
-      green: 'border-[#0e3020] bg-[#060f09] hover:border-[#1e6638] hover:bg-[#071410]',
-      blue: 'border-[#132d4e] bg-[#07162a] hover:border-[#1f4f82] hover:bg-[#091d38]',
-      amber: 'border-[#2a1f0a] bg-[#100c04] hover:border-[#5c4012] hover:bg-[#1a1208]',
-    }[theme];
-  }
-
-  iconBoxClass(theme: Project['theme']): string {
-    return {
-      green: 'bg-[#0b2416] text-[#4ade80]',
-      blue: 'bg-[#0c2040] text-[#60a5fa]',
-      amber: 'bg-[#1c1505] text-[#f59e0b]',
-    }[theme];
-  }
-
-  arrowClass(theme: Project['theme']): string {
-    return {
-      green: 'text-[#1a4d2a] group-hover:text-[#4ade80]',
-      blue: 'text-[#1f4572] group-hover:text-[#3b82f6]',
-      amber: 'text-[#4d3a12] group-hover:text-[#f59e0b]',
-    }[theme];
   }
 }

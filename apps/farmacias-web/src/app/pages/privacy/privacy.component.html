@@ -1,4 +1,5 @@
-<div class="min-h-screen bg-linear-to-br from-slate-50 via-white to-green-50/40 flex flex-col">
+<div
+  class="min-h-screen bg-linear-to-br from-slate-50 via-white to-green-50/40 dark:from-gray-950 dark:via-gray-900 dark:to-green-950/40 flex flex-col transition-colors duration-300">
   <header class="bg-linear-to-r from-green-800 to-green-600 text-white shadow-lg">
     <div class="max-w-2xl mx-auto px-4 py-5 flex items-center gap-3.5">
       <div class="shrink-0 bg-white/15 rounded-2xl p-2.5" aria-hidden="true">
@@ -7,17 +8,18 @@
           <rect x="4" y="13" width="24" height="6" rx="2.5" />
         </svg>
       </div>
-      <div>
+      <div class="flex-1">
         <h1 class="text-xl font-bold leading-tight tracking-tight">Farmacia de Guardia</h1>
         <p class="text-green-100 text-sm mt-0.5">Política de Privacidad</p>
       </div>
+      <osp-theme-toggle />
     </div>
   </header>
 
   <main class="flex-1 max-w-2xl mx-auto w-full px-4 py-8">
     <a
       routerLink="/"
-      class="inline-flex items-center gap-2 text-sm text-green-700 font-medium hover:text-green-900 hover:bg-green-50 py-2 px-3 rounded-xl transition-colors duration-200 mb-6 -ml-1">
+      class="inline-flex items-center gap-2 text-sm text-green-700 dark:text-green-400 font-medium hover:text-green-900 dark:hover:text-green-300 hover:bg-green-50 dark:hover:bg-green-950/50 py-2 px-3 rounded-xl transition-colors duration-200 mb-6 -ml-1">
       <svg
         width="16"
         height="16"
@@ -34,27 +36,29 @@
     </a>
 
     <article
-      class="bg-white rounded-2xl border border-gray-100 shadow-sm px-6 py-8 flex flex-col gap-7 prose prose-sm prose-green max-w-none">
+      class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm px-6 py-8 flex flex-col gap-7 prose prose-sm prose-green max-w-none">
       <header>
-        <h2 class="text-2xl font-bold text-gray-800 mb-1">Política de Privacidad</h2>
-        <p class="text-xs text-gray-400">Última actualización: {{ updated }}</p>
+        <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-1">Política de Privacidad</h2>
+        <p class="text-xs text-gray-400 dark:text-gray-500">Última actualización: {{ updated }}</p>
       </header>
 
       <section aria-labelledby="sec-responsable">
-        <h3 id="sec-responsable" class="text-base font-semibold text-gray-700 mb-2 flex items-center gap-2">
+        <h3
+          id="sec-responsable"
+          class="text-base font-semibold text-gray-700 dark:text-gray-200 mb-2 flex items-center gap-2">
           <span
-            class="w-5 h-5 rounded-full bg-green-100 text-green-700 text-xs font-bold flex items-center justify-center shrink-0"
+            class="w-5 h-5 rounded-full bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-400 text-xs font-bold flex items-center justify-center shrink-0"
             >1</span
           >
           Responsable
         </h3>
-        <p class="text-sm text-gray-600 leading-relaxed">
+        <p class="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
           El responsable de este sitio web es <strong>Oscar Suarez</strong>. Puedes contactar a través de
           <a
             href="https://github.com/suarezoscar"
             target="_blank"
             rel="noopener noreferrer"
-            class="text-green-700 underline underline-offset-2 hover:text-green-900"
+            class="text-green-700 dark:text-green-400 underline underline-offset-2 hover:text-green-900 dark:hover:text-green-300"
             >GitHub</a
           >
           o
@@ -62,24 +66,26 @@
             href="https://www.linkedin.com/in/oscarsuarezpayo/"
             target="_blank"
             rel="noopener noreferrer"
-            class="text-green-700 underline underline-offset-2 hover:text-green-900"
+            class="text-green-700 dark:text-green-400 underline underline-offset-2 hover:text-green-900 dark:hover:text-green-300"
             >LinkedIn</a
           >.
         </p>
       </section>
 
       <section aria-labelledby="sec-datos">
-        <h3 id="sec-datos" class="text-base font-semibold text-gray-700 mb-2 flex items-center gap-2">
+        <h3
+          id="sec-datos"
+          class="text-base font-semibold text-gray-700 dark:text-gray-200 mb-2 flex items-center gap-2">
           <span
-            class="w-5 h-5 rounded-full bg-green-100 text-green-700 text-xs font-bold flex items-center justify-center shrink-0"
+            class="w-5 h-5 rounded-full bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-400 text-xs font-bold flex items-center justify-center shrink-0"
             >2</span
           >
           Datos que se tratan
         </h3>
-        <ul class="text-sm text-gray-600 leading-relaxed space-y-2 list-none pl-0">
+        <ul class="text-sm text-gray-600 dark:text-gray-300 leading-relaxed space-y-2 list-none pl-0">
           <li class="flex items-start gap-2">
             <svg
-              class="shrink-0 mt-0.5 text-green-500"
+              class="shrink-0 mt-0.5 text-green-500 dark:text-green-400"
               width="14"
               height="14"
               viewBox="0 0 24 24"
@@ -97,7 +103,7 @@
           </li>
           <li class="flex items-start gap-2">
             <svg
-              class="shrink-0 mt-0.5 text-green-500"
+              class="shrink-0 mt-0.5 text-green-500 dark:text-green-400"
               width="14"
               height="14"
               viewBox="0 0 24 24"
@@ -114,7 +120,7 @@
                 href="https://nominatim.openstreetmap.org"
                 target="_blank"
                 rel="noopener noreferrer"
-                class="text-green-700 underline underline-offset-2"
+                class="text-green-700 dark:text-green-400 underline underline-offset-2"
                 >Nominatim / OpenStreetMap</a
               >
               para resolver coordenadas. No se guarda ningún historial.</span
@@ -122,7 +128,7 @@
           </li>
           <li class="flex items-start gap-2">
             <svg
-              class="shrink-0 mt-0.5 text-green-500"
+              class="shrink-0 mt-0.5 text-green-500 dark:text-green-400"
               width="14"
               height="14"
               viewBox="0 0 24 24"
@@ -142,14 +148,16 @@
       </section>
 
       <section aria-labelledby="sec-farmacias">
-        <h3 id="sec-farmacias" class="text-base font-semibold text-gray-700 mb-2 flex items-center gap-2">
+        <h3
+          id="sec-farmacias"
+          class="text-base font-semibold text-gray-700 dark:text-gray-200 mb-2 flex items-center gap-2">
           <span
-            class="w-5 h-5 rounded-full bg-green-100 text-green-700 text-xs font-bold flex items-center justify-center shrink-0"
+            class="w-5 h-5 rounded-full bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-400 text-xs font-bold flex items-center justify-center shrink-0"
             >3</span
           >
           Origen de los datos de farmacias
         </h3>
-        <p class="text-sm text-gray-600 leading-relaxed">
+        <p class="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
           La información sobre farmacias de guardia (nombre, dirección, horario y teléfono) se obtiene de fuentes
           públicas oficiales: los <strong>Colegios Oficiales de Farmacéuticos de Galicia</strong>
           (COF A Coruña, COF Lugo, COF Ourense, COF Pontevedra). Los datos se actualizan diariamente de forma
@@ -158,14 +166,16 @@
       </section>
 
       <section aria-labelledby="sec-derechos">
-        <h3 id="sec-derechos" class="text-base font-semibold text-gray-700 mb-2 flex items-center gap-2">
+        <h3
+          id="sec-derechos"
+          class="text-base font-semibold text-gray-700 dark:text-gray-200 mb-2 flex items-center gap-2">
           <span
-            class="w-5 h-5 rounded-full bg-green-100 text-green-700 text-xs font-bold flex items-center justify-center shrink-0"
+            class="w-5 h-5 rounded-full bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-400 text-xs font-bold flex items-center justify-center shrink-0"
             >4</span
           >
           Tus derechos
         </h3>
-        <p class="text-sm text-gray-600 leading-relaxed">
+        <p class="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
           Dado que no se recopilan ni almacenan datos personales de los usuarios, no aplican derechos de acceso,
           rectificación o supresión sobre información propia. Si tienes alguna duda, escríbeme a través de los canales
           indicados en el punto 1.
@@ -173,14 +183,16 @@
       </section>
 
       <section aria-labelledby="sec-cambios">
-        <h3 id="sec-cambios" class="text-base font-semibold text-gray-700 mb-2 flex items-center gap-2">
+        <h3
+          id="sec-cambios"
+          class="text-base font-semibold text-gray-700 dark:text-gray-200 mb-2 flex items-center gap-2">
           <span
-            class="w-5 h-5 rounded-full bg-green-100 text-green-700 text-xs font-bold flex items-center justify-center shrink-0"
+            class="w-5 h-5 rounded-full bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-400 text-xs font-bold flex items-center justify-center shrink-0"
             >5</span
           >
           Cambios en esta política
         </h3>
-        <p class="text-sm text-gray-600 leading-relaxed">
+        <p class="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
           Cualquier modificación relevante se reflejará en la fecha de actualización indicada al inicio de este
           documento.
         </p>
@@ -188,9 +200,7 @@
     </article>
   </main>
 
-  <footer
-    class="text-center text-xs text-gray-400 py-4 px-4 border-t border-gray-100 mt-4 flex flex-col items-center gap-2">
-    <p>Farmacia de Guardia &middot; Galicia</p>
-    <osplab-badge />
-  </footer>
+  <osplab-footer>
+    <p class="dark:text-gray-500">Farmacia de Guardia &middot; Galicia</p>
+  </osplab-footer>
 </div>

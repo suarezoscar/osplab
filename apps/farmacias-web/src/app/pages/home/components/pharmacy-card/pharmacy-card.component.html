@@ -33,25 +33,27 @@
 
   <div class="px-5 py-4 flex flex-col gap-3.5">
     <div class="flex gap-3 items-start">
-      <span class="shrink-0 mt-0.5 text-green-600">
+      <span class="shrink-0 mt-0.5 text-green-600 dark:text-green-400">
         <icon-house />
       </span>
       <div>
-        <p class="text-xs font-semibold uppercase text-gray-400 tracking-wide">Dirección</p>
-        <p class="text-gray-800 font-medium mt-0.5 leading-snug">{{ pharmacy().address }}</p>
+        <p class="text-xs font-semibold uppercase text-gray-400 dark:text-gray-500 tracking-wide">Dirección</p>
+        <p class="text-gray-800 dark:text-gray-100 font-medium mt-0.5 leading-snug">{{ pharmacy().address }}</p>
       </div>
     </div>
 
     @if (pharmacy().startTime && pharmacy().endTime) {
       <div class="flex gap-3 items-start">
-        <span class="shrink-0 mt-0.5 text-green-600">
+        <span class="shrink-0 mt-0.5 text-green-600 dark:text-green-400">
           <icon-clock />
         </span>
         <div>
-          <p class="text-xs font-semibold uppercase text-gray-400 tracking-wide">Horario de guardia</p>
-          <p class="text-gray-800 font-medium mt-0.5">
+          <p class="text-xs font-semibold uppercase text-gray-400 dark:text-gray-500 tracking-wide">
+            Horario de guardia
+          </p>
+          <p class="text-gray-800 dark:text-gray-100 font-medium mt-0.5">
             @if (pharmacy().startTime === pharmacy().endTime) {
-              <span class="inline-flex items-center gap-1.5 text-green-700 font-semibold">
+              <span class="inline-flex items-center gap-1.5 text-green-700 dark:text-green-400 font-semibold">
                 <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse inline-block" aria-hidden="true"></span>
                 Guardia 24 horas
               </span>
@@ -66,14 +68,16 @@
     <div class="flex flex-col gap-2.5 mt-1">
       @if (pharmacy().lat && pharmacy().lng) {
         <div class="flex flex-col gap-1.5">
-          <p class="text-xs font-semibold uppercase text-gray-400 tracking-wide px-0.5">Cómo llegar</p>
+          <p class="text-xs font-semibold uppercase text-gray-400 dark:text-gray-500 tracking-wide px-0.5">
+            Cómo llegar
+          </p>
           <div class="flex gap-2">
             <a
               [href]="'https://www.google.com/maps/dir/?api=1&destination=' + pharmacy().lat + ',' + pharmacy().lng"
               target="_blank"
               rel="noopener noreferrer"
               [attr.aria-label]="'Cómo llegar a ' + pharmacy().name + ' en Google Maps'"
-              class="flex-1 flex items-center justify-center gap-2.5 rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm font-medium text-gray-700 transition-all duration-200 hover:bg-gray-50 hover:border-gray-300 hover:shadow-sm active:scale-[0.98]">
+              class="flex-1 flex items-center justify-center gap-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-200 transition-all duration-200 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-600 hover:shadow-sm active:scale-[0.98]">
               <icon-google-maps class="shrink-0" />
               Google Maps
             </a>
@@ -82,8 +86,8 @@
               target="_blank"
               rel="noopener noreferrer"
               [attr.aria-label]="'Cómo llegar a ' + pharmacy().name + ' en Apple Maps'"
-              class="flex-1 flex items-center justify-center gap-2.5 rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm font-medium text-gray-700 transition-all duration-200 hover:bg-gray-50 hover:border-gray-300 hover:shadow-sm active:scale-[0.98]">
-              <icon-apple class="shrink-0 text-gray-700" />
+              class="flex-1 flex items-center justify-center gap-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-200 transition-all duration-200 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-600 hover:shadow-sm active:scale-[0.98]">
+              <icon-apple class="shrink-0 text-gray-700 dark:text-gray-200" />
               Apple Maps
             </a>
           </div>
@@ -93,7 +97,7 @@
         <a
           [href]="'tel:' + pharmacy().phone"
           [attr.aria-label]="'Llamar a ' + pharmacy().name + ': ' + pharmacy().phone"
-          class="flex items-center justify-center gap-2 rounded-xl border border-green-200 bg-green-50 px-3 py-2.5 text-sm font-semibold text-green-700 transition-all duration-200 hover:bg-green-100 hover:border-green-300 hover:shadow-sm active:scale-[0.98]">
+          class="flex items-center justify-center gap-2 rounded-xl border border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-950/50 px-3 py-2.5 text-sm font-semibold text-green-700 dark:text-green-400 transition-all duration-200 hover:bg-green-100 dark:hover:bg-green-900/50 hover:border-green-300 dark:hover:border-green-700 hover:shadow-sm active:scale-[0.98]">
           <icon-phone />
           {{ pharmacy().phone }}
         </a>

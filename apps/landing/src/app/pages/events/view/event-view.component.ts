@@ -3,12 +3,23 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { EventsService } from '../../../services/events.service';
 import { SeoService } from '../../../services/seo.service';
+import {
+  OspThemeToggleComponent,
+  OspIconComponent,
+  OspLabFooterComponent,
+} from '@osplab/shared-ui';
 import type { EventRow, AttendeeRow } from '../../../models/event.model';
 
 @Component({
   selector: 'app-event-view',
   standalone: true,
-  imports: [FormsModule, RouterLink],
+  imports: [
+    FormsModule,
+    RouterLink,
+    OspThemeToggleComponent,
+    OspIconComponent,
+    OspLabFooterComponent,
+  ],
   templateUrl: './event-view.component.html',
 })
 export class EventViewComponent implements OnInit, OnDestroy {
