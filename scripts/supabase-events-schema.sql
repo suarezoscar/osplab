@@ -20,10 +20,11 @@ CREATE TABLE IF NOT EXISTS events (
 
 -- ── Tabla de asistentes ─────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS event_attendees (
-  id        UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  event_id  UUID NOT NULL REFERENCES events(id) ON DELETE CASCADE,
-  name      TEXT NOT NULL,
-  joined_at TIMESTAMPTZ NOT NULL DEFAULT now()
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  event_id        UUID NOT NULL REFERENCES events(id) ON DELETE CASCADE,
+  name            TEXT NOT NULL,
+  removal_token   TEXT,                        -- Token para auto-eliminación (quien te apuntó puede darte de baja)
+  joined_at       TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 -- ── Índices ─────────────────────────────────────────────────────────────────
@@ -34,7 +35,7 @@ CREATE INDEX IF NOT EXISTS idx_event_attendees_event_id ON event_attendees(event
 ALTER TABLE events ENABLE ROW LEVEL SECURITY;
 ALTER TABLE event_attendees ENABLE ROW LEVEL SECURITY;
 
--- Lectura pública (¡NO exponemos password_hash desde el cliente!)
+-- Lectura pública
 CREATE POLICY "events_select" ON events
   FOR SELECT USING (true);
 
@@ -52,6 +53,20 @@ CREATE POLICY "attendees_select" ON event_attendees
 -- Cualquiera puede apuntarse
 CREATE POLICY "attendees_insert" ON event_attendees
   FOR INSERT WITH CHECK (true);
+
+-- ── Column-level grants ──────────────────────────────────────────────────────
+-- Protege password_hash y removal_token de acceso directo desde el cliente.
+-- Las funciones RPC (SECURITY DEFINER) bypasan esto porque ejecutan como owner.
+
+-- events: ocultar password_hash
+REVOKE ALL ON events FROM anon, authenticated;
+GRANT SELECT (id, slug, title, location_name, lat, lng, event_date, created_at) ON events TO anon, authenticated;
+GRANT INSERT ON events TO anon, authenticated;
+
+-- event_attendees: ocultar removal_token
+REVOKE ALL ON event_attendees FROM anon, authenticated;
+GRANT SELECT (id, event_id, name, joined_at) ON event_attendees TO anon, authenticated;
+GRANT INSERT ON event_attendees TO anon, authenticated;
 
 -- ── RPC: Actualizar evento con contraseña ───────────────────────────────────
 CREATE OR REPLACE FUNCTION update_event_with_password(
@@ -132,6 +147,52 @@ BEGIN
     WHERE id = p_attendee_id AND event_id = p_event_id;
 
   RETURN TRUE;
+END;
+$$;
+
+-- ── RPC: Eliminar evento completo con contraseña ─────────────────────────────
+-- Elimina el evento y todos sus asistentes (CASCADE).
+CREATE OR REPLACE FUNCTION delete_event_with_password(
+  p_event_id      UUID,
+  p_password_hash  TEXT
+)
+RETURNS BOOLEAN
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+DECLARE
+  v_stored_hash TEXT;
+BEGIN
+  SELECT password_hash INTO v_stored_hash
+    FROM events WHERE id = p_event_id;
+
+  IF v_stored_hash IS NULL OR v_stored_hash != p_password_hash THEN
+    RETURN FALSE;
+  END IF;
+
+  DELETE FROM events WHERE id = p_event_id;
+
+  RETURN TRUE;
+END;
+$$;
+
+-- ── RPC: Auto-eliminación de asistente con token ─────────────────────────────
+-- Permite que quien apuntó a alguien lo dé de baja sin ser organizador.
+CREATE OR REPLACE FUNCTION remove_attendee_with_token(
+  p_attendee_id    UUID,
+  p_removal_token  TEXT
+)
+RETURNS BOOLEAN
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+BEGIN
+  DELETE FROM event_attendees
+    WHERE id = p_attendee_id
+      AND removal_token IS NOT NULL
+      AND removal_token = p_removal_token;
+
+  RETURN FOUND;
 END;
 $$;
 

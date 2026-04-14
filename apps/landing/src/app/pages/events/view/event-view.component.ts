@@ -36,6 +36,8 @@ export class EventViewComponent implements OnInit, OnDestroy {
   verifying = signal(false);
   passwordError = signal<string | null>(null);
   saving = signal(false);
+  deleting = signal(false);
+  confirmDelete = signal(false);
 
   // Edit form fields
   editTitle = signal('');
@@ -243,6 +245,50 @@ export class EventViewComponent implements OnInit, OnDestroy {
       }
     } catch (err) {
       console.error('Remove attendee error:', err);
+    }
+  }
+
+  // ── Delete event (organizer only) ─────────────────────────────────────
+
+  async deleteEvent(): Promise<void> {
+    const e = this.event();
+    const hash = this.editPasswordHash();
+    if (!e || !hash) return;
+
+    this.deleting.set(true);
+    this.error.set(null);
+
+    try {
+      const ok = await this.eventsService.deleteEvent(e.id, hash);
+      if (ok) {
+        await this.router.navigate(['/']);
+      } else {
+        this.error.set('No se pudo eliminar el evento.');
+      }
+    } catch (err) {
+      this.error.set('Error al eliminar el evento.');
+      console.error('Delete event error:', err);
+    } finally {
+      this.deleting.set(false);
+      this.confirmDelete.set(false);
+    }
+  }
+
+  // ── Self-removal (attendee with token) ────────────────────────────────
+
+  /** Comprueba si el usuario actual apuntó a este asistente (tiene su token). */
+  canSelfRemove(attendeeId: string): boolean {
+    return this.eventsService.hasAttendeeToken(attendeeId);
+  }
+
+  async selfRemoveAttendee(attendee: AttendeeRow): Promise<void> {
+    try {
+      const ok = await this.eventsService.removeAttendeeByToken(attendee.id);
+      if (ok) {
+        this.attendees.update((list) => list.filter((a) => a.id !== attendee.id));
+      }
+    } catch (err) {
+      console.error('Self-remove attendee error:', err);
     }
   }
 
