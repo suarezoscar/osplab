@@ -10,9 +10,18 @@ export class SeoService {
   private readonly titleService = inject(Title);
 
   /** Actualiza las meta tags de la página con datos del evento. */
-  setEventMeta(data: { title: string; location: string; date: string; slug: string }): void {
+  setEventMeta(data: {
+    title: string;
+    location: string;
+    date: string;
+    slug: string;
+    description?: string | null;
+  }): void {
     const title = `${data.title} — OSPLab Events`;
-    const description = `📍 ${data.location} · 📅 ${data.date} — ¡Apúntate al evento!`;
+    let description = `📅 ${data.date} · 📍 ${data.location}`;
+    if (data.description) {
+      description += ` — ${data.description}`;
+    }
     const url = `https://osplab.dev/events/${data.slug}`;
     this.applyMeta(title, description, url);
   }
