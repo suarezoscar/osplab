@@ -126,7 +126,7 @@
 
       <!-- Opciones / Choices (opcional) -->
       <div class="mb-5">
-        <label class="ev-label">
+        <label for="newOption" class="ev-label">
           <osp-icon name="crosshair" [size]="14" /> Opciones a elegir
           <span class="font-normal normal-case tracking-normal" style="color: var(--osp-text-faint)"
             >(opcional, mín. 2)</span
@@ -138,6 +138,7 @@
         <div class="flex gap-2 mb-2">
           <input
             type="text"
+            id="newOption"
             placeholder="Ej: Menú carne"
             [ngModel]="newOption()"
             (ngModelChange)="newOption.set($event)"

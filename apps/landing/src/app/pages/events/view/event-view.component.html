@@ -183,9 +183,10 @@
           </h2>
 
           <div class="mb-4">
-            <label class="ev-label">Título</label>
+            <label for="editTitle" class="ev-label">Título</label>
             <input
               type="text"
+              id="editTitle"
               [ngModel]="editTitle()"
               (ngModelChange)="editTitle.set($event)"
               name="editTitle"
@@ -193,8 +194,9 @@
           </div>
 
           <div class="mb-4">
-            <label class="ev-label">Descripción</label>
+            <label for="editDescription" class="ev-label">Descripción</label>
             <textarea
+              id="editDescription"
               [ngModel]="editDescription()"
               (ngModelChange)="editDescription.set($event)"
               name="editDescription"
@@ -204,9 +206,10 @@
           </div>
 
           <div class="mb-4">
-            <label class="ev-label">Lugar</label>
+            <label for="editLocation" class="ev-label">Lugar</label>
             <input
               type="text"
+              id="editLocation"
               [ngModel]="editLocation()"
               (ngModelChange)="editLocation.set($event)"
               name="editLocation"
@@ -214,9 +217,10 @@
           </div>
 
           <div class="mb-4">
-            <label class="ev-label">Fecha y hora</label>
+            <label for="editEventDate" class="ev-label">Fecha y hora</label>
             <input
               type="datetime-local"
+              id="editEventDate"
               [ngModel]="editEventDate()"
               (ngModelChange)="editEventDate.set($event)"
               name="editEventDate"
@@ -224,9 +228,10 @@
           </div>
 
           <div class="mb-4">
-            <label class="ev-label">Fecha límite de inscripción</label>
+            <label for="editDeadline" class="ev-label">Fecha límite de inscripción</label>
             <input
               type="datetime-local"
+              id="editDeadline"
               [ngModel]="editDeadline()"
               (ngModelChange)="editDeadline.set($event)"
               name="editDeadline"
@@ -237,10 +242,11 @@
           </div>
 
           <div class="mb-4">
-            <label class="ev-label">Opciones a elegir</label>
+            <label for="editNewOption" class="ev-label">Opciones a elegir</label>
             <div class="flex gap-2 mb-2">
               <input
                 type="text"
+                id="editNewOption"
                 placeholder="Nueva opción…"
                 [ngModel]="editNewOption()"
                 (ngModelChange)="editNewOption.set($event)"
