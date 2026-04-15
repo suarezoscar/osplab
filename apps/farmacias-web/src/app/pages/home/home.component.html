@@ -7,18 +7,9 @@
 <div
   class="min-h-screen bg-linear-to-br from-slate-50 via-white to-green-50/40 dark:from-gray-950 dark:via-gray-900 dark:to-green-950/40 flex flex-col transition-colors duration-300">
   <!-- Header -->
-  <header class="bg-linear-to-r from-green-800 to-green-600 text-white shadow-lg">
-    <div class="max-w-lg mx-auto px-4 py-5 flex items-center gap-3.5">
-      <div class="shrink-0 bg-white/15 backdrop-blur-sm rounded-2xl p-2.5" aria-hidden="true">
-        <icon-pharmacy-cross [size]="28" />
-      </div>
-      <div class="flex-1">
-        <h1 class="text-xl font-bold leading-tight tracking-tight">Farmacia de Guardia</h1>
-        <p class="text-green-100 text-sm mt-0.5">Encuentra la más cercana ahora mismo</p>
-      </div>
-      <osp-theme-toggle />
-    </div>
-  </header>
+  <osp-header title="Farmacia de Guardia" subtitle="Encuentra la más cercana ahora mismo" from="#166534" to="#16a34a">
+    <icon-pharmacy-cross [size]="28" />
+  </osp-header>
 
   <!-- Main -->
   <main id="main-content" class="flex-1 max-w-lg mx-auto w-full px-4 py-7 flex flex-col gap-5">

@@ -24,3 +24,4 @@ export { OspIconComponent } from './lib/icon/osp-icon.component';
 export type { PhosphorWeight } from './lib/icon/osp-icon.component';
 export { OspLabBadgeComponent } from './lib/osplab-badge/osplab-badge.component';
 export { OspLabFooterComponent } from './lib/footer/osplab-footer.component';
+export { OspHeaderComponent } from './lib/header/osp-header.component';

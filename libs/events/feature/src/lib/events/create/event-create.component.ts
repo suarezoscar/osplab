@@ -3,11 +3,7 @@ import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { EventsService } from '@osplab/events-data-access';
 import { LocationPickerComponent, MapCoords } from './location-picker.component';
-import {
-  OspThemeToggleComponent,
-  OspIconComponent,
-  OspLabFooterComponent,
-} from '@osplab/shared-ui';
+import { OspHeaderComponent, OspIconComponent, OspLabFooterComponent } from '@osplab/shared-ui';
 
 @Component({
   selector: 'app-event-create',
@@ -16,7 +12,7 @@ import {
     FormsModule,
     RouterLink,
     LocationPickerComponent,
-    OspThemeToggleComponent,
+    OspHeaderComponent,
     OspIconComponent,
     OspLabFooterComponent,
   ],

@@ -1,11 +1,11 @@
 import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { OspLabFooterComponent, OspThemeToggleComponent } from '@osplab/shared-ui';
+import { OspLabFooterComponent, OspHeaderComponent } from '@osplab/shared-ui';
 
 /** Página de política de privacidad de Farmacia de Guardia. */
 @Component({
   selector: 'app-privacy',
-  imports: [RouterLink, OspLabFooterComponent, OspThemeToggleComponent],
+  imports: [RouterLink, OspLabFooterComponent, OspHeaderComponent],
   templateUrl: './privacy.component.html',
 })
 export class PrivacyComponent {

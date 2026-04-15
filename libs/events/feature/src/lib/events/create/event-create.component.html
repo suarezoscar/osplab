@@ -1,30 +1,12 @@
 <div class="flex min-h-screen flex-col" style="color: var(--osp-text)">
   <!-- ─── HEADER ────────────────────────────────────────────────────────── -->
-  <header class="mx-auto w-full max-w-lg px-6 pt-10 pb-8 osp-animate-in">
-    <div class="flex flex-col items-center gap-5 text-center">
-      <div class="flex items-center gap-3">
-        <a routerLink="/" class="group flex items-center gap-2.5 transition-opacity hover:opacity-80">
-          <img
-            src="/assets/svg/osp-logo-horizontal-light.svg"
-            alt="OSPLab"
-            class="h-7 w-auto select-none"
-            draggable="false" />
-          <span class="h-5 w-px" style="background: var(--osp-border)"></span>
-          <span class="text-[0.85rem] font-semibold" style="color: var(--osp-accent)">Eventos</span>
-        </a>
-        <osp-theme-toggle />
-      </div>
-      <div>
-        <h1 class="text-[1.75rem] font-bold tracking-tight sm:text-3xl" style="color: var(--osp-text-heading)">
-          Crear evento
-        </h1>
-        <p class="mt-2 text-[0.92rem] leading-relaxed" style="color: var(--osp-text-muted)">
-          Comparte el enlace y deja que la gente se apunte.<br class="hidden sm:block" />
-          Sin registro. Sin complicaciones.
-        </p>
-      </div>
-    </div>
-  </header>
+  <osp-header
+    title="Crear evento"
+    subtitle="Comparte el enlace y deja que la gente se apunte."
+    from="#92400e"
+    to="#d97706">
+    <osp-icon name="calendar-plus" [size]="28" />
+  </osp-header>
 
   <!-- ─── FORMULARIO ────────────────────────────────────────────────────── -->
   <main class="mx-auto w-full max-w-lg flex-1 px-6 pb-16">
@@ -102,7 +84,7 @@
           [ngModel]="eventDate()"
           (ngModelChange)="eventDate.set($event)"
           name="eventDate"
-          class="ev-input scheme-dark" />
+          class="ev-input ev-date" />
       </div>
 
       <!-- Fecha límite de inscripción (opcional) -->
@@ -118,7 +100,7 @@
           [ngModel]="registrationDeadline()"
           (ngModelChange)="registrationDeadline.set($event)"
           name="registrationDeadline"
-          class="ev-input scheme-dark" />
+          class="ev-input ev-date" />
         <p class="mt-1.5 text-[0.78rem]" style="color: var(--osp-text-faint)">
           Si no se indica, se podrán apuntar hasta la fecha del evento.
         </p>

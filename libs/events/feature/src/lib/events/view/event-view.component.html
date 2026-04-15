@@ -38,41 +38,11 @@
   <!-- ─── EVENT VIEW ────────────────────────────────────────────────────── -->
   @if (event(); as ev) {
     <!-- Header -->
-    <header class="mx-auto w-full max-w-lg px-6 pt-8 pb-4 osp-animate-in">
-      <div class="flex items-center justify-between">
-        <a
-          routerLink="/"
-          class="inline-flex items-center gap-1.5 text-[0.82rem] transition-colors hover:opacity-80"
-          style="color: var(--osp-text-muted)">
-          <svg
-            width="15"
-            height="15"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round">
-            <path d="M19 12H5M12 19l-7-7 7-7" />
-          </svg>
-          Inicio
-        </a>
-        <div class="flex items-center gap-2">
-          <osp-theme-toggle />
-          <a routerLink="/" class="flex items-center gap-2 transition-opacity hover:opacity-80">
-            <img
-              src="/assets/svg/osp-logo-horizontal-light.svg"
-              alt="OSPLab"
-              class="h-5 w-auto select-none"
-              draggable="false" />
-            <span class="h-4 w-px" style="background: var(--osp-border)"></span>
-            <span class="text-[0.78rem] font-semibold" style="color: var(--osp-accent)">Eventos</span>
-          </a>
-        </div>
-      </div>
-    </header>
+    <osp-header [title]="ev.title" [subtitle]="ev.location_name" from="#92400e" to="#d97706">
+      <osp-icon name="calendar-check" [size]="28" />
+    </osp-header>
 
-    <main class="mx-auto w-full max-w-lg flex-1 px-6 pb-16">
+    <main class="mx-auto w-full max-w-lg flex-1 px-6 pb-16 pt-6">
       <!-- ── Error global ────────────────────────────────────────────── -->
       @if (error()) {
         <div
@@ -224,7 +194,7 @@
               [ngModel]="editEventDate()"
               (ngModelChange)="editEventDate.set($event)"
               name="editEventDate"
-              class="ev-input scheme-dark" />
+              class="ev-input ev-date" />
           </div>
 
           <div class="mb-4">
@@ -235,7 +205,7 @@
               [ngModel]="editDeadline()"
               (ngModelChange)="editDeadline.set($event)"
               name="editDeadline"
-              class="ev-input scheme-dark" />
+              class="ev-input ev-date" />
             <p class="mt-1 text-[0.75rem]" style="color: var(--osp-text-faint)">
               Déjalo vacío para usar la fecha del evento.
             </p>
