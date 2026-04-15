@@ -3,7 +3,12 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { EventsService, EVENTS_APP_VERSION } from '@osplab/events-data-access';
 import { SeoService } from '../../services/seo.service';
-import { OspHeaderComponent, OspIconComponent, OspLabFooterComponent } from '@osplab/shared-ui';
+import {
+  OspHeaderComponent,
+  OspIconComponent,
+  OspLabFooterComponent,
+  OspThemeService,
+} from '@osplab/shared-ui';
 import { NgApexchartsModule } from 'ng-apexcharts';
 import type { EventRow, AttendeeRow } from '@osplab/events-data-access';
 import type {
@@ -36,6 +41,7 @@ export class EventViewComponent implements OnInit, OnDestroy {
   private readonly eventsService = inject(EventsService);
   private readonly seoService = inject(SeoService);
   readonly appVersion = inject(EVENTS_APP_VERSION);
+  private readonly themeService = inject(OspThemeService);
 
   // ── Data ──────────────────────────────────────────────────────────────
   event = signal<EventRow | null>(null);
@@ -152,7 +158,14 @@ export class EventViewComponent implements OnInit, OnDestroy {
     return this.optionCounts().map((_, i) => palette[i % palette.length]);
   });
 
-  chartDataLabels: ApexDataLabels = { enabled: true, style: { fontSize: '13px', fontWeight: 600 } };
+  private chartLabelColor = computed(() => (this.themeService.isDark() ? '#e2e8f0' : '#334155'));
+
+  chartDataLabels = computed(
+    (): ApexDataLabels => ({
+      enabled: true,
+      style: { fontSize: '13px', fontWeight: 600, colors: [this.chartLabelColor()] },
+    }),
+  );
   chartGrid: ApexGrid = { show: false };
   chartTooltip: ApexTooltip = { enabled: false };
   chartStates: ApexStates = {
@@ -171,7 +184,7 @@ export class EventViewComponent implements OnInit, OnDestroy {
   chartYaxis = computed(
     (): ApexYAxis => ({
       labels: {
-        style: { fontSize: '13px', fontWeight: 500 },
+        style: { fontSize: '13px', fontWeight: 500, colors: [this.chartLabelColor()] },
       },
     }),
   );
