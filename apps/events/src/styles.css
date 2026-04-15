@@ -18,6 +18,9 @@ body {
 
 .ev-input {
   width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
   border-radius: 0.625rem;
   border: 1px solid var(--osp-border);
   background-color: var(--osp-bg-surface);
@@ -67,6 +70,13 @@ body {
 }
 
 /* ── Date inputs (iOS & cross-browser fix) ───────────────────────────── */
+
+/* Prevent native datetime-local controls from overflowing on iOS */
+.ev-date {
+  -webkit-appearance: none;
+  appearance: none;
+  overflow: hidden;
+}
 
 /* Dark theme: date inputs need color-scheme dark for native pickers */
 :root .ev-date {
