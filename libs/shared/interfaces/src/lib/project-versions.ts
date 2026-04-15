@@ -5,7 +5,7 @@
  * Cada app re-exporta su versión desde aquí.
  */
 export const PROJECT_VERSIONS = {
-  landing: '1.2.0',
-  'farmacias-web': '1.2.0',
-  events: '1.0.0',
+  landing: '1.3.0',
+  'farmacias-web': '1.3.0',
+  events: '1.1.0',
 } as const;
