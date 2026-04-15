@@ -22,6 +22,7 @@ jobs:
       landing: ${{ steps.check.outputs.landing }}
       farmacias-web: ${{ steps.check.outputs.farmacias-web }}
       farmacias-api: ${{ steps.check.outputs.farmacias-api }}
+      events: ${{ steps.check.outputs.events }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -45,6 +46,7 @@ jobs:
           echo "landing=false" >> $GITHUB_OUTPUT
           echo "farmacias-web=false" >> $GITHUB_OUTPUT
           echo "farmacias-api=false" >> $GITHUB_OUTPUT
+          echo "events=false" >> $GITHUB_OUTPUT
 
           if echo "$AFFECTED" | grep -q "^landing$"; then
             echo "landing=true" >> $GITHUB_OUTPUT
@@ -54,6 +56,9 @@ jobs:
           fi
           if echo "$AFFECTED" | grep -q "^farmacias-api$"; then
             echo "farmacias-api=true" >> $GITHUB_OUTPUT
+          fi
+          if echo "$AFFECTED" | grep -q "^events$"; then
+            echo "events=true" >> $GITHUB_OUTPUT
           fi
 
   # ── Migraciones Prisma (antes del deploy del API) ─────────────────
@@ -153,6 +158,38 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: pages deploy dist/apps/farmacias-web/browser --project-name=osplab-farmacias
+
+  # ── Deploy Events → Cloudflare Pages ─────────────────────────────
+  deploy-events:
+    name: Deploy events → Cloudflare Pages
+    needs: changes
+    if: needs.changes.outputs.events == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      deployments: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Build events
+        run: pnpm nx build events
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy dist/apps/events/browser --project-name=osplab-events
 
   # ── Deploy Farmacias API → Render ───────────────────────────────────
   # Render auto-deploya desde GitHub en cada push a master.
