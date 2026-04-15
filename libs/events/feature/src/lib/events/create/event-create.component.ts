@@ -103,7 +103,7 @@ export class EventCreateComponent {
         password_hash: passwordHash,
       });
 
-      await this.router.navigate(['/events', event.slug], {
+      await this.router.navigate(['/', event.slug], {
         state: { password: this.password().trim() || null },
       });
     } catch (err) {
