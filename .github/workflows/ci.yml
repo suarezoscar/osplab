@@ -148,7 +148,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Dependency vulnerability audit
-        run: pnpm audit --audit-level=high --prod
+        run: npm audit --audit-level=high --omit=dev
 
       # Ejecutamos gitleaks CLI directamente para evitar el bug del gitleaks-action
       # cuando el commit base del PR es el primer commit del repo (base_sha^ inválido).

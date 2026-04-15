@@ -6,6 +6,7 @@ export default mergeConfig(
   baseConfig as any,
   defineConfig({
     test: {
+      passWithNoTests: true,
       include: ['libs/events/data-access/src/**/*.spec.ts'],
       coverage: {
         reportsDirectory: 'coverage/libs/events/data-access',

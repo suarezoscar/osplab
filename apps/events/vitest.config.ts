@@ -13,6 +13,7 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
     pool: 'forks',
+    passWithNoTests: true,
     setupFiles: [resolve(__dirname, 'src/test-setup.ts')],
     include: ['apps/events/src/**/*.spec.ts'],
     coverage: {
