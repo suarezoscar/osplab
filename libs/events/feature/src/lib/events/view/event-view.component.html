@@ -83,20 +83,27 @@
 
           <div class="mt-5 flex flex-col gap-3">
             <!-- Location -->
-            <a
-              [href]="mapsUrl()"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="group flex items-start gap-3 rounded-lg transition-colors -mx-2 px-2 py-1"
-              style="--tw-hover-bg: var(--osp-bg-hover)">
-              <span class="mt-0.5"><osp-icon name="map-pin" [size]="18" /></span>
-              <div>
-                <p class="text-[0.95rem] transition-colors" style="color: var(--osp-text)">
-                  {{ ev.location_name }}
-                </p>
-                <p class="text-[0.75rem]" style="color: var(--osp-text-faint)">Abrir en Google Maps ↗</p>
+            @if (mapsUrl()) {
+              <a
+                [href]="mapsUrl()"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="group flex items-start gap-3 rounded-lg transition-colors -mx-2 px-2 py-1"
+                style="--tw-hover-bg: var(--osp-bg-hover)">
+                <span class="mt-0.5"><osp-icon name="map-pin" [size]="18" /></span>
+                <div>
+                  <p class="text-[0.95rem] transition-colors" style="color: var(--osp-text)">
+                    {{ ev.location_name }}
+                  </p>
+                  <p class="text-[0.75rem]" style="color: var(--osp-text-faint)">Abrir en Google Maps ↗</p>
+                </div>
+              </a>
+            } @else {
+              <div class="flex items-start gap-3 -mx-2 px-2 py-1">
+                <span class="mt-0.5"><osp-icon name="map-pin" [size]="18" /></span>
+                <p class="text-[0.95rem]" style="color: var(--osp-text)">{{ ev.location_name }}</p>
               </div>
-            </a>
+            }
 
             <!-- Date -->
             <div class="flex items-start gap-3 -mx-2 px-2 py-1">

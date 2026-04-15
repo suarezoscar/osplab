@@ -1,13 +1,4 @@
-import {
-  Component,
-  OnDestroy,
-  AfterViewInit,
-  inject,
-  signal,
-  output,
-  viewChild,
-  ElementRef,
-} from '@angular/core';
+import { Component, OnDestroy, inject, signal, output, viewChild, ElementRef } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import {
@@ -168,7 +159,7 @@ interface NominatimResult {
     }
   `,
 })
-export class LocationPickerComponent implements AfterViewInit, OnDestroy {
+export class LocationPickerComponent implements OnDestroy {
   private readonly http = inject(HttpClient);
 
   /** Emits coordinates when user picks a location on the map. Emits null when cleared. */
@@ -217,10 +208,6 @@ export class LocationPickerComponent implements AfterViewInit, OnDestroy {
       this.showSuggestions.set(results.length > 0);
     });
 
-  ngAfterViewInit(): void {
-    this.requestUserLocation();
-  }
-
   ngOnDestroy(): void {
     this.sub.unsubscribe();
     this.map?.remove();
@@ -228,6 +215,7 @@ export class LocationPickerComponent implements AfterViewInit, OnDestroy {
 
   showMap(): void {
     this.mapVisible.set(true);
+    this.requestUserLocation();
     setTimeout(() => this.initMap(), 0);
   }
 

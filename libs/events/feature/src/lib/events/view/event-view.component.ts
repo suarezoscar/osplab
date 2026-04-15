@@ -72,9 +72,8 @@ export class EventViewComponent implements OnInit, OnDestroy {
 
   mapsUrl = computed(() => {
     const e = this.event();
-    if (!e) return '';
-    if (e.lat && e.lng) return `https://www.google.com/maps?q=${e.lat},${e.lng}`;
-    return `https://www.google.com/maps/search/${encodeURIComponent(e.location_name)}`;
+    if (!e || !e.lat || !e.lng) return '';
+    return `https://www.google.com/maps?q=${e.lat},${e.lng}`;
   });
 
   isExpired = computed(() => {
