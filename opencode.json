@@ -37,6 +37,15 @@
       "env": {
         "SUPABASE_ACCESS_TOKEN": "${SUPABASE_ACCESS_TOKEN}"
       }
+    },
+    "cloudflare": {
+      "type": "local",
+      "command": ["npx", "-y", "@cloudflare/mcp-server-cloudflare@latest"],
+      "enabled": true,
+      "env": {
+        "CLOUDFLARE_ACCOUNT_ID": "${CLOUDFLARE_ACCOUNT_ID}",
+        "CLOUDFLARE_API_TOKEN": "${CLOUDFLARE_API_TOKEN}"
+      }
     }
   }
 }

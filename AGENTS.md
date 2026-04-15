@@ -9,7 +9,7 @@ Cada herramienta vive bajo un subdominio de `osplab.dev`.
 | -------------------- | ---------------------- | --------------------------------- |
 | Portal principal     | `osplab.dev`           | `landing`                         |
 | Farmacias de Guardia | `farmacias.osplab.dev` | `farmacias-web` + `farmacias-api` |
-| Eventos              | `osplab.dev/events/*`  | `landing` (feature interna)       |
+| Eventos              | `events.osplab.dev`    | `events`                          |
 
 ## Principios de Codificación
 
@@ -35,7 +35,7 @@ Cada herramienta vive bajo un subdominio de `osplab.dev`.
   - Seguridad via Row Level Security (RLS) y funciones RPC `SECURITY DEFINER`.
 - **Nx:**
   - No permitas importaciones cruzadas prohibidas. Respeta los `tags` de las librerías.
-  - `scope:farmacias` no puede importar `scope:osplab` y viceversa. Solo pueden compartir `scope:shared`.
+  - `scope:farmacias` no puede importar `scope:events` y viceversa. Solo pueden compartir `scope:shared`.
 
 ## Convención de Path Aliases
 
@@ -43,6 +43,8 @@ Cada herramienta vive bajo un subdominio de `osplab.dev`.
 @osplab/farmacias-data-access  → libs/farmacias/data-access
 @osplab/farmacias-scraper      → libs/farmacias/scraper
 @osplab/farmacias-web-ui       → libs/farmacias/web/ui
+@osplab/events                 → libs/events/feature        (feature: rutas + páginas)
+@osplab/events-data-access     → libs/events/data-access  (servicios + modelos + config Supabase)
 @osplab/shared-interfaces      → libs/shared/interfaces
 @osplab/shared-ui              → libs/shared/ui
 ```
@@ -52,11 +54,15 @@ Cada herramienta vive bajo un subdominio de `osplab.dev`.
 ```
 apps/
   landing/              → SPA Angular (osplab.dev)
-    functions/events/   → Cloudflare Function (OG tags dinámicos para WhatsApp)
+  events/               → SPA Angular (events.osplab.dev)
+    functions/           → Cloudflare Function (OG tags dinámicos para WhatsApp)
   farmacias-api/        → API REST NestJS (farmacias.osplab.dev/api)
     e2e/                → Tests end-to-end del API (Vitest)
   farmacias-web/        → SPA Angular (farmacias.osplab.dev)
 libs/
+  events/
+    data-access/        → Cliente Supabase, EventsService, modelos, config
+    feature/            → Feature lib: rutas, páginas (create/view), SeoService
   farmacias/
     data-access/        → PrismaService + migraciones (PostgreSQL + PostGIS)
     scraper/            → Scrapers + parsers por COF
@@ -66,19 +72,22 @@ libs/
     ui/                 → Componentes UI compartidos entre proyectos
 ```
 
-### Estructura del feature Events (dentro de landing)
+### Estructura de Events (libs)
 
 ```
-apps/landing/src/app/
-  config/supabase.config.ts    → URL + anon key de Supabase
-  models/event.model.ts        → Interfaces EventRow, AttendeeRow, CreateEventPayload
-  services/
-    supabase.service.ts        → Cliente Supabase singleton
-    events.service.ts          → CRUD eventos + slug generator + password hashing
-    seo.service.ts             → Meta tags dinámicos (OG, Twitter)
-  pages/events/
-    create/                    → Formulario de creación de evento
-    view/                      → Vista del evento + apuntarse + editar + compartir
+libs/events/
+  data-access/src/lib/
+    config/supabase.config.ts    → URL + anon key de Supabase
+    models/event.model.ts        → Interfaces EventRow, AttendeeRow, CreateEventPayload
+    services/
+      supabase.service.ts        → Cliente Supabase singleton
+      events.service.ts          → CRUD eventos + slug generator + password hashing
+  feature/src/lib/
+    services/seo.service.ts      → Meta tags dinámicos (OG, Twitter)
+    events/
+      create/                    → Formulario de creación de evento
+      view/                      → Vista del evento + apuntarse + editar + compartir
+    lib.routes.ts                → Rutas lazy-loaded exportadas como eventsRoutes
 ```
 
 ## Testing
