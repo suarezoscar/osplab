@@ -1,0 +1,15 @@
+# ──────────────────────────────────────────────────────────────────────
+# Gitleaks — Configuración personalizada
+#
+# Las anon keys de Supabase son PÚBLICAS por diseño (se exponen en el
+# cliente). La seguridad se garantiza via Row Level Security (RLS).
+# https://supabase.com/docs/guides/api/api-keys
+# ──────────────────────────────────────────────────────────────────────
+
+[extend]
+useDefault = true
+
+[allowlist]
+paths = [
+  '''supabase\.config\.ts$''',
+]
