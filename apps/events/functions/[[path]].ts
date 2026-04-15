@@ -1,7 +1,7 @@
 /**
  * Cloudflare Pages Function — OG meta tags para eventos
  *
- * Intercepta peticiones a /events/* y, si el User-Agent es un crawler
+ * Intercepta peticiones a /:slug y, si el User-Agent es un crawler
  * (WhatsApp, Facebook, Twitter, Telegram…), devuelve HTML con OG tags
  * dinámicos para que la preview del enlace sea específica del evento.
  *
@@ -32,10 +32,10 @@ const BOT_UA =
 
 export const onRequest: PagesFunction<Env> = async (context) => {
   const pathParts = context.params.path as string[];
-  const path = pathParts?.join('/') || '';
+  const slug = pathParts?.join('/') || '';
 
-  // /events/create → serve SPA directly
-  if (!path || path === 'create') {
+  // /create → serve SPA directly
+  if (!slug || slug === 'create') {
     return serveApp(context);
   }
 
@@ -43,7 +43,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
 
   if (BOT_UA.test(ua)) {
     try {
-      const event = await fetchEvent(path, context.env);
+      const event = await fetchEvent(slug, context.env);
       if (event) {
         return new Response(buildOgHtml(event, context.request.url), {
           headers: { 'Content-Type': 'text/html;charset=UTF-8' },
@@ -58,7 +58,6 @@ export const onRequest: PagesFunction<Env> = async (context) => {
 };
 
 async function serveApp(context: { request: Request; env: Env }): Promise<Response> {
-  // Fetch the SPA index.html from static assets
   const url = new URL('/', context.request.url);
   return context.env.ASSETS.fetch(url);
 }
@@ -95,13 +94,12 @@ function buildOgHtml(event: EventData, pageUrl: string): string {
   const dateStr = formatDate(event.event_date);
   const location = escapeHtml(event.location_name);
 
-  // Always show date + location; append custom description if present
   let description = `📅 ${dateStr} · 📍 ${location}`;
   if (event.description) {
     description += ` — ${escapeHtml(event.description)}`;
   }
 
-  const ogImage = 'https://osplab.dev/assets/images/og-image.png';
+  const ogImage = 'https://events.osplab.dev/assets/images/og-image.png';
 
   return `<!DOCTYPE html>
 <html lang="es">

@@ -1,7 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { EventsService } from '../../../services/events.service';
+import { EventsService } from '@osplab/events-data-access';
 import { LocationPickerComponent, MapCoords } from './location-picker.component';
 import {
   OspThemeToggleComponent,

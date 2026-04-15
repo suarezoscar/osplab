@@ -1,14 +1,14 @@
 import { Component, OnInit, OnDestroy, inject, signal, computed } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { EventsService } from '../../../services/events.service';
-import { SeoService } from '../../../services/seo.service';
+import { EventsService } from '@osplab/events-data-access';
+import { SeoService } from '../../services/seo.service';
 import {
   OspThemeToggleComponent,
   OspIconComponent,
   OspLabFooterComponent,
 } from '@osplab/shared-ui';
-import type { EventRow, AttendeeRow } from '../../../models/event.model';
+import type { EventRow, AttendeeRow } from '@osplab/events-data-access';
 
 @Component({
   selector: 'app-event-view',
@@ -63,7 +63,7 @@ export class EventViewComponent implements OnInit, OnDestroy {
   // ── Computed ──────────────────────────────────────────────────────────
   eventUrl = computed(() => {
     const e = this.event();
-    return e ? `https://osplab.dev/events/${e.slug}` : '';
+    return e ? `https://events.osplab.dev/${e.slug}` : '';
   });
 
   whatsappUrl = computed(() => {

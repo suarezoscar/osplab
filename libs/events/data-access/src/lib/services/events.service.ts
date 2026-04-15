@@ -206,8 +206,8 @@ export class EventsService {
       dates: `${fmt(start)}/${fmt(end)}`,
       location: event.location_name,
       details: event.description
-        ? `${event.description}\n\nhttps://osplab.dev/events/${event.slug}`
-        : `https://osplab.dev/events/${event.slug}`,
+        ? `${event.description}\n\nhttps://events.osplab.dev/${event.slug}`
+        : `https://events.osplab.dev/${event.slug}`,
     });
 
     return `https://calendar.google.com/calendar/render?${params}`;

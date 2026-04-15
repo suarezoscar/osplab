@@ -1,0 +1,28 @@
+{
+  "name": "events-data-access",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/events/data-access/src",
+  "projectType": "library",
+  "tags": ["type:data-access", "scope:events"],
+  "targets": {
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "outputs": ["{workspaceRoot}/coverage/libs/events/data-access"],
+      "options": {
+        "command": "vitest run --config libs/events/data-access/vitest.config.ts",
+        "cwd": "{workspaceRoot}"
+      },
+      "configurations": {
+        "coverage": {
+          "command": "vitest run --coverage --config libs/events/data-access/vitest.config.ts"
+        },
+        "watch": {
+          "command": "vitest --config libs/events/data-access/vitest.config.ts"
+        }
+      }
+    }
+  }
+}

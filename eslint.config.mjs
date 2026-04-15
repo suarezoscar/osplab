@@ -24,6 +24,14 @@ export default [
           depConstraints: [
             // --- Reglas por SCOPE ---
             {
+              sourceTag: 'scope:farmacias',
+              onlyDependOnLibsWithTags: ['scope:farmacias', 'scope:shared'],
+            },
+            {
+              sourceTag: 'scope:events',
+              onlyDependOnLibsWithTags: ['scope:events', 'scope:shared'],
+            },
+            {
               sourceTag: 'scope:web',
               onlyDependOnLibsWithTags: ['scope:web', 'scope:shared'],
             },
