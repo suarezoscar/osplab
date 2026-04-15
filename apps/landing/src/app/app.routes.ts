@@ -4,13 +4,20 @@ import { HomeComponent } from './pages/home/home.component';
 export const appRoutes: Route[] = [
   { path: '', component: HomeComponent },
   {
-    path: 'events/create',
-    loadComponent: () =>
-      import('./pages/events/create/event-create.component').then((m) => m.EventCreateComponent),
-  },
-  {
-    path: 'events/:slug',
-    loadComponent: () =>
-      import('./pages/events/view/event-view.component').then((m) => m.EventViewComponent),
+    path: 'events',
+    children: [
+      {
+        path: '**',
+        // Redirige osplab.dev/events/* → events.osplab.dev/*
+        canActivate: [
+          () => {
+            const sub = window.location.pathname.replace(/^\/events\/?/, '');
+            window.location.href = `https://events.osplab.dev/${sub}`;
+            return false;
+          },
+        ],
+        component: HomeComponent, // placeholder, nunca se renderiza
+      },
+    ],
   },
 ];
