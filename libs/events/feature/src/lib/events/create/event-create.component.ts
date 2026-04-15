@@ -1,7 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { EventsService } from '@osplab/events-data-access';
+import { EventsService, EVENTS_APP_VERSION } from '@osplab/events-data-access';
 import { LocationPickerComponent, MapCoords } from './location-picker.component';
 import { OspHeaderComponent, OspIconComponent, OspLabFooterComponent } from '@osplab/shared-ui';
 
@@ -21,6 +21,8 @@ import { OspHeaderComponent, OspIconComponent, OspLabFooterComponent } from '@os
 export class EventCreateComponent {
   private readonly eventsService = inject(EventsService);
   private readonly router = inject(Router);
+
+  readonly appVersion = inject(EVENTS_APP_VERSION);
 
   // ── Form fields ───────────────────────────────────────────────────────────
   title = signal('');

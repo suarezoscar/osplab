@@ -33,6 +33,10 @@ const APPS: Record<string, AppConfig> = {
     comment:
       'Versión de Farmacias de Guardia (farmacias.osplab.dev). Bump manualmente o con script de release.',
   },
+  events: {
+    versionFile: 'apps/events/src/version.ts',
+    comment: 'Versión de Events (events.osplab.dev). Bump manualmente o con script de release.',
+  },
 };
 
 /** Ruta al componente de la landing donde están hardcodeadas las versiones de proyectos. */
@@ -78,28 +82,26 @@ function writeVersionFile(filePath: string, version: string, comment: string): v
 }
 
 /**
- * Actualiza la versión de farmacias-web en el array `projects` del componente
+ * Actualiza la versión de un proyecto en el array `projects` del componente
  * home de la landing (donde se muestra la card del proyecto).
  */
-function syncLandingProjectVersion(version: string): void {
+function syncLandingProjectVersion(projectId: string, version: string): void {
   const abs = resolve(LANDING_PROJECTS_FILE);
   let content = readFileSync(abs, 'utf-8');
 
-  // Busca el bloque del proyecto farmacias y actualiza su `version: 'x.y.z'`
-  const updated = content.replace(
-    /(id:\s*'farmacias'[\s\S]*?version:\s*')([^']+)(')/,
-    `$1${version}$3`,
-  );
+  // Busca el bloque del proyecto y actualiza su `version: 'x.y.z'`
+  const regex = new RegExp(`(id:\\s*'${projectId}'[\\s\\S]*?version:\\s*')([^']+)(')`);
+  const updated = content.replace(regex, `$1${version}$3`);
 
   if (updated === content) {
     console.warn(
-      '⚠️  No se encontró version de farmacias en la landing. ¿Cambió la estructura del componente?',
+      `⚠️  No se encontró version de ${projectId} en la landing. ¿Cambió la estructura del componente?`,
     );
     return;
   }
 
   writeFileSync(abs, updated, 'utf-8');
-  console.log(`   ↳ Sincronizado en landing projects → v${version}`);
+  console.log(`   ↳ Sincronizado en landing projects (${projectId}) → v${version}`);
 }
 
 // ── CLI ──────────────────────────────────────────────────────────────────────
@@ -110,7 +112,7 @@ function main(): void {
 
   if (!projectArg || !bumpArg) {
     console.error(
-      'Uso: pnpm jiti scripts/bump-version.ts --project=<landing|farmacias-web|all> --bump=<patch|minor|major>',
+      'Uso: pnpm jiti scripts/bump-version.ts --project=<landing|farmacias-web|events|all> --bump=<patch|minor|major>',
     );
     process.exit(1);
   }
@@ -139,7 +141,12 @@ function main(): void {
 
     // Si se bumpeó farmacias-web, sincronizar la versión en la landing
     if (name === 'farmacias-web') {
-      syncLandingProjectVersion(next);
+      syncLandingProjectVersion('farmacias', next);
+    }
+
+    // Si se bumpeó events, sincronizar la versión en la landing
+    if (name === 'events') {
+      syncLandingProjectVersion('events', next);
     }
   }
 

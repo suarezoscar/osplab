@@ -51,6 +51,7 @@ export class HomeComponent {
       theme: 'amber',
       status: 'live',
       tags: ['Eventos', 'WhatsApp', 'Sin registro'],
+      version: '0.1.0',
     },
   ];
 

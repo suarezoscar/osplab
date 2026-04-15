@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, inject, signal, computed } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { EventsService } from '@osplab/events-data-access';
+import { EventsService, EVENTS_APP_VERSION } from '@osplab/events-data-access';
 import { SeoService } from '../../services/seo.service';
 import { OspHeaderComponent, OspIconComponent, OspLabFooterComponent } from '@osplab/shared-ui';
 import type { EventRow, AttendeeRow } from '@osplab/events-data-access';
@@ -17,6 +17,7 @@ export class EventViewComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly eventsService = inject(EventsService);
   private readonly seoService = inject(SeoService);
+  readonly appVersion = inject(EVENTS_APP_VERSION);
 
   // ── Data ──────────────────────────────────────────────────────────────
   event = signal<EventRow | null>(null);
