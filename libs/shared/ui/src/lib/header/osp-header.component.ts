@@ -155,14 +155,14 @@ import { OspThemeToggleComponent } from '../theme-toggle/osp-theme-toggle.compon
         opacity: 0.75;
         font-weight: 400;
         transition: all 400ms cubic-bezier(0.16, 1, 0.3, 1);
+        white-space: nowrap;
         overflow: hidden;
-        max-height: 2rem;
+        text-overflow: ellipsis;
       }
 
       .osph--glass .osph-subtitle {
         font-size: 0.72rem;
         opacity: 0.6;
-        max-height: 1.5rem;
       }
 
       /* ── Theme toggle overrides ──────────────────────────────────── */

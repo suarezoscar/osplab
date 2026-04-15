@@ -18,6 +18,7 @@ const OUT = resolve(ROOT, 'libs/shared/ui/src/lib/icon/icon-registry.ts');
 const ICONS = [
   'map-pin',
   'calendar',
+  'calendar-check',
   'calendar-plus',
   'clock',
   'crosshair',
