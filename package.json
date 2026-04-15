@@ -144,6 +144,7 @@
     "@angular/forms": "~21.2.0",
     "@angular/platform-browser": "~21.2.0",
     "@angular/router": "~21.2.0",
+    "@jsverse/transloco": "^8.3.0",
     "@nestjs/common": "^11.0.16",
     "@nestjs/core": "^11.1.18",
     "@nestjs/platform-express": "^11.0.0",

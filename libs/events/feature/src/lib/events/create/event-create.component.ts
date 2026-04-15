@@ -1,26 +1,34 @@
 import { Component, inject, signal } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { EventsService, EVENTS_APP_VERSION } from '@osplab/events-data-access';
 import { LocationPickerComponent, MapCoords } from './location-picker.component';
-import { OspHeaderComponent, OspIconComponent, OspLabFooterComponent } from '@osplab/shared-ui';
+import {
+  OspHeaderComponent,
+  OspIconComponent,
+  OspLabFooterComponent,
+  OspLangSwitcherComponent,
+} from '@osplab/shared-ui';
 
 @Component({
   selector: 'app-event-create',
   standalone: true,
   imports: [
     FormsModule,
-    RouterLink,
+    TranslocoPipe,
     LocationPickerComponent,
     OspHeaderComponent,
     OspIconComponent,
     OspLabFooterComponent,
+    OspLangSwitcherComponent,
   ],
   templateUrl: './event-create.component.html',
 })
 export class EventCreateComponent {
   private readonly eventsService = inject(EventsService);
   private readonly router = inject(Router);
+  private readonly t = inject(TranslocoService);
 
   readonly appVersion = inject(EVENTS_APP_VERSION);
 
@@ -63,15 +71,15 @@ export class EventCreateComponent {
     this.error.set(null);
 
     if (!this.title().trim()) {
-      this.error.set('El título es obligatorio.');
+      this.error.set(this.t.translate('create.error_title'));
       return;
     }
     if (!this.locationName().trim()) {
-      this.error.set('El lugar es obligatorio.');
+      this.error.set(this.t.translate('create.error_location'));
       return;
     }
     if (!this.eventDate()) {
-      this.error.set('La fecha del evento es obligatoria.');
+      this.error.set(this.t.translate('create.error_date'));
       return;
     }
 
@@ -109,7 +117,7 @@ export class EventCreateComponent {
         state: { password: this.password().trim() || null },
       });
     } catch (err) {
-      this.error.set('Error al crear el evento. Inténtalo de nuevo.');
+      this.error.set(this.t.translate('create.error_generic'));
       console.error('Create event error:', err);
     } finally {
       this.submitting.set(false);

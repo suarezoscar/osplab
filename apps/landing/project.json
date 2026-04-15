@@ -22,7 +22,8 @@
             "glob": "**/*",
             "input": "assets",
             "output": "assets"
-          }
+          },
+          { "glob": "*.json", "input": "libs/shared/i18n", "output": "i18n/shared" }
         ],
         "styles": ["apps/landing/src/styles.css"]
       },

@@ -22,7 +22,8 @@
       "@osplab/shared-ui": ["libs/shared/ui/src/index.ts"],
       "@osplab/farmacias-web-ui": ["libs/farmacias/web/ui/src/index.ts"],
       "@osplab/events": ["libs/events/feature/src/index.ts"],
-      "@osplab/events-data-access": ["libs/events/data-access/src/index.ts"]
+      "@osplab/events-data-access": ["libs/events/data-access/src/index.ts"],
+      "@osplab/shared-i18n": ["libs/shared/i18n/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

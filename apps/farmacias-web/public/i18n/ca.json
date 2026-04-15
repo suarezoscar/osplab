@@ -1,0 +1,55 @@
+{
+  "header": {
+    "title": "Farmàcia de Guàrdia",
+    "subtitle": "Troba la més propera ara mateix"
+  },
+  "search": {
+    "skip": "Saltar al contingut principal",
+    "use_location": "Usar la meva ubicació",
+    "searching": "Buscant la més propera…",
+    "or_address": "o escriu la teva adreça",
+    "placeholder": "Ciutat, barri, adreça…",
+    "label": "Adreça, ciutat o barri",
+    "clear": "Esborrar cerca",
+    "suggestions_label": "Suggeriments d'adreça",
+    "a11y_searching": "Buscant farmàcies de guàrdia, si us plau espera…",
+    "a11y_found": "S'han trobat {{count}} farmàcies de guàrdia.",
+    "a11y_none": "No s'han trobat farmàcies de guàrdia per avui a la teva zona."
+  },
+  "info": {
+    "coverage": "Disponible per a farmàcies de <strong>Galícia</strong>, <strong>Madrid</strong> i <strong>Barcelona</strong>. Properament més comunitats."
+  },
+  "results": {
+    "closest_one": "Farmàcia més propera",
+    "closest_many": "{{count}} farmàcies més properes",
+    "realtime": "📡 Temps real",
+    "refresh": "Actualitzar ubicació"
+  },
+  "empty": {
+    "title": "Sense farmàcies de guàrdia a la teva zona",
+    "description": "És possible que encara no hi hagi dades per avui en aquesta àrea, o que no hi hagi farmàcies amb ubicació registrada."
+  },
+  "welcome": {
+    "title": "On ets?",
+    "description": "Usa la teva ubicació o escriu una adreça per trobar la farmàcia de guàrdia més propera"
+  },
+  "error": {
+    "api": "Error en connectar amb el servidor. Està l'API en marxa?"
+  },
+  "card": {
+    "closest": "La més propera",
+    "rank_1": "La més propera",
+    "rank_2": "Segona més propera",
+    "rank_3": "Tercera més propera",
+    "address": "Adreça",
+    "schedule": "Horari de guàrdia",
+    "h24": "Guàrdia 24 hores",
+    "directions": "Com arribar-hi",
+    "directions_to": "Com arribar a {{name}} a {{app}}",
+    "call": "Trucar a {{name}}: {{phone}}"
+  },
+  "footer": {
+    "updated_daily": "Dades actualitzades diàriament",
+    "privacy": "Privacitat"
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "home": {
+    "tagline_1": "Suite de ferramentas open source.",
+    "tagline_2": "Sen publicidade. Sen rastrexo. Datos útiles.",
+    "projects": "Proxectos",
+    "status_live": "Activo",
+    "status_wip": "En desenvolvemento",
+    "status_planned": "Proximamente",
+    "more_tools": "Máis ferramentas en desenvolvemento…",
+    "farmacias_name": "Farmacias de Garda",
+    "farmacias_desc": "Atopa as farmacias de garda máis preto da túa ubicación en tempo real. Dispoñible en Galicia, Madrid e Barcelona — máis provincias proximamente.",
+    "events_name": "Eventos",
+    "events_desc": "Crea un evento, comparte a ligazón en WhatsApp e deixa que a xente se apunte. Sen rexistro, sen complicacións."
+  },
+  "tags": {
+    "salud": "Saúde",
+    "galicia": "Galicia",
+    "madrid": "Madrid",
+    "barcelona": "Barcelona",
+    "geo": "Xeolocalización",
+    "eventos": "Eventos",
+    "whatsapp": "WhatsApp",
+    "sin_registro": "Sen rexistro"
+  }
+}

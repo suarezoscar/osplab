@@ -1,0 +1,25 @@
+{
+  "home": {
+    "tagline_1": "Suite d'eines open source.",
+    "tagline_2": "Sense publicitat. Sense rastreig. Dades útils.",
+    "projects": "Projectes",
+    "status_live": "Actiu",
+    "status_wip": "En desenvolupament",
+    "status_planned": "Properament",
+    "more_tools": "Més eines en desenvolupament…",
+    "farmacias_name": "Farmàcies de Guàrdia",
+    "farmacias_desc": "Troba les farmàcies de guàrdia més properes a la teva ubicació en temps real. Disponible a Galícia, Madrid i Barcelona — més províncies properament.",
+    "events_name": "Esdeveniments",
+    "events_desc": "Crea un esdeveniment, comparteix l'enllaç a WhatsApp i deixa que la gent s'apunti. Sense registre, sense complicacions."
+  },
+  "tags": {
+    "salud": "Salut",
+    "galicia": "Galícia",
+    "madrid": "Madrid",
+    "barcelona": "Barcelona",
+    "geo": "Geolocalització",
+    "eventos": "Esdeveniments",
+    "whatsapp": "WhatsApp",
+    "sin_registro": "Sense registre"
+  }
+}

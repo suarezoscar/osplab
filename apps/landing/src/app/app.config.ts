@@ -1,6 +1,7 @@
 import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';
 import { provideRouter, withComponentInputBinding } from '@angular/router';
 import { provideHttpClient } from '@angular/common/http';
+import { provideOspTransloco } from '@osplab/shared-i18n';
 import { appRoutes } from './app.routes';
 
 export const appConfig: ApplicationConfig = {
@@ -8,5 +9,6 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideRouter(appRoutes, withComponentInputBinding()),
     provideHttpClient(),
+    ...provideOspTransloco(),
   ],
 };

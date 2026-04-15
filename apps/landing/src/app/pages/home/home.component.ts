@@ -1,62 +1,77 @@
 import { Component, inject } from '@angular/core';
+import { NgTemplateOutlet } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { APP_VERSION } from '../../../version';
 import {
   OspThemeToggleComponent,
   OspThemeService,
   OspIconComponent,
   OspLabFooterComponent,
+  OspLangSwitcherComponent,
 } from '@osplab/shared-ui';
 import { PROJECT_VERSIONS } from '@osplab/shared-interfaces';
 
 interface Project {
   id: string;
-  name: string;
-  description: string;
+  nameKey: string;
+  descriptionKey: string;
   url: string;
   routerLink?: string;
   theme: 'green' | 'amber';
   status: 'live' | 'wip' | 'planned';
-  tags: string[];
+  tagKeys: string[];
   version?: string;
 }
 
 @Component({
   selector: 'app-home',
-  imports: [RouterLink, OspThemeToggleComponent, OspIconComponent, OspLabFooterComponent],
+  imports: [
+    NgTemplateOutlet,
+    RouterLink,
+    TranslocoPipe,
+    OspThemeToggleComponent,
+    OspIconComponent,
+    OspLabFooterComponent,
+    OspLangSwitcherComponent,
+  ],
   templateUrl: './home.component.html',
 })
 export class HomeComponent {
   readonly appVersion = APP_VERSION;
   readonly themeService = inject(OspThemeService);
+  private readonly t = inject(TranslocoService);
 
   readonly projects: Project[] = [
     {
       id: 'farmacias',
-      name: 'Farmacias de Guardia',
-      description:
-        'Encuentra las farmacias de guardia más cercanas a tu ubicación en tiempo real. Disponible en Galicia, Madrid y Barcelona — más provincias próximamente.',
+      nameKey: 'home.farmacias_name',
+      descriptionKey: 'home.farmacias_desc',
       url: 'https://farmacias.osplab.dev',
       theme: 'green',
       status: 'live',
-      tags: ['Salud', 'Galicia', 'Madrid', 'Barcelona', 'Geolocalización'],
+      tagKeys: ['tags.salud', 'tags.galicia', 'tags.madrid', 'tags.barcelona', 'tags.geo'],
       version: PROJECT_VERSIONS['farmacias-web'],
     },
     {
       id: 'events',
-      name: 'Eventos',
-      description:
-        'Crea un evento, comparte el enlace en WhatsApp y deja que la gente se apunte. Sin registro, sin complicaciones.',
+      nameKey: 'home.events_name',
+      descriptionKey: 'home.events_desc',
       url: '/events/create',
       routerLink: '/events/create',
       theme: 'amber',
       status: 'live',
-      tags: ['Eventos', 'WhatsApp', 'Sin registro'],
+      tagKeys: ['tags.eventos', 'tags.whatsapp', 'tags.sin_registro'],
       version: PROJECT_VERSIONS['events'],
     },
   ];
 
   statusLabel(s: Project['status']): string {
-    return { live: 'Activo', wip: 'En desarrollo', planned: 'Próximamente' }[s];
+    const key = {
+      live: 'home.status_live',
+      wip: 'home.status_wip',
+      planned: 'home.status_planned',
+    }[s];
+    return this.t.translate(key);
   }
 }

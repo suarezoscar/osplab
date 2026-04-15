@@ -1,5 +1,5 @@
-<div class="relative" role="search" aria-label="Buscar por dirección">
-  <label for="address-search" class="sr-only">Dirección, ciudad o barrio</label>
+<div class="relative" role="search" [attr.aria-label]="'search.label' | transloco">
+  <label for="address-search" class="sr-only">{{ 'search.label' | transloco }}</label>
   <div class="relative flex items-center">
     <span class="absolute left-3.5 pointer-events-none text-gray-400 dark:text-gray-500" aria-hidden="true">
       <icon-search />
@@ -9,7 +9,7 @@
       id="address-search"
       type="search"
       autocomplete="street-address"
-      placeholder="Ciudad, barrio, dirección…"
+      [attr.placeholder]="'search.placeholder' | transloco"
       [value]="searchQuery()"
       (input)="queryChange.emit($any($event.target).value)"
       (blur)="showSuggestionsChange.emit(false)"
@@ -27,7 +27,7 @@
         <button
           type="button"
           (mousedown)="$event.preventDefault(); cleared.emit()"
-          aria-label="Borrar búsqueda"
+          [attr.aria-label]="'search.clear' | transloco"
           class="w-5 h-5 flex items-center justify-center rounded-full bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-300 dark:hover:bg-gray-600 hover:text-gray-700 dark:hover:text-gray-200 transition-colors duration-150 text-sm font-bold leading-none">
           ×
         </button>
@@ -39,7 +39,7 @@
     <ul
       id="address-suggestions"
       role="listbox"
-      aria-label="Sugerencias de dirección"
+      [attr.aria-label]="'search.suggestions_label' | transloco"
       class="suggestions-list absolute z-50 left-0 right-0 mt-1.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-xl overflow-hidden divide-y divide-gray-50 dark:divide-gray-700/50">
       @for (s of suggestions(); track s.displayName; let i = $index) {
         <li role="option" [id]="'suggestion-' + i" aria-selected="false">

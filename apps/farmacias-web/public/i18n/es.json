@@ -1,0 +1,55 @@
+{
+  "header": {
+    "title": "Farmacia de Guardia",
+    "subtitle": "Encuentra la más cercana ahora mismo"
+  },
+  "search": {
+    "skip": "Saltar al contenido principal",
+    "use_location": "Usar mi ubicación",
+    "searching": "Buscando la más cercana…",
+    "or_address": "o escribe tu dirección",
+    "placeholder": "Ciudad, barrio, dirección…",
+    "label": "Dirección, ciudad o barrio",
+    "clear": "Borrar búsqueda",
+    "suggestions_label": "Sugerencias de dirección",
+    "a11y_searching": "Buscando farmacias de guardia, por favor espera…",
+    "a11y_found": "Se encontraron {{count}} farmacias de guardia.",
+    "a11y_none": "No se encontraron farmacias de guardia para hoy en tu zona."
+  },
+  "info": {
+    "coverage": "Disponible para farmacias de <strong>Galicia</strong>, <strong>Madrid</strong> y <strong>Barcelona</strong>. Próximamente más comunidades."
+  },
+  "results": {
+    "closest_one": "Farmacia más cercana",
+    "closest_many": "{{count}} farmacias más cercanas",
+    "realtime": "📡 Tiempo real",
+    "refresh": "Actualizar ubicación"
+  },
+  "empty": {
+    "title": "Sin farmacias de guardia en tu zona",
+    "description": "Es posible que aún no haya datos para hoy en esta área, o que no haya farmacias con ubicación registrada."
+  },
+  "welcome": {
+    "title": "¿Dónde estás?",
+    "description": "Usa tu ubicación o escribe una dirección para encontrar la farmacia de guardia más cercana"
+  },
+  "error": {
+    "api": "Error al conectar con el servidor. ¿Está el API en marcha?"
+  },
+  "card": {
+    "closest": "La más cercana",
+    "rank_1": "La más cercana",
+    "rank_2": "Segunda más cercana",
+    "rank_3": "Tercera más cercana",
+    "address": "Dirección",
+    "schedule": "Horario de guardia",
+    "h24": "Guardia 24 horas",
+    "directions": "Cómo llegar",
+    "directions_to": "Cómo llegar a {{name}} en {{app}}",
+    "call": "Llamar a {{name}}: {{phone}}"
+  },
+  "footer": {
+    "updated_daily": "Datos actualizados diariamente",
+    "privacy": "Privacidad"
+  }
+}

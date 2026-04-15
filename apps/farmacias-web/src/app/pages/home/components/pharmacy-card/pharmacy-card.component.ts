@@ -1,4 +1,5 @@
-import { Component, computed, input } from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import type { PharmacyDto } from '@osplab/shared-interfaces';
 import {
   AppleIconComponent,
@@ -18,6 +19,7 @@ import {
 @Component({
   selector: 'app-pharmacy-card',
   imports: [
+    TranslocoPipe,
     AppleIconComponent,
     ClockIconComponent,
     GoogleMapsIconComponent,
@@ -28,6 +30,8 @@ import {
   templateUrl: './pharmacy-card.component.html',
 })
 export class PharmacyCardComponent {
+  private readonly t = inject(TranslocoService);
+
   pharmacy = input.required<PharmacyDto>();
   index = input.required<number>();
 
@@ -80,6 +84,7 @@ export class PharmacyCardComponent {
 
   /** Devuelve la etiqueta de ranking accesible para `aria-label`. */
   rankLabel(): string {
-    return ['La más cercana', 'Segunda más cercana', 'Tercera más cercana'][this.index()] ?? '';
+    const key = ['card.rank_1', 'card.rank_2', 'card.rank_3'][this.index()];
+    return key ? this.t.translate(key) : '';
   }
 }

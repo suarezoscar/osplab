@@ -1,6 +1,7 @@
 import { Component, inject, signal, OnDestroy, ElementRef, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import {
   Subject,
   Subscription,
@@ -15,7 +16,11 @@ import { PharmaciesApiService } from '../../services/pharmacies-api.service';
 import { GeolocationService } from '../../services/geolocation.service';
 import { GeocodingService, type GeocodingSuggestion } from '../../services/geocoding.service';
 import type { PharmacyDto } from '@osplab/shared-interfaces';
-import { OspLabFooterComponent, OspHeaderComponent } from '@osplab/shared-ui';
+import {
+  OspLabFooterComponent,
+  OspHeaderComponent,
+  OspLangSwitcherComponent,
+} from '@osplab/shared-ui';
 import { APP_VERSION } from '../../../version';
 import {
   AlertTriangleIconComponent,
@@ -37,6 +42,7 @@ import { WelcomeStateComponent } from './components/welcome-state/welcome-state.
   imports: [
     FormsModule,
     RouterLink,
+    TranslocoPipe,
     PharmacyCrossIconComponent,
     SpinnerIconComponent,
     GpsIconComponent,
@@ -51,6 +57,7 @@ import { WelcomeStateComponent } from './components/welcome-state/welcome-state.
     LoadingSkeletonComponent,
     OspLabFooterComponent,
     OspHeaderComponent,
+    OspLangSwitcherComponent,
   ],
   templateUrl: './home.component.html',
 })
@@ -64,6 +71,7 @@ export class HomeComponent implements OnDestroy {
   private readonly pharmaciesApi = inject(PharmaciesApiService);
   private readonly geo = inject(GeolocationService);
   private readonly geocoding = inject(GeocodingService);
+  private readonly t = inject(TranslocoService);
   private readonly resultsPanel = viewChild<ElementRef<HTMLElement>>('resultsPanel');
 
   readonly appVersion = APP_VERSION;
@@ -173,7 +181,7 @@ export class HomeComponent implements OnDestroy {
         }, 80);
       },
       error: () => {
-        this.error.set('Error al conectar con el servidor. ¿Está el API en marcha?');
+        this.error.set(this.t.translate('error.api'));
         this.loading.set(false);
       },
     });

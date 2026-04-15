@@ -1,8 +1,9 @@
 <div class="flex min-h-screen flex-col" style="color: var(--osp-text)">
   <!-- ─── HEADER ──────────────────────────────────────────────────────────── -->
   <header class="mx-auto w-full max-w-2xl px-6 pt-16 pb-12 osp-animate-in">
-    <!-- Theme toggle — top right -->
-    <div class="flex justify-end mb-6">
+    <!-- Theme toggle + lang switcher — top right -->
+    <div class="flex justify-end mb-6 gap-2 items-center">
+      <osp-lang-switcher />
       <osp-theme-toggle />
     </div>
 
@@ -20,8 +21,8 @@
 
       <!-- Tagline -->
       <p class="text-[1rem] leading-relaxed max-w-xs" style="color: var(--osp-text-muted)">
-        Suite de herramientas open source.<br />
-        Sin publicidad. Sin rastreo. Datos útiles.
+        {{ 'home.tagline_1' | transloco }}<br />
+        {{ 'home.tagline_2' | transloco }}
       </p>
     </div>
   </header>
@@ -33,7 +34,7 @@
       class="mb-5 text-[0.8rem] font-semibold uppercase tracking-[0.15em]"
       style="color: var(--osp-info)"
       aria-label="Lista de proyectos">
-      Proyectos
+      {{ 'home.projects' | transloco }}
     </p>
 
     <ul class="flex flex-col gap-3" role="list" aria-label="Proyectos de OSPLab">
@@ -42,208 +43,28 @@
           @if (project.routerLink) {
             <a
               [routerLink]="project.routerLink"
-              [attr.aria-label]="project.name + ' — ' + project.description"
+              [attr.aria-label]="(project.nameKey | transloco) + ' — ' + (project.descriptionKey | transloco)"
               class="card-shine group relative flex w-full items-center gap-5 overflow-hidden rounded-xl border px-5 py-4 transition-all duration-200 hover:-translate-y-px"
               [style]="{
                 'border-color': 'var(--osp-' + project.theme + '-card-border)',
                 background: 'var(--osp-' + project.theme + '-card-bg)',
                 'box-shadow': '0 4px 20px var(--osp-' + project.theme + '-shadow)',
               }">
-              <!-- Icon box -->
-              <span
-                class="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg transition-all duration-200"
-                [style]="{
-                  background: 'var(--osp-' + project.theme + '-icon-bg)',
-                  color: 'var(--osp-' + project.theme + '-icon)',
-                }"
-                aria-hidden="true">
-                @if (project.theme === 'green') {
-                  <svg viewBox="0 0 32 32" fill="currentColor" width="22" height="22" aria-hidden="true">
-                    <rect x="13" y="4" width="6" height="24" rx="2.5" />
-                    <rect x="4" y="13" width="24" height="6" rx="2.5" />
-                  </svg>
-                } @else if (project.theme === 'amber') {
-                  <svg
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    width="22"
-                    height="22"
-                    aria-hidden="true">
-                    <rect x="3" y="4" width="18" height="18" rx="2" />
-                    <line x1="16" y1="2" x2="16" y2="6" />
-                    <line x1="8" y1="2" x2="8" y2="6" />
-                    <line x1="3" y1="10" x2="21" y2="10" />
-                    <path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01" />
-                  </svg>
-                } @else {
-                  <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18" aria-hidden="true">
-                    <circle cx="12" cy="12" r="4" />
-                  </svg>
-                }
-              </span>
-
-              <!-- Content -->
-              <div class="flex min-w-0 flex-1 flex-col gap-1.5">
-                <div class="flex flex-wrap items-center gap-2">
-                  <span class="text-[1.05rem] font-semibold leading-snug" style="color: var(--osp-text-heading)">
-                    {{ project.name }}
-                  </span>
-                  <span
-                    class="rounded-full border px-2 py-0.5 text-[0.78rem] font-semibold"
-                    [style]="{
-                      background: 'var(--osp-' + project.theme + '-status-bg)',
-                      color: 'var(--osp-' + project.theme + '-status-text)',
-                      'border-color': 'var(--osp-' + project.theme + '-status-border)',
-                    }">
-                    {{ statusLabel(project.status) }}
-                  </span>
-                  @if (project.version) {
-                    <span class="text-[0.72rem] font-medium" style="color: var(--osp-text-faint)">
-                      v{{ project.version }}
-                    </span>
-                  }
-                </div>
-                <p class="text-[0.92rem] leading-relaxed" style="color: var(--osp-text-muted)">
-                  {{ project.description }}
-                </p>
-                <div class="flex flex-wrap gap-1.5 pt-0.5">
-                  @for (tag of project.tags; track tag) {
-                    <span
-                      class="rounded-full border px-2.5 py-0.5 text-[0.8rem] font-medium transition-colors"
-                      style="
-                        border-color: var(--osp-tag-border);
-                        background: var(--osp-tag-bg);
-                        color: var(--osp-tag-text);
-                      ">
-                      {{ tag }}
-                    </span>
-                  }
-                </div>
-              </div>
-
-              <!-- Arrow -->
-              <svg
-                class="shrink-0 transition-all duration-200 group-hover:translate-x-0.5"
-                [style]="{ color: 'var(--osp-' + project.theme + '-arrow)' }"
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                aria-hidden="true">
-                <path d="M5 12h14M12 5l7 7-7 7" />
-              </svg>
+              <ng-container *ngTemplateOutlet="cardContent; context: { $implicit: project }" />
             </a>
           } @else {
             <a
               [href]="project.url"
               target="_blank"
               rel="noopener noreferrer"
-              [attr.aria-label]="project.name + ' — ' + project.description"
+              [attr.aria-label]="(project.nameKey | transloco) + ' — ' + (project.descriptionKey | transloco)"
               class="card-shine group relative flex w-full items-center gap-5 overflow-hidden rounded-xl border px-5 py-4 transition-all duration-200 hover:-translate-y-px"
               [style]="{
                 'border-color': 'var(--osp-' + project.theme + '-card-border)',
                 background: 'var(--osp-' + project.theme + '-card-bg)',
                 'box-shadow': '0 4px 20px var(--osp-' + project.theme + '-shadow)',
               }">
-              <!-- Icon box -->
-              <span
-                class="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg transition-all duration-200"
-                [style]="{
-                  background: 'var(--osp-' + project.theme + '-icon-bg)',
-                  color: 'var(--osp-' + project.theme + '-icon)',
-                }"
-                aria-hidden="true">
-                @if (project.theme === 'green') {
-                  <svg viewBox="0 0 32 32" fill="currentColor" width="22" height="22" aria-hidden="true">
-                    <rect x="13" y="4" width="6" height="24" rx="2.5" />
-                    <rect x="4" y="13" width="24" height="6" rx="2.5" />
-                  </svg>
-                } @else if (project.theme === 'amber') {
-                  <svg
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    width="22"
-                    height="22"
-                    aria-hidden="true">
-                    <rect x="3" y="4" width="18" height="18" rx="2" />
-                    <line x1="16" y1="2" x2="16" y2="6" />
-                    <line x1="8" y1="2" x2="8" y2="6" />
-                    <line x1="3" y1="10" x2="21" y2="10" />
-                    <path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01" />
-                  </svg>
-                } @else {
-                  <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18" aria-hidden="true">
-                    <circle cx="12" cy="12" r="4" />
-                  </svg>
-                }
-              </span>
-
-              <!-- Content -->
-              <div class="flex min-w-0 flex-1 flex-col gap-1.5">
-                <div class="flex flex-wrap items-center gap-2">
-                  <span class="text-[1.05rem] font-semibold leading-snug" style="color: var(--osp-text-heading)">
-                    {{ project.name }}
-                  </span>
-                  <span
-                    class="rounded-full border px-2 py-0.5 text-[0.78rem] font-semibold"
-                    [style]="{
-                      background: 'var(--osp-' + project.theme + '-status-bg)',
-                      color: 'var(--osp-' + project.theme + '-status-text)',
-                      'border-color': 'var(--osp-' + project.theme + '-status-border)',
-                    }">
-                    {{ statusLabel(project.status) }}
-                  </span>
-                  @if (project.version) {
-                    <span class="text-[0.72rem] font-medium" style="color: var(--osp-text-faint)">
-                      v{{ project.version }}
-                    </span>
-                  }
-                </div>
-                <p class="text-[0.92rem] leading-relaxed" style="color: var(--osp-text-muted)">
-                  {{ project.description }}
-                </p>
-                <div class="flex flex-wrap gap-1.5 pt-0.5">
-                  @for (tag of project.tags; track tag) {
-                    <span
-                      class="rounded-full border px-2.5 py-0.5 text-[0.8rem] font-medium transition-colors"
-                      style="
-                        border-color: var(--osp-tag-border);
-                        background: var(--osp-tag-bg);
-                        color: var(--osp-tag-text);
-                      ">
-                      {{ tag }}
-                    </span>
-                  }
-                </div>
-              </div>
-
-              <!-- Arrow -->
-              <svg
-                class="shrink-0 transition-all duration-200 group-hover:translate-x-0.5"
-                [style]="{ color: 'var(--osp-' + project.theme + '-arrow)' }"
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                aria-hidden="true">
-                <path d="M5 12h14M12 5l7 7-7 7" />
-              </svg>
+              <ng-container *ngTemplateOutlet="cardContent; context: { $implicit: project }" />
             </a>
           }
         </li>
@@ -255,7 +76,7 @@
         style="border-color: var(--osp-placeholder-border); color: var(--osp-placeholder-text); animation-delay: 180ms"
         aria-hidden="true">
         <osp-icon name="plus" [size]="18" aria-hidden="true" />
-        Más herramientas en desarrollo…
+        {{ 'home.more_tools' | transloco }}
       </li>
     </ul>
   </main>
@@ -265,3 +86,92 @@
     <p class="text-[0.7rem]" style="color: var(--osp-footer-text)">v{{ appVersion }}</p>
   </osplab-footer>
 </div>
+
+<!-- ─── Card content template (DRY) ──────────────────────────────────────── -->
+<ng-template #cardContent let-project>
+  <!-- Icon box -->
+  <span
+    class="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg transition-all duration-200"
+    [style]="{
+      background: 'var(--osp-' + project.theme + '-icon-bg)',
+      color: 'var(--osp-' + project.theme + '-icon)',
+    }"
+    aria-hidden="true">
+    @if (project.theme === 'green') {
+      <svg viewBox="0 0 32 32" fill="currentColor" width="22" height="22" aria-hidden="true">
+        <rect x="13" y="4" width="6" height="24" rx="2.5" />
+        <rect x="4" y="13" width="24" height="6" rx="2.5" />
+      </svg>
+    } @else if (project.theme === 'amber') {
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        width="22"
+        height="22"
+        aria-hidden="true">
+        <rect x="3" y="4" width="18" height="18" rx="2" />
+        <line x1="16" y1="2" x2="16" y2="6" />
+        <line x1="8" y1="2" x2="8" y2="6" />
+        <line x1="3" y1="10" x2="21" y2="10" />
+        <path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01" />
+      </svg>
+    } @else {
+      <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18" aria-hidden="true">
+        <circle cx="12" cy="12" r="4" />
+      </svg>
+    }
+  </span>
+
+  <!-- Content -->
+  <div class="flex min-w-0 flex-1 flex-col gap-1.5">
+    <div class="flex flex-wrap items-center gap-2">
+      <span class="text-[1.05rem] font-semibold leading-snug" style="color: var(--osp-text-heading)">
+        {{ project.nameKey | transloco }}
+      </span>
+      <span
+        class="rounded-full border px-2 py-0.5 text-[0.78rem] font-semibold"
+        [style]="{
+          background: 'var(--osp-' + project.theme + '-status-bg)',
+          color: 'var(--osp-' + project.theme + '-status-text)',
+          'border-color': 'var(--osp-' + project.theme + '-status-border)',
+        }">
+        {{ statusLabel(project.status) }}
+      </span>
+      @if (project.version) {
+        <span class="text-[0.72rem] font-medium" style="color: var(--osp-text-faint)"> v{{ project.version }} </span>
+      }
+    </div>
+    <p class="text-[0.92rem] leading-relaxed" style="color: var(--osp-text-muted)">
+      {{ project.descriptionKey | transloco }}
+    </p>
+    <div class="flex flex-wrap gap-1.5 pt-0.5">
+      @for (tagKey of project.tagKeys; track tagKey) {
+        <span
+          class="rounded-full border px-2.5 py-0.5 text-[0.8rem] font-medium transition-colors"
+          style="border-color: var(--osp-tag-border); background: var(--osp-tag-bg); color: var(--osp-tag-text)">
+          {{ tagKey | transloco }}
+        </span>
+      }
+    </div>
+  </div>
+
+  <!-- Arrow -->
+  <svg
+    class="shrink-0 transition-all duration-200 group-hover:translate-x-0.5"
+    [style]="{ color: 'var(--osp-' + project.theme + '-arrow)' }"
+    width="18"
+    height="18"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    aria-hidden="true">
+    <path d="M5 12h14M12 5l7 7-7 7" />
+  </svg>
+</ng-template>

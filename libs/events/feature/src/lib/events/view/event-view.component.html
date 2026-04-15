@@ -7,7 +7,7 @@
           <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
           <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
         </svg>
-        <p class="text-[0.88rem]" style="color: var(--osp-text-muted)">Cargando evento…</p>
+        <p class="text-[0.88rem]" style="color: var(--osp-text-muted)">{{ 'view.loading' | transloco }}</p>
       </div>
     </div>
   }
@@ -21,16 +21,18 @@
         <osp-icon name="magnifying-glass" [size]="36" />
       </div>
       <div class="text-center">
-        <h1 class="text-xl font-bold" style="color: var(--osp-text-heading)">Evento no encontrado</h1>
+        <h1 class="text-xl font-bold" style="color: var(--osp-text-heading)">
+          {{ 'view.not_found_title' | transloco }}
+        </h1>
         <p class="mt-2 text-[0.92rem]" style="color: var(--osp-text-muted)">
-          Este evento no existe o ya ha sido eliminado.
+          {{ 'view.not_found_description' | transloco }}
         </p>
       </div>
       <a
         routerLink="/"
         class="mt-1 rounded-lg border px-5 py-2.5 text-[0.88rem] font-medium transition-all hover:opacity-80"
         style="border-color: var(--osp-border); color: var(--osp-accent)">
-        ← Volver al inicio
+        {{ 'view.back_home' | transloco }}
       </a>
     </div>
   }
@@ -67,7 +69,7 @@
             <div
               class="mb-4 inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[0.78rem] font-medium"
               style="border-color: var(--osp-error-border); background: var(--osp-error-bg); color: var(--osp-error)">
-              <osp-icon name="clock" [size]="16" /> Evento finalizado
+              <osp-icon name="clock" [size]="16" /> {{ 'view.expired' | transloco }}
             </div>
           }
 
@@ -95,7 +97,7 @@
                   <p class="text-[0.95rem] transition-colors" style="color: var(--osp-text)">
                     {{ ev.location_name }}
                   </p>
-                  <p class="text-[0.75rem]" style="color: var(--osp-text-faint)">Abrir en Google Maps ↗</p>
+                  <p class="text-[0.75rem]" style="color: var(--osp-text-faint)">{{ 'view.open_maps' | transloco }}</p>
                 </div>
               </a>
             } @else {
@@ -117,10 +119,12 @@
                 <span class="mt-0.5"><osp-icon name="clock" [size]="18" /></span>
                 <div>
                   <p class="text-[0.95rem]" style="color: var(--osp-text)">
-                    Inscripción hasta: {{ formatDate(ev.registration_deadline) }}
+                    {{ 'view.deadline_label' | transloco }} {{ formatDate(ev.registration_deadline) }}
                   </p>
                   @if (isRegistrationClosed() && !isExpired()) {
-                    <p class="text-[0.75rem]" style="color: var(--osp-error)">Inscripción cerrada</p>
+                    <p class="text-[0.75rem]" style="color: var(--osp-error)">
+                      {{ 'view.deadline_closed' | transloco }}
+                    </p>
                   }
                 </div>
               </div>
@@ -132,9 +136,11 @@
                 <span class="mt-0.5"><osp-icon name="crosshair" [size]="18" /></span>
                 <div>
                   <p class="text-[0.85rem] mb-1" style="color: var(--osp-text-muted)">
-                    Opciones disponibles:
+                    {{ 'view.options_available' | transloco }}
                     @if (ev.multi_select) {
-                      <span class="text-[0.75rem]" style="color: var(--osp-text-faint)">(multirespuesta)</span>
+                      <span class="text-[0.75rem]" style="color: var(--osp-text-faint)"
+                        >({{ 'view.options_multi' | transloco }})</span
+                      >
                     }
                   </p>
                   <div class="flex flex-wrap gap-1.5">
@@ -165,11 +171,12 @@
             style="background: linear-gradient(to right, transparent, var(--osp-accent-muted), transparent)"></div>
 
           <h2 class="mb-3 text-lg font-bold flex items-center gap-2" style="color: var(--osp-text-heading)">
-            <osp-icon name="user" [size]="20" /> Resumen
+            <osp-icon name="user" [size]="20" /> {{ 'view.summary' | transloco }}
           </h2>
 
           <p class="text-[0.95rem] font-semibold" style="color: var(--osp-text)">
-            {{ attendees().length }} {{ attendees().length === 1 ? 'persona apuntada' : 'personas apuntadas' }}
+            {{ attendees().length }}
+            {{ attendees().length === 1 ? ('view.person_singular' | transloco) : ('view.person_plural' | transloco) }}
           </p>
 
           @if (hasOptions() && optionCounts().length > 0) {
@@ -195,11 +202,11 @@
       @if (editMode()) {
         <div class="ev-card mb-6 osp-animate-in" style="border-color: rgba(245, 158, 11, 0.15)">
           <h2 class="mb-4 text-lg font-bold flex items-center gap-2" style="color: var(--osp-text-heading)">
-            <osp-icon name="pencil-simple" [size]="20" /> Editar evento
+            <osp-icon name="pencil-simple" [size]="20" /> {{ 'view.edit_title' | transloco }}
           </h2>
 
           <div class="mb-4">
-            <label for="editTitle" class="ev-label">Título</label>
+            <label for="editTitle" class="ev-label">{{ 'create.event_title' | transloco }}</label>
             <input
               type="text"
               id="editTitle"
@@ -210,7 +217,7 @@
           </div>
 
           <div class="mb-4">
-            <label for="editDescription" class="ev-label">Descripción</label>
+            <label for="editDescription" class="ev-label">{{ 'create.description' | transloco }}</label>
             <textarea
               id="editDescription"
               [ngModel]="editDescription()"
@@ -222,7 +229,7 @@
           </div>
 
           <div class="mb-4">
-            <label for="editLocation" class="ev-label">Lugar</label>
+            <label for="editLocation" class="ev-label">{{ 'create.location_name' | transloco }}</label>
             <input
               type="text"
               id="editLocation"
@@ -233,7 +240,7 @@
           </div>
 
           <div class="mb-4">
-            <label for="editEventDate" class="ev-label">Fecha y hora</label>
+            <label for="editEventDate" class="ev-label">{{ 'create.date_time' | transloco }}</label>
             <input
               type="datetime-local"
               id="editEventDate"
@@ -244,7 +251,7 @@
           </div>
 
           <div class="mb-4">
-            <label for="editDeadline" class="ev-label">Fecha límite de inscripción</label>
+            <label for="editDeadline" class="ev-label">{{ 'create.registration_deadline' | transloco }}</label>
             <input
               type="datetime-local"
               id="editDeadline"
@@ -253,12 +260,12 @@
               name="editDeadline"
               class="ev-input ev-date" />
             <p class="mt-1 text-[0.75rem]" style="color: var(--osp-text-faint)">
-              Déjalo vacío para usar la fecha del evento.
+              {{ 'create.deadline_hint' | transloco }}
             </p>
           </div>
 
           <div class="mb-4">
-            <label for="editNewOption" class="ev-label">Opciones a elegir</label>
+            <label for="editNewOption" class="ev-label">{{ 'create.options_label' | transloco }}</label>
             <div class="flex gap-2 mb-2">
               <input
                 type="text"
@@ -275,7 +282,7 @@
                 [disabled]="!editNewOption().trim()"
                 class="shrink-0 rounded-lg border px-3 py-2 text-[0.82rem] transition-all disabled:opacity-40 active:scale-[0.97]"
                 style="border-color: var(--osp-border); color: var(--osp-text-muted)">
-                + Añadir
+                + {{ 'common.add' | transloco }}
               </button>
             </div>
             @if (editOptions().length > 0) {
@@ -303,7 +310,7 @@
                     (change)="editMultiSelect.set(!editMultiSelect())"
                     class="accent-amber-500 h-4 w-4 cursor-pointer" />
                   <span class="text-[0.85rem]" style="color: var(--osp-text)">
-                    Permitir seleccionar varias opciones
+                    {{ 'create.multi_select' | transloco }}
                   </span>
                 </label>
               }
@@ -316,13 +323,13 @@
               [disabled]="saving()"
               class="flex items-center gap-2 rounded-lg px-5 py-2.5 text-[0.88rem] font-semibold transition-all disabled:opacity-50 active:scale-[0.97]"
               style="background: var(--osp-accent); color: var(--osp-accent-text)">
-              Guardar
+              {{ 'common.save' | transloco }}
             </button>
             <button
               (click)="cancelEdit()"
               class="rounded-lg border px-5 py-2.5 text-[0.88rem] transition-all active:scale-[0.97]"
               style="border-color: var(--osp-border); color: var(--osp-text-muted)">
-              Cancelar
+              {{ 'common.cancel' | transloco }}
             </button>
           </div>
         </div>
@@ -336,7 +343,7 @@
           style="background: linear-gradient(to right, transparent, var(--osp-border-glow), transparent)"></div>
 
         <h2 class="mb-4 text-lg font-bold" style="color: var(--osp-text-heading)">
-          Apuntados
+          {{ 'view.attendees' | transloco }}
           <span
             class="ml-1.5 rounded-full px-2 py-0.5 text-[0.82rem] font-semibold"
             style="background: var(--osp-bg-elevated); color: var(--osp-info)"
@@ -346,7 +353,7 @@
 
         @if (attendees().length === 0) {
           <p class="mb-4 text-[0.88rem]" style="color: var(--osp-text-faint)">
-            Nadie se ha apuntado todavía. ¡Sé el primero!
+            {{ 'view.no_attendees' | transloco }}
           </p>
         } @else {
           <ul class="mb-4 flex flex-col gap-1.5">
@@ -424,7 +431,9 @@
                 <div
                   class="flex flex-col gap-1.5 rounded-xl border p-3"
                   style="border-color: var(--osp-border); background: var(--osp-bg-surface)">
-                  <p class="text-[0.78rem] mb-1" style="color: var(--osp-text-faint)">Selecciona una o varias:</p>
+                  <p class="text-[0.78rem] mb-1" style="color: var(--osp-text-faint)">
+                    {{ 'view.select_multi' | transloco }}
+                  </p>
                   @for (opt of ev.options; track $index) {
                     <label
                       class="flex items-center gap-2.5 cursor-pointer rounded-lg px-2 py-1.5 transition-colors"
@@ -445,7 +454,7 @@
                   (ngModelChange)="joinOption.set($event)"
                   name="joinOption"
                   class="ev-input">
-                  <option value="" disabled>Elige una opción…</option>
+                  <option value="" disabled>{{ 'view.select_option' | transloco }}</option>
                   @for (opt of ev.options; track $index) {
                     <option [value]="opt">{{ opt }}</option>
                   }
@@ -455,7 +464,7 @@
             <div class="flex gap-2">
               <input
                 type="text"
-                placeholder="Tu nombre"
+                [placeholder]="'view.your_name' | transloco"
                 [ngModel]="joinName()"
                 (ngModelChange)="joinName.set($event)"
                 name="joinName"
@@ -475,16 +484,16 @@
                   box-shadow: 0 4px 14px var(--osp-accent-muted);
                 ">
                 @if (joining()) {
-                  Apuntando…
+                  {{ 'view.joining' | transloco }}
                 } @else {
-                  Apuntarme
+                  {{ 'view.join' | transloco }}
                 }
               </button>
             </div>
           </form>
         } @else if (!isExpired()) {
           <p class="text-[0.88rem] flex items-center gap-1.5" style="color: var(--osp-warning)">
-            <osp-icon name="clock" [size]="16" /> La inscripción está cerrada.
+            <osp-icon name="clock" [size]="16" /> {{ 'view.registration_closed' | transloco }}
           </p>
         }
       </div>
@@ -500,7 +509,7 @@
             <path
               d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
           </svg>
-          Compartir en WhatsApp
+          {{ 'view.share_whatsapp' | transloco }}
         </a>
 
         <button
@@ -509,10 +518,10 @@
           style="border-color: var(--osp-border); color: var(--osp-text-muted)">
           @if (copied()) {
             <span class="osp-animate-scale-in flex items-center gap-1"
-              ><osp-icon name="check-circle" [size]="16" /> ¡Copiado!</span
+              ><osp-icon name="check-circle" [size]="16" /> {{ 'common.copied' | transloco }}</span
             >
           } @else {
-            <osp-icon name="link-simple" [size]="16" /> Copiar enlace
+            <osp-icon name="link-simple" [size]="16" /> {{ 'common.copy_link' | transloco }}
           }
         </button>
       </div>
@@ -525,7 +534,7 @@
             rel="noopener noreferrer"
             class="flex w-full items-center justify-center gap-2 rounded-lg border px-5 py-3 text-[0.9rem] font-medium transition-all active:scale-[0.97]"
             style="border-color: var(--osp-border); color: var(--osp-text-muted)">
-            <osp-icon name="calendar-plus" [size]="18" /> Añadir al calendario
+            <osp-icon name="calendar-plus" [size]="18" /> {{ 'view.add_calendar' | transloco }}
           </a>
         </div>
       }
@@ -533,11 +542,13 @@
       <!-- ── Organizer section ───────────────────────────────────────── -->
       @if (!editPasswordHash()) {
         <div class="ev-card osp-animate-slide-up" style="animation-delay: 300ms">
-          <p class="mb-3 text-[0.85rem] font-medium" style="color: var(--osp-text-muted)">¿Eres el organizador?</p>
+          <p class="mb-3 text-[0.85rem] font-medium" style="color: var(--osp-text-muted)">
+            {{ 'view.organizer_question' | transloco }}
+          </p>
           <form (ngSubmit)="onVerifyPassword()" class="flex gap-2">
             <input
               type="password"
-              placeholder="Contraseña del evento"
+              [placeholder]="'view.organizer_password_placeholder' | transloco"
               [ngModel]="editPassword()"
               (ngModelChange)="editPassword.set($event)"
               name="editPassword"
@@ -552,9 +563,9 @@
                 color: var(--osp-accent);
               ">
               @if (verifying()) {
-                Verificando…
+                {{ 'view.organizer_verifying' | transloco }}
               } @else {
-                <osp-icon name="shield-check" [size]="16" /> Acceder
+                <osp-icon name="shield-check" [size]="16" /> {{ 'view.organizer_verify' | transloco }}
               }
             </button>
           </form>
@@ -573,11 +584,11 @@
                 border-color: var(--osp-accent-muted);
                 color: var(--osp-accent);
               ">
-              <osp-icon name="lock-open" [size]="14" /> Organizador
+              <osp-icon name="lock-open" [size]="14" /> {{ 'view.organizer_badge' | transloco }}
             </span>
           </div>
           <p class="text-[0.82rem] mb-3" style="color: var(--osp-text-muted)">
-            Puedes editar el evento y gestionar los asistentes.
+            {{ 'view.organizer_hint' | transloco }}
           </p>
           @if (!editMode()) {
             <div class="flex flex-wrap gap-2">
@@ -589,7 +600,7 @@
                   background: var(--osp-accent-muted);
                   color: var(--osp-accent);
                 ">
-                <osp-icon name="pencil-simple" [size]="16" /> Editar evento
+                <osp-icon name="pencil-simple" [size]="16" /> {{ 'view.edit_event' | transloco }}
               </button>
 
               @if (!confirmDelete()) {
@@ -601,30 +612,30 @@
                     background: var(--osp-error-bg);
                     color: var(--osp-error);
                   ">
-                  <osp-icon name="trash" [size]="16" /> Eliminar evento
+                  <osp-icon name="trash" [size]="16" /> {{ 'view.delete_event' | transloco }}
                 </button>
               } @else {
                 <div
                   class="flex w-full items-center gap-2 mt-2 rounded-lg border px-4 py-3 osp-animate-in"
                   style="border-color: var(--osp-error-border); background: var(--osp-error-bg)">
                   <p class="flex-1 text-[0.82rem]" style="color: var(--osp-error)">
-                    ¿Seguro? Se eliminará el evento y todos los apuntados.
+                    {{ 'view.delete_confirm' | transloco }}
                   </p>
                   <button
                     (click)="deleteEvent()"
                     [disabled]="deleting()"
                     class="shrink-0 rounded-lg bg-red-600 px-4 py-1.5 text-[0.82rem] font-semibold text-white transition-colors hover:bg-red-500 disabled:opacity-50 active:scale-[0.97]">
                     @if (deleting()) {
-                      Eliminando…
+                      {{ 'view.deleting' | transloco }}
                     } @else {
-                      Confirmar
+                      {{ 'common.confirm' | transloco }}
                     }
                   </button>
                   <button
                     (click)="confirmDelete.set(false)"
                     class="shrink-0 text-[0.82rem] transition-colors"
                     style="color: var(--osp-text-muted)">
-                    Cancelar
+                    {{ 'common.cancel' | transloco }}
                   </button>
                 </div>
               }
@@ -636,6 +647,7 @@
 
     <!-- Footer -->
     <osplab-footer>
+      <osp-lang-switcher />
       <p style="color: var(--osp-text-faint)">v{{ appVersion }}</p>
     </osplab-footer>
   }

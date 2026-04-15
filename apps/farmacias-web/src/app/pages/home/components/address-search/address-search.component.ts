@@ -1,4 +1,5 @@
 import { Component, input, output } from '@angular/core';
+import { TranslocoPipe } from '@jsverse/transloco';
 import type { GeocodingSuggestion } from '../../../../services/geocoding.service';
 import { PinIconComponent, SearchIconComponent, SpinnerIconComponent } from '../../icons/icons';
 
@@ -10,7 +11,7 @@ import { PinIconComponent, SearchIconComponent, SpinnerIconComponent } from '../
  */
 @Component({
   selector: 'app-address-search',
-  imports: [PinIconComponent, SearchIconComponent, SpinnerIconComponent],
+  imports: [TranslocoPipe, PinIconComponent, SearchIconComponent, SpinnerIconComponent],
   templateUrl: './address-search.component.html',
 })
 export class AddressSearchComponent {

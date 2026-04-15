@@ -1,12 +1,14 @@
 import { Component, OnInit, OnDestroy, inject, signal, computed } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { EventsService, EVENTS_APP_VERSION } from '@osplab/events-data-access';
 import { SeoService } from '../../services/seo.service';
 import {
   OspHeaderComponent,
   OspIconComponent,
   OspLabFooterComponent,
+  OspLangSwitcherComponent,
   OspThemeService,
 } from '@osplab/shared-ui';
 import { NgApexchartsModule } from 'ng-apexcharts';
@@ -29,9 +31,11 @@ import type {
   imports: [
     FormsModule,
     RouterLink,
+    TranslocoPipe,
     OspHeaderComponent,
     OspIconComponent,
     OspLabFooterComponent,
+    OspLangSwitcherComponent,
     NgApexchartsModule,
   ],
   templateUrl: './event-view.component.html',
@@ -43,6 +47,7 @@ export class EventViewComponent implements OnInit, OnDestroy {
   private readonly seoService = inject(SeoService);
   readonly appVersion = inject(EVENTS_APP_VERSION);
   private readonly themeService = inject(OspThemeService);
+  private readonly t = inject(TranslocoService);
 
   // ── Data ──────────────────────────────────────────────────────────────
   event = signal<EventRow | null>(null);
@@ -241,7 +246,7 @@ export class EventViewComponent implements OnInit, OnDestroy {
         }
       }
     } catch (err) {
-      this.error.set('Error al cargar el evento.');
+      this.error.set(this.t.translate('view.load_error'));
       console.error('Load event error:', err);
     } finally {
       this.loading.set(false);
@@ -282,7 +287,7 @@ export class EventViewComponent implements OnInit, OnDestroy {
       this.joinOption.set('');
       this.joinMultiOptions.set(new Set());
     } catch (err) {
-      this.error.set('Error al apuntarse. Inténtalo de nuevo.');
+      this.error.set(this.t.translate('view.join_error'));
       console.error('Join error:', err);
     } finally {
       this.joining.set(false);
@@ -318,12 +323,12 @@ export class EventViewComponent implements OnInit, OnDestroy {
 
       if (valid) {
         this.editPasswordHash.set(hash);
-        this.editPassword.set('');
+        this.passwordError.set(this.t.translate('view.organizer_wrong_password'));
       } else {
-        this.passwordError.set('Contraseña incorrecta.');
+        this.passwordError.set(this.t.translate('view.organizer_wrong_password'));
       }
     } catch (err) {
-      this.passwordError.set('Error al verificar.');
+      this.passwordError.set(this.t.translate('view.organizer_verify_error'));
       console.error('Verify password error:', err);
     } finally {
       this.verifying.set(false);
@@ -382,10 +387,10 @@ export class EventViewComponent implements OnInit, OnDestroy {
         if (updated) this.event.set(updated);
         this.editMode.set(false);
       } else {
-        this.error.set('No se pudo actualizar el evento.');
+        this.error.set(this.t.translate('view.update_error'));
       }
     } catch (err) {
-      this.error.set('Error al guardar los cambios.');
+      this.error.set(this.t.translate('view.save_error'));
       console.error('Save edit error:', err);
     } finally {
       this.saving.set(false);
@@ -424,10 +429,10 @@ export class EventViewComponent implements OnInit, OnDestroy {
       if (ok) {
         await this.router.navigate(['/']);
       } else {
-        this.error.set('No se pudo eliminar el evento.');
+        this.error.set(this.t.translate('view.delete_error'));
       }
     } catch (err) {
-      this.error.set('Error al eliminar el evento.');
+      this.error.set(this.t.translate('view.delete_generic_error'));
       console.error('Delete event error:', err);
     } finally {
       this.deleting.set(false);
@@ -472,7 +477,9 @@ export class EventViewComponent implements OnInit, OnDestroy {
       hour: '2-digit',
       minute: '2-digit',
     };
-    return new Date(iso).toLocaleDateString('es-ES', opts);
+    const langMap: Record<string, string> = { es: 'es-ES', gl: 'gl-ES', ca: 'ca-ES' };
+    const locale = langMap[this.t.getActiveLang()] ?? 'es-ES';
+    return new Date(iso).toLocaleDateString(locale, opts);
   }
 
   private toLocalDatetime(iso: string): string {

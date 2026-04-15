@@ -15,7 +15,8 @@
         "tsConfig": "apps/farmacias-web/tsconfig.app.json",
         "assets": [
           { "glob": "**/*", "input": "apps/farmacias-web/public" },
-          { "glob": "**/*", "input": "assets", "output": "assets" }
+          { "glob": "**/*", "input": "assets", "output": "assets" },
+          { "glob": "{es,gl,ca}.json", "input": "libs/shared/i18n", "output": "i18n/shared" }
         ],
         "styles": ["apps/farmacias-web/src/styles.css"]
       },

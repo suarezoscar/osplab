@@ -1,0 +1,27 @@
+{
+  "common": {
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "confirm": "Confirmar",
+    "back": "Volver",
+    "loading": "Cargando…",
+    "error": "Ha ocurrido un error",
+    "share": "Compartir",
+    "copy_link": "Copiar enlace",
+    "copied": "¡Copiado!",
+    "close": "Cerrar",
+    "add": "Añadir",
+    "edit": "Editar",
+    "yes": "Sí",
+    "no": "No"
+  },
+  "footer": {
+    "open_source": "Open Source con ♥"
+  },
+  "lang": {
+    "es": "Español",
+    "gl": "Galego",
+    "ca": "Català"
+  }
+}

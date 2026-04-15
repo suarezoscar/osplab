@@ -1,0 +1,55 @@
+{
+  "header": {
+    "title": "Farmacia de Garda",
+    "subtitle": "Atopa a máis preto agora mesmo"
+  },
+  "search": {
+    "skip": "Saltar ao contido principal",
+    "use_location": "Usar a miña ubicación",
+    "searching": "Buscando a máis preto…",
+    "or_address": "ou escribe o teu enderezo",
+    "placeholder": "Cidade, barrio, enderezo…",
+    "label": "Enderezo, cidade ou barrio",
+    "clear": "Borrar busca",
+    "suggestions_label": "Suxestións de enderezo",
+    "a11y_searching": "Buscando farmacias de garda, por favor agarda…",
+    "a11y_found": "Atopáronse {{count}} farmacias de garda.",
+    "a11y_none": "Non se atoparon farmacias de garda para hoxe na túa zona."
+  },
+  "info": {
+    "coverage": "Dispoñible para farmacias de <strong>Galicia</strong>, <strong>Madrid</strong> e <strong>Barcelona</strong>. Proximamente máis comunidades."
+  },
+  "results": {
+    "closest_one": "Farmacia máis preto",
+    "closest_many": "{{count}} farmacias máis preto",
+    "realtime": "📡 Tempo real",
+    "refresh": "Actualizar ubicación"
+  },
+  "empty": {
+    "title": "Sen farmacias de garda na túa zona",
+    "description": "É posible que aínda non haxa datos para hoxe nesta área, ou que non haxa farmacias con ubicación rexistrada."
+  },
+  "welcome": {
+    "title": "¿Onde estás?",
+    "description": "Usa a túa ubicación ou escribe un enderezo para atopar a farmacia de garda máis preto"
+  },
+  "error": {
+    "api": "Erro ao conectar co servidor. ¿Está o API en marcha?"
+  },
+  "card": {
+    "closest": "A máis preto",
+    "rank_1": "A máis preto",
+    "rank_2": "Segunda máis preto",
+    "rank_3": "Terceira máis preto",
+    "address": "Enderezo",
+    "schedule": "Horario de garda",
+    "h24": "Garda 24 horas",
+    "directions": "Como chegar",
+    "directions_to": "Como chegar a {{name}} en {{app}}",
+    "call": "Chamar a {{name}}: {{phone}}"
+  },
+  "footer": {
+    "updated_daily": "Datos actualizados diariamente",
+    "privacy": "Privacidade"
+  }
+}
