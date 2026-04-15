@@ -6,41 +6,17 @@
  *   pnpm jiti scripts/bump-version.ts --project=landing --bump=minor
  *   pnpm jiti scripts/bump-version.ts --project=all --bump=patch
  *
- * El script:
- *   1. Lee la versión actual del `version.ts` de cada app.
- *   2. Aplica el bump (patch / minor / major).
- *   3. Escribe el nuevo `version.ts`.
- *   4. Si se bumpeó farmacias-web, actualiza también la versión en el array
- *      de proyectos de la landing (home.component.ts).
+ * Fuente única de verdad: libs/shared/interfaces/src/lib/project-versions.ts
+ * Cada app re-exporta su versión desde ahí.
  */
 
 import { readFileSync, writeFileSync } from 'fs';
 import { resolve } from 'path';
 
-// ── Configuración de apps ────────────────────────────────────────────────────
-interface AppConfig {
-  versionFile: string;
-  comment: string;
-}
-
-const APPS: Record<string, AppConfig> = {
-  landing: {
-    versionFile: 'apps/landing/src/version.ts',
-    comment: 'Versión de la landing (osplab.dev). Bump manualmente o con script de release.',
-  },
-  'farmacias-web': {
-    versionFile: 'apps/farmacias-web/src/version.ts',
-    comment:
-      'Versión de Farmacias de Guardia (farmacias.osplab.dev). Bump manualmente o con script de release.',
-  },
-  events: {
-    versionFile: 'apps/events/src/version.ts',
-    comment: 'Versión de Events (events.osplab.dev). Bump manualmente o con script de release.',
-  },
-};
-
-/** Ruta al componente de la landing donde están hardcodeadas las versiones de proyectos. */
-const LANDING_PROJECTS_FILE = 'apps/landing/src/app/pages/home/home.component.ts';
+// ── Configuración ────────────────────────────────────────────────────────────
+const VERSIONS_FILE = 'libs/shared/interfaces/src/lib/project-versions.ts';
+const VALID_PROJECTS = ['landing', 'farmacias-web', 'events'] as const;
+type ProjectName = (typeof VALID_PROJECTS)[number];
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 type BumpType = 'patch' | 'minor' | 'major';
@@ -65,43 +41,36 @@ function bumpVersion(current: string, type: BumpType): string {
   }
 }
 
-function readCurrentVersion(filePath: string): string {
-  const abs = resolve(filePath);
+function readVersions(): Record<ProjectName, string> {
+  const abs = resolve(VERSIONS_FILE);
   const content = readFileSync(abs, 'utf-8');
-  const match = content.match(/APP_VERSION\s*=\s*'([^']+)'/);
-  if (!match) {
-    throw new Error(`No se pudo leer APP_VERSION en ${filePath}`);
+  const versions: Record<string, string> = {};
+
+  for (const name of VALID_PROJECTS) {
+    const regex = new RegExp(`(?:'${name}'|${name}):\\s*'([^']+)'`);
+    const match = content.match(regex);
+    if (!match) throw new Error(`No se encontró versión de "${name}" en ${VERSIONS_FILE}`);
+    versions[name] = match[1];
   }
-  return match[1];
+
+  return versions as Record<ProjectName, string>;
 }
 
-function writeVersionFile(filePath: string, version: string, comment: string): void {
-  const abs = resolve(filePath);
-  const content = `/** ${comment} */\nexport const APP_VERSION = '${version}' as const;\n`;
-  writeFileSync(abs, content, 'utf-8');
-}
-
-/**
- * Actualiza la versión de un proyecto en el array `projects` del componente
- * home de la landing (donde se muestra la card del proyecto).
+function writeVersions(versions: Record<ProjectName, string>): void {
+  const abs = resolve(VERSIONS_FILE);
+  const content = `/**
+ * Versiones centralizadas de todos los proyectos de OSPLab.
+ *
+ * Fuente única de verdad — el script bump-version.ts actualiza solo este archivo.
+ * Cada app re-exporta su versión desde aquí.
  */
-function syncLandingProjectVersion(projectId: string, version: string): void {
-  const abs = resolve(LANDING_PROJECTS_FILE);
-  let content = readFileSync(abs, 'utf-8');
-
-  // Busca el bloque del proyecto y actualiza su `version: 'x.y.z'`
-  const regex = new RegExp(`(id:\\s*'${projectId}'[\\s\\S]*?version:\\s*')([^']+)(')`);
-  const updated = content.replace(regex, `$1${version}$3`);
-
-  if (updated === content) {
-    console.warn(
-      `⚠️  No se encontró version de ${projectId} en la landing. ¿Cambió la estructura del componente?`,
-    );
-    return;
-  }
-
-  writeFileSync(abs, updated, 'utf-8');
-  console.log(`   ↳ Sincronizado en landing projects (${projectId}) → v${version}`);
+export const PROJECT_VERSIONS = {
+  landing: '${versions['landing']}',
+  'farmacias-web': '${versions['farmacias-web']}',
+  events: '${versions['events']}',
+} as const;
+`;
+  writeFileSync(abs, content, 'utf-8');
 }
 
 // ── CLI ──────────────────────────────────────────────────────────────────────
@@ -122,42 +91,34 @@ function main(): void {
     process.exit(1);
   }
 
-  const targets = projectArg === 'all' ? Object.keys(APPS) : [projectArg];
+  const targets: ProjectName[] =
+    projectArg === 'all' ? [...VALID_PROJECTS] : [projectArg as ProjectName];
 
   for (const name of targets) {
-    const app = APPS[name];
-    if (!app) {
+    if (!VALID_PROJECTS.includes(name)) {
       console.error(
-        `Proyecto desconocido: "${name}". Disponibles: ${Object.keys(APPS).join(', ')}, all`,
+        `Proyecto desconocido: "${name}". Disponibles: ${VALID_PROJECTS.join(', ')}, all`,
       );
       process.exit(1);
     }
-
-    const current = readCurrentVersion(app.versionFile);
-    const next = bumpVersion(current, bumpArg);
-
-    writeVersionFile(app.versionFile, next, app.comment);
-    console.log(`✅ ${name}: ${current} → ${next}`);
-
-    // Si se bumpeó farmacias-web, sincronizar la versión en la landing
-    if (name === 'farmacias-web') {
-      syncLandingProjectVersion('farmacias', next);
-    }
-
-    // Si se bumpeó events, sincronizar la versión en la landing
-    if (name === 'events') {
-      syncLandingProjectVersion('events', next);
-    }
   }
+
+  const versions = readVersions();
+
+  for (const name of targets) {
+    const current = versions[name];
+    const next = bumpVersion(current, bumpArg);
+    versions[name] = next;
+    console.log(`✅ ${name}: ${current} → ${next}`);
+  }
+
+  writeVersions(versions);
 
   // Escribir la nueva versión en GITHUB_OUTPUT si estamos en CI
   if (process.env['GITHUB_OUTPUT']) {
     const lastTarget = targets[targets.length - 1];
-    const lastApp = APPS[lastTarget];
-    const finalVersion = readCurrentVersion(lastApp.versionFile);
-
     const fs = require('fs');
-    fs.appendFileSync(process.env['GITHUB_OUTPUT'], `version=${finalVersion}\n`);
+    fs.appendFileSync(process.env['GITHUB_OUTPUT'], `version=${versions[lastTarget]}\n`);
   }
 }
 

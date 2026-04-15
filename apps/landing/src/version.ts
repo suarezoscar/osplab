@@ -1,2 +1,3 @@
-/** Versión de la landing (osplab.dev). Bump manualmente o con script de release. */
-export const APP_VERSION = '1.1.0' as const;
+/** Versión de la landing (osplab.dev). Fuente: @osplab/shared-interfaces */
+import { PROJECT_VERSIONS } from '@osplab/shared-interfaces';
+export const APP_VERSION = PROJECT_VERSIONS['landing'];

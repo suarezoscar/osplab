@@ -7,6 +7,7 @@ import {
   OspIconComponent,
   OspLabFooterComponent,
 } from '@osplab/shared-ui';
+import { PROJECT_VERSIONS } from '@osplab/shared-interfaces';
 
 interface Project {
   id: string;
@@ -39,7 +40,7 @@ export class HomeComponent {
       theme: 'green',
       status: 'live',
       tags: ['Salud', 'Galicia', 'Madrid', 'Barcelona', 'Geolocalización'],
-      version: '1.1.0',
+      version: PROJECT_VERSIONS['farmacias-web'],
     },
     {
       id: 'events',
@@ -51,7 +52,7 @@ export class HomeComponent {
       theme: 'amber',
       status: 'live',
       tags: ['Eventos', 'WhatsApp', 'Sin registro'],
-      version: '0.1.0',
+      version: PROJECT_VERSIONS['events'],
     },
   ];
 
