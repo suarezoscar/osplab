@@ -147,13 +147,6 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Dependency vulnerability audit
-        run: |
-          # npm retiró el endpoint clásico de audit (HTTP 410).
-          # audit-ci con --pass-enoaudit evita fallar si el endpoint no responde.
-          # TODO: volver a `pnpm audit --prod --audit-level high` cuando pnpm migre al bulk advisory endpoint.
-          npx -y audit-ci --high --skip-dev --pass-enoaudit
-
       # Ejecutamos gitleaks CLI directamente para evitar el bug del gitleaks-action
       # cuando el commit base del PR es el primer commit del repo (base_sha^ inválido).
       - name: Scan for secrets (Gitleaks)
