@@ -53,6 +53,7 @@ export class EventViewComponent implements OnInit, OnDestroy {
   notFound = signal(false);
   joinName = signal('');
   joinOption = signal('');
+  joinMultiOptions = signal<Set<string>>(new Set());
   joining = signal(false);
   copied = signal(false);
   error = signal<string | null>(null);
@@ -75,6 +76,7 @@ export class EventViewComponent implements OnInit, OnDestroy {
   editDeadline = signal('');
   editOptions = signal<string[]>([]);
   editNewOption = signal('');
+  editMultiSelect = signal(false);
 
   // ── Computed ──────────────────────────────────────────────────────────
   eventUrl = computed(() => {
@@ -122,8 +124,13 @@ export class EventViewComponent implements OnInit, OnDestroy {
     const counts = new Map<string, number>();
     for (const opt of ev.options) counts.set(opt, 0);
     for (const a of this.attendees()) {
-      if (a.selected_option && counts.has(a.selected_option)) {
-        counts.set(a.selected_option, (counts.get(a.selected_option) ?? 0) + 1);
+      if (!a.selected_option) continue;
+      // Multi-select almacena opciones separadas por ", "
+      const selections = ev.multi_select ? a.selected_option.split(', ') : [a.selected_option];
+      for (const sel of selections) {
+        if (counts.has(sel)) {
+          counts.set(sel, (counts.get(sel) ?? 0) + 1);
+        }
       }
     }
     return ev.options.map((opt) => ({ name: opt, count: counts.get(opt) ?? 0 }));
@@ -252,18 +259,28 @@ export class EventViewComponent implements OnInit, OnDestroy {
     const name = this.joinName().trim();
     if (!e || !name) return;
 
-    // Si el evento tiene opciones, la selección es obligatoria
-    const option = this.joinOption();
-    if (e.options?.length && !option) return;
+    // Determinar la opción seleccionada
+    let option: string | null = null;
+    if (e.options?.length) {
+      if (e.multi_select) {
+        const selected = this.joinMultiOptions();
+        if (selected.size === 0) return;
+        option = Array.from(selected).join(', ');
+      } else {
+        option = this.joinOption();
+        if (!option) return;
+      }
+    }
 
     this.joining.set(true);
     this.error.set(null);
 
     try {
-      const attendee = await this.eventsService.addAttendee(e.id, name, option || null);
+      const attendee = await this.eventsService.addAttendee(e.id, name, option);
       this.attendees.update((list) => [...list, attendee]);
       this.joinName.set('');
       this.joinOption.set('');
+      this.joinMultiOptions.set(new Set());
     } catch (err) {
       this.error.set('Error al apuntarse. Inténtalo de nuevo.');
       console.error('Join error:', err);
@@ -327,6 +344,7 @@ export class EventViewComponent implements OnInit, OnDestroy {
       e.registration_deadline ? this.toLocalDatetime(e.registration_deadline) : '',
     );
     this.editOptions.set(e.options ?? []);
+    this.editMultiSelect.set(e.multi_select ?? false);
     this.editMode.set(true);
   }
 
@@ -355,6 +373,7 @@ export class EventViewComponent implements OnInit, OnDestroy {
           ? new Date(this.editDeadline()).toISOString()
           : null,
         options: opts.length >= 2 ? opts : null,
+        multi_select: opts.length >= 2 ? this.editMultiSelect() : false,
       });
 
       if (ok) {
@@ -435,6 +454,15 @@ export class EventViewComponent implements OnInit, OnDestroy {
   }
 
   // ── Helpers ───────────────────────────────────────────────────────────
+
+  toggleMultiOption(option: string): void {
+    this.joinMultiOptions.update((set) => {
+      const next = new Set(set);
+      if (next.has(option)) next.delete(option);
+      else next.add(option);
+      return next;
+    });
+  }
 
   formatDate(iso: string): string {
     const opts: Intl.DateTimeFormatOptions = {

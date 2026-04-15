@@ -115,7 +115,7 @@
           >
         </label>
         <p class="mb-2 text-[0.78rem]" style="color: var(--osp-text-faint)">
-          Si añades opciones, cada asistente tendrá que elegir una al apuntarse (ej: menús).
+          Si añades opciones, cada asistente tendrá que elegir al apuntarse (ej: menús).
         </p>
         <div class="flex gap-2 mb-2">
           <input
@@ -157,6 +157,18 @@
             <p class="mt-1.5 text-[0.78rem]" style="color: var(--osp-warning)">
               Añade al menos 2 opciones para activarlas.
             </p>
+          }
+          @if (options().length >= 2) {
+            <label
+              class="mt-2 flex items-center gap-2.5 cursor-pointer rounded-lg px-3 py-2 transition-colors"
+              style="background: var(--osp-bg-elevated)">
+              <input
+                type="checkbox"
+                [checked]="multiSelect()"
+                (change)="multiSelect.set(!multiSelect())"
+                class="accent-amber-500 h-4 w-4 cursor-pointer" />
+              <span class="text-[0.85rem]" style="color: var(--osp-text)"> Permitir seleccionar varias opciones </span>
+            </label>
           }
         }
       </div>

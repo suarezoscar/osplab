@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS events (
   event_date              TIMESTAMPTZ NOT NULL,
   registration_deadline   TIMESTAMPTZ,                 -- Fecha límite de inscripción (null = event_date)
   options                 JSONB,                       -- Array de strings: opciones a elegir (null = sin opciones)
+  multi_select            BOOLEAN NOT NULL DEFAULT FALSE, -- Si true, permite seleccionar varias opciones
   password_hash           TEXT,                        -- SHA-256 hash (null = sin contraseña)
   created_at              TIMESTAMPTZ NOT NULL DEFAULT now()
 );
@@ -64,7 +65,7 @@ CREATE POLICY "attendees_insert" ON event_attendees
 
 -- events: ocultar password_hash
 REVOKE ALL ON events FROM anon, authenticated;
-GRANT SELECT (id, slug, title, description, location_name, lat, lng, event_date, registration_deadline, options, created_at) ON events TO anon, authenticated;
+GRANT SELECT (id, slug, title, description, location_name, lat, lng, event_date, registration_deadline, options, multi_select, created_at) ON events TO anon, authenticated;
 GRANT INSERT ON events TO anon, authenticated;
 
 -- event_attendees: ocultar removal_token
@@ -84,7 +85,8 @@ CREATE OR REPLACE FUNCTION update_event_with_password(
   p_event_date              TIMESTAMPTZ    DEFAULT NULL,
   p_registration_deadline   TIMESTAMPTZ    DEFAULT NULL,
   p_options                 JSONB          DEFAULT NULL,
-  p_clear_deadline          BOOLEAN        DEFAULT FALSE
+  p_clear_deadline          BOOLEAN        DEFAULT FALSE,
+  p_multi_select            BOOLEAN        DEFAULT NULL
 )
 RETURNS BOOLEAN
 LANGUAGE plpgsql
@@ -108,7 +110,8 @@ BEGIN
     lng                     = COALESCE(p_lng, lng),
     event_date              = COALESCE(p_event_date, event_date),
     registration_deadline   = CASE WHEN p_clear_deadline THEN NULL ELSE COALESCE(p_registration_deadline, registration_deadline) END,
-    options                 = COALESCE(p_options, options)
+    options                 = COALESCE(p_options, options),
+    multi_select            = COALESCE(p_multi_select, multi_select)
   WHERE id = p_event_id;
 
   RETURN TRUE;

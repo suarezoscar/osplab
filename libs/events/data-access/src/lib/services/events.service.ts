@@ -85,6 +85,7 @@ export class EventsService {
         | 'event_date'
         | 'registration_deadline'
         | 'options'
+        | 'multi_select'
       >
     >,
   ): Promise<boolean> {
@@ -100,6 +101,7 @@ export class EventsService {
       p_registration_deadline: updates.registration_deadline ?? null,
       p_options: updates.options ?? null,
       p_clear_deadline: updates.registration_deadline === null,
+      p_multi_select: updates.multi_select ?? null,
     });
 
     if (error) throw error;

@@ -10,6 +10,7 @@ export interface EventRow {
   event_date: string; // ISO 8601
   registration_deadline: string | null; // ISO 8601 — si null, se usa event_date
   options: string[] | null; // Opciones que debe elegir el asistente (ej: menús)
+  multi_select: boolean; // Si true, el asistente puede elegir varias opciones
   created_at: string; // ISO 8601
 }
 
@@ -33,9 +34,10 @@ export interface CreateEventPayload {
   event_date: string;
   registration_deadline?: string | null;
   options?: string[] | null;
+  multi_select?: boolean;
   password_hash?: string | null;
 }
 
 /** Columnas que seleccionamos de la tabla events (excluye password_hash). */
 export const EVENT_SELECT_COLUMNS =
-  'id, slug, title, description, location_name, lat, lng, event_date, registration_deadline, options, created_at' as const;
+  'id, slug, title, description, location_name, lat, lng, event_date, registration_deadline, options, multi_select, created_at' as const;

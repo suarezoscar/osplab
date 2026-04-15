@@ -131,7 +131,12 @@
               <div class="flex items-start gap-3 -mx-2 px-2 py-1">
                 <span class="mt-0.5"><osp-icon name="crosshair" [size]="18" /></span>
                 <div>
-                  <p class="text-[0.85rem] mb-1" style="color: var(--osp-text-muted)">Opciones disponibles:</p>
+                  <p class="text-[0.85rem] mb-1" style="color: var(--osp-text-muted)">
+                    Opciones disponibles:
+                    @if (ev.multi_select) {
+                      <span class="text-[0.75rem]" style="color: var(--osp-text-faint)">(multirespuesta)</span>
+                    }
+                  </p>
                   <div class="flex flex-wrap gap-1.5">
                     @for (opt of ev.options; track $index) {
                       <span
@@ -288,6 +293,20 @@
                   </li>
                 }
               </ul>
+              @if (editOptions().length >= 2) {
+                <label
+                  class="mt-2 flex items-center gap-2.5 cursor-pointer rounded-lg px-3 py-2 transition-colors"
+                  style="background: var(--osp-bg-elevated)">
+                  <input
+                    type="checkbox"
+                    [checked]="editMultiSelect()"
+                    (change)="editMultiSelect.set(!editMultiSelect())"
+                    class="accent-amber-500 h-4 w-4 cursor-pointer" />
+                  <span class="text-[0.85rem]" style="color: var(--osp-text)">
+                    Permitir seleccionar varias opciones
+                  </span>
+                </label>
+              }
             }
           </div>
 
@@ -400,16 +419,38 @@
         @if (!isRegistrationClosed()) {
           <form (ngSubmit)="onJoin()" class="flex flex-col gap-2">
             @if (ev.options?.length) {
-              <select
-                [ngModel]="joinOption()"
-                (ngModelChange)="joinOption.set($event)"
-                name="joinOption"
-                class="ev-input">
-                <option value="" disabled>Elige una opción…</option>
-                @for (opt of ev.options; track $index) {
-                  <option [value]="opt">{{ opt }}</option>
-                }
-              </select>
+              @if (ev.multi_select) {
+                <!-- Multi-select: checkboxes -->
+                <div
+                  class="flex flex-col gap-1.5 rounded-xl border p-3"
+                  style="border-color: var(--osp-border); background: var(--osp-bg-surface)">
+                  <p class="text-[0.78rem] mb-1" style="color: var(--osp-text-faint)">Selecciona una o varias:</p>
+                  @for (opt of ev.options; track $index) {
+                    <label
+                      class="flex items-center gap-2.5 cursor-pointer rounded-lg px-2 py-1.5 transition-colors"
+                      [style.background]="joinMultiOptions().has(opt) ? 'var(--osp-accent-muted)' : 'transparent'">
+                      <input
+                        type="checkbox"
+                        [checked]="joinMultiOptions().has(opt)"
+                        (change)="toggleMultiOption(opt)"
+                        class="accent-amber-500 h-4 w-4 cursor-pointer" />
+                      <span class="text-[0.88rem]" style="color: var(--osp-text)">{{ opt }}</span>
+                    </label>
+                  }
+                </div>
+              } @else {
+                <!-- Single-select: dropdown -->
+                <select
+                  [ngModel]="joinOption()"
+                  (ngModelChange)="joinOption.set($event)"
+                  name="joinOption"
+                  class="ev-input">
+                  <option value="" disabled>Elige una opción…</option>
+                  @for (opt of ev.options; track $index) {
+                    <option [value]="opt">{{ opt }}</option>
+                  }
+                </select>
+              }
             }
             <div class="flex gap-2">
               <input
@@ -422,7 +463,11 @@
                 class="ev-input flex-1" />
               <button
                 type="submit"
-                [disabled]="joining() || !joinName().trim() || (ev.options?.length ? !joinOption() : false)"
+                [disabled]="
+                  joining() ||
+                  !joinName().trim() ||
+                  (ev.options?.length ? (ev.multi_select ? joinMultiOptions().size === 0 : !joinOption()) : false)
+                "
                 class="shrink-0 rounded-lg px-5 py-2.5 text-[0.88rem] font-semibold transition-all disabled:cursor-not-allowed disabled:opacity-50 active:scale-[0.97]"
                 style="
                   background: var(--osp-accent);

@@ -35,6 +35,7 @@ export class EventCreateComponent {
   password = signal('');
   options = signal<string[]>([]);
   newOption = signal('');
+  multiSelect = signal(false);
 
   // ── UI state ──────────────────────────────────────────────────────────────
   submitting = signal(false);
@@ -100,6 +101,7 @@ export class EventCreateComponent {
         event_date: date.toISOString(),
         registration_deadline: deadline,
         options: opts,
+        multi_select: opts ? this.multiSelect() : undefined,
         password_hash: passwordHash,
       });
 
