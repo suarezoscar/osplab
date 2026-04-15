@@ -61,6 +61,9 @@ importers:
       '@supabase/supabase-js':
         specifier: ^2.103.0
         version: 2.103.0
+      apexcharts:
+        specifier: ^5.10.6
+        version: 5.10.6
       axios:
         specifier: ^1.15.0
         version: 1.15.0
@@ -79,6 +82,9 @@ importers:
       leaflet:
         specifier: ^1.9.4
         version: 1.9.4
+      ng-apexcharts:
+        specifier: ^2.4.0
+        version: 2.4.0(@angular/common@21.2.7(@angular/core@21.2.7(@angular/compiler@21.2.7)(rxjs@7.8.2)(zone.js@0.16.1))(rxjs@7.8.2))(@angular/core@21.2.7(@angular/compiler@21.2.7)(rxjs@7.8.2)(zone.js@0.16.1))(apexcharts@5.10.6)(rxjs@7.8.2)
       pg:
         specifier: ^8.20.0
         version: 8.20.0
@@ -4203,6 +4209,9 @@ packages:
     resolution: {integrity: sha512-KMReFUr0B4t+D+OBkjR3KYqvocp2XaSzO55UcB6mgQMd3KbcE+mWTyvVV7D/zsdEbNnV6acZUutkiHQXvTr1Rw==}
     engines: {node: '>= 8'}
 
+  apexcharts@5.10.6:
+    resolution: {integrity: sha512-FJQGbso3iRuOwUYnj0yUhkWeKeJE6aboVol+ae09lsc+lbLMWZqSRbrAWVa/qishLiaeG2icxdvmVkm+9n6kOQ==}
+
   append-field@1.0.0:
     resolution: {integrity: sha512-klpgFSWLW1ZEs8svjfb7g4qWY0YS5imI82dTg+QahUvJ8YqAY0P10Uk8tTyh9ZGuYEZEMaeJYCF5BFuX552hsw==}
 
@@ -6648,6 +6657,14 @@ packages:
 
   neo-async@2.6.2:
     resolution: {integrity: sha512-Yd3UES5mWCSqR+qNT93S3UoYUkqAZ9lLg8a7g9rimsWmYGK8cVToA4/sF3RrshdyV3sAGMXVUmpMYOw+dLpOuw==}
+
+  ng-apexcharts@2.4.0:
+    resolution: {integrity: sha512-bNXIOQrux9ZXnpm4kxbW8M6AA4ENAEOpR31ZoaeBkc0SrfOMw1nxRN5ORkStOQFVQF5Wf5qivAA9KIgU7Ol26A==}
+    peerDependencies:
+      '@angular/common': '>=20.0.0'
+      '@angular/core': '>=20.0.0'
+      apexcharts: ^5.10.3
+      rxjs: ^7.8.2
 
   ng-packagr@21.2.2:
     resolution: {integrity: sha512-VO0y7RU3Ik8E14QdrryVyVbTAyqO2MK9W9GrG4e/4N8+ti+DWiBSQmw0tIhnV67lEjQwCccPA3ZBoIn3B1vJ1Q==}
@@ -13308,6 +13325,8 @@ snapshots:
       normalize-path: 3.0.0
       picomatch: 2.3.2
 
+  apexcharts@5.10.6: {}
+
   append-field@1.0.0: {}
 
   argparse@1.0.10:
@@ -16052,6 +16071,14 @@ snapshots:
   negotiator@1.0.0: {}
 
   neo-async@2.6.2: {}
+
+  ng-apexcharts@2.4.0(@angular/common@21.2.7(@angular/core@21.2.7(@angular/compiler@21.2.7)(rxjs@7.8.2)(zone.js@0.16.1))(rxjs@7.8.2))(@angular/core@21.2.7(@angular/compiler@21.2.7)(rxjs@7.8.2)(zone.js@0.16.1))(apexcharts@5.10.6)(rxjs@7.8.2):
+    dependencies:
+      '@angular/common': 21.2.7(@angular/core@21.2.7(@angular/compiler@21.2.7)(rxjs@7.8.2)(zone.js@0.16.1))(rxjs@7.8.2)
+      '@angular/core': 21.2.7(@angular/compiler@21.2.7)(rxjs@7.8.2)(zone.js@0.16.1)
+      apexcharts: 5.10.6
+      rxjs: 7.8.2
+      tslib: 2.8.1
 
   ng-packagr@21.2.2(@angular/compiler-cli@21.2.7(@angular/compiler@21.2.7)(typescript@5.9.3))(tailwindcss@4.2.2)(tslib@2.8.1)(typescript@5.9.3):
     dependencies:

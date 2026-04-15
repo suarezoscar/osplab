@@ -152,6 +152,39 @@
         </div>
       }
 
+      <!-- ── Summary ────────────────────────────────────────────────── -->
+      @if (!editMode() && attendees().length > 0) {
+        <div class="ev-card relative mb-6 overflow-hidden osp-animate-slide-up" style="animation-delay: 80ms">
+          <div
+            class="absolute inset-x-0 top-0 h-px"
+            style="background: linear-gradient(to right, transparent, var(--osp-accent-muted), transparent)"></div>
+
+          <h2 class="mb-3 text-lg font-bold flex items-center gap-2" style="color: var(--osp-text-heading)">
+            <osp-icon name="user" [size]="20" /> Resumen
+          </h2>
+
+          <p class="text-[0.95rem] font-semibold" style="color: var(--osp-text)">
+            {{ attendees().length }} {{ attendees().length === 1 ? 'persona apuntada' : 'personas apuntadas' }}
+          </p>
+
+          @if (hasOptions() && optionCounts().length > 0) {
+            <div class="mt-3 -mx-2">
+              <apx-chart
+                [series]="chartSeries()"
+                [chart]="chartConfig()"
+                [plotOptions]="chartPlotOptions()"
+                [colors]="chartColors()"
+                [dataLabels]="chartDataLabels"
+                [xaxis]="chartXaxis()"
+                [yaxis]="chartYaxis()"
+                [grid]="chartGrid"
+                [tooltip]="chartTooltip"
+                [states]="chartStates" />
+            </div>
+          }
+        </div>
+      }
+
       <!-- ── Edit form ───────────────────────────────────────────────── -->
       @if (editMode()) {
         <div class="ev-card mb-6 osp-animate-in" style="border-color: rgba(245, 158, 11, 0.15)">

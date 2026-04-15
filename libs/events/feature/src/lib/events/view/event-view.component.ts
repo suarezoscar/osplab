@@ -4,12 +4,30 @@ import { FormsModule } from '@angular/forms';
 import { EventsService, EVENTS_APP_VERSION } from '@osplab/events-data-access';
 import { SeoService } from '../../services/seo.service';
 import { OspHeaderComponent, OspIconComponent, OspLabFooterComponent } from '@osplab/shared-ui';
+import { NgApexchartsModule } from 'ng-apexcharts';
 import type { EventRow, AttendeeRow } from '@osplab/events-data-access';
+import type {
+  ApexChart,
+  ApexPlotOptions,
+  ApexDataLabels,
+  ApexXAxis,
+  ApexYAxis,
+  ApexGrid,
+  ApexTooltip,
+  ApexStates,
+} from 'ng-apexcharts';
 
 @Component({
   selector: 'app-event-view',
   standalone: true,
-  imports: [FormsModule, RouterLink, OspHeaderComponent, OspIconComponent, OspLabFooterComponent],
+  imports: [
+    FormsModule,
+    RouterLink,
+    OspHeaderComponent,
+    OspIconComponent,
+    OspLabFooterComponent,
+    NgApexchartsModule,
+  ],
   templateUrl: './event-view.component.html',
 })
 export class EventViewComponent implements OnInit, OnDestroy {
@@ -87,6 +105,76 @@ export class EventViewComponent implements OnInit, OnDestroy {
     const deadline = e.registration_deadline ?? e.event_date;
     return new Date(deadline) < new Date();
   });
+
+  // ── Chart data ────────────────────────────────────────────────────────
+  hasOptions = computed(() => (this.event()?.options?.length ?? 0) > 0);
+
+  optionCounts = computed(() => {
+    const ev = this.event();
+    if (!ev?.options?.length) return [];
+    const counts = new Map<string, number>();
+    for (const opt of ev.options) counts.set(opt, 0);
+    for (const a of this.attendees()) {
+      if (a.selected_option && counts.has(a.selected_option)) {
+        counts.set(a.selected_option, (counts.get(a.selected_option) ?? 0) + 1);
+      }
+    }
+    return ev.options.map((opt) => ({ name: opt, count: counts.get(opt) ?? 0 }));
+  });
+
+  chartSeries = computed(() => [
+    { name: 'Apuntados', data: this.optionCounts().map((o) => o.count) },
+  ]);
+
+  chartConfig = computed(
+    (): ApexChart => ({
+      type: 'bar',
+      height: Math.max(120, this.optionCounts().length * 44),
+      toolbar: { show: false },
+      animations: { enabled: true, speed: 600 },
+      background: 'transparent',
+    }),
+  );
+
+  chartPlotOptions = computed(
+    (): ApexPlotOptions => ({
+      bar: {
+        horizontal: true,
+        borderRadius: 6,
+        barHeight: '60%',
+        distributed: true,
+      },
+    }),
+  );
+
+  chartColors = computed(() => {
+    const palette = ['#f59e0b', '#fb923c', '#fbbf24', '#f97316', '#fcd34d', '#fdba74'];
+    return this.optionCounts().map((_, i) => palette[i % palette.length]);
+  });
+
+  chartDataLabels: ApexDataLabels = { enabled: true, style: { fontSize: '13px', fontWeight: 600 } };
+  chartGrid: ApexGrid = { show: false };
+  chartTooltip: ApexTooltip = { enabled: false };
+  chartStates: ApexStates = {
+    hover: { filter: { type: 'none' } },
+    active: { filter: { type: 'none' } },
+  };
+
+  chartXaxis = computed(
+    (): ApexXAxis => ({
+      categories: this.optionCounts().map((o) => o.name),
+      labels: { show: false },
+      axisBorder: { show: false },
+      axisTicks: { show: false },
+    }),
+  );
+  chartYaxis = computed(
+    (): ApexYAxis => ({
+      labels: {
+        style: { fontSize: '13px', fontWeight: 500 },
+      },
+    }),
+  );
 
   async ngOnInit(): Promise<void> {
     const slug = this.route.snapshot.paramMap.get('slug');
