@@ -1,0 +1,29 @@
+{
+  "name": "events-feature",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/events/feature/src",
+  "prefix": "osplab",
+  "projectType": "library",
+  "tags": ["type:feature", "scope:events"],
+  "targets": {
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "outputs": ["{workspaceRoot}/coverage/libs/events/feature"],
+      "options": {
+        "command": "vitest run --config libs/events/feature/vitest.config.ts",
+        "cwd": "{workspaceRoot}"
+      },
+      "configurations": {
+        "coverage": {
+          "command": "vitest run --coverage --config libs/events/feature/vitest.config.ts"
+        },
+        "watch": {
+          "command": "vitest --config libs/events/feature/vitest.config.ts"
+        }
+      }
+    }
+  }
+}
