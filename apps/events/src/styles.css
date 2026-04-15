@@ -66,6 +66,36 @@ body {
     box-shadow var(--osp-duration);
 }
 
+/* ── Date inputs (iOS & cross-browser fix) ───────────────────────────── */
+
+/* Dark theme: date inputs need color-scheme dark for native pickers */
+:root .ev-date {
+  color-scheme: dark;
+}
+
+/* Light theme: switch to light color-scheme */
+:root.light .ev-date {
+  color-scheme: light;
+}
+
+/* Make calendar/clock picker icon visible and tinted */
+.ev-date::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  opacity: 0.6;
+  filter: invert(1);
+  padding: 2px;
+  border-radius: 4px;
+  transition: opacity 150ms;
+}
+
+:root.light .ev-date::-webkit-calendar-picker-indicator {
+  filter: none;
+}
+
+.ev-date::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}
+
 /* ── Focus ring (accessibility) ──────────────────────────────────────── */
 :focus-visible {
   outline: 2px solid var(--osp-accent);
