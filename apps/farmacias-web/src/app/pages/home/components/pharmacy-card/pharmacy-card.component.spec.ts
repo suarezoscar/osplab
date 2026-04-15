@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/angular';
 import { PharmacyCardComponent } from './pharmacy-card.component';
 import type { PharmacyDto } from '@osplab/shared-interfaces';
+import { TranslocoTestingConfig } from '../../../../test-transloco';
 
 const BASE_PHARMACY: PharmacyDto = {
   id: 'ph-1',
@@ -34,6 +35,7 @@ const PHARMACY_24H: PharmacyDto = {
 
 async function renderCard(pharmacy: PharmacyDto, index = 0) {
   return render(PharmacyCardComponent, {
+    imports: [TranslocoTestingConfig],
     componentInputs: { pharmacy, index },
   });
 }

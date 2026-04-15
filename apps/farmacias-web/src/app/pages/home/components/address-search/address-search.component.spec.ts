@@ -1,6 +1,7 @@
 import { render, screen, fireEvent } from '@testing-library/angular';
 import { AddressSearchComponent } from './address-search.component';
 import type { GeocodingSuggestion } from '../../../../services/geocoding.service';
+import { TranslocoTestingConfig } from '../../../../test-transloco';
 
 const SUGGESTIONS: GeocodingSuggestion[] = [
   { displayName: 'Santiago de Compostela, A Coruña', lat: 42.878, lng: -8.544 },
@@ -15,6 +16,7 @@ async function renderSearch({
   disabled = false,
 } = {}) {
   return render(AddressSearchComponent, {
+    imports: [TranslocoTestingConfig],
     componentInputs: { searchQuery, suggestions, showSuggestions, loadingSuggestions, disabled },
   });
 }
