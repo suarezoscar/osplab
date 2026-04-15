@@ -3,7 +3,7 @@ import { provideTransloco } from '@jsverse/transloco';
 import { OspTranslocoLoader } from './transloco-loader';
 
 /** Idiomas soportados por OSPLab. */
-export const OSP_AVAILABLE_LANGS = ['es', 'gl', 'ca'] as const;
+export const OSP_AVAILABLE_LANGS = ['es', 'gl', 'ca', 'en'] as const;
 export type OspLang = (typeof OSP_AVAILABLE_LANGS)[number];
 
 /** Key de localStorage para persistir la preferencia de idioma. */

@@ -1,0 +1,55 @@
+{
+  "header": {
+    "title": "Duty Pharmacy",
+    "subtitle": "Find the nearest one right now"
+  },
+  "search": {
+    "skip": "Skip to main content",
+    "use_location": "Use my location",
+    "searching": "Searching for the nearest one…",
+    "or_address": "or type your address",
+    "placeholder": "City, neighborhood, address…",
+    "label": "Address, city or neighborhood",
+    "clear": "Clear search",
+    "suggestions_label": "Address suggestions",
+    "a11y_searching": "Searching for duty pharmacies, please wait…",
+    "a11y_found": "{{count}} duty pharmacies found.",
+    "a11y_none": "No duty pharmacies found for today in your area."
+  },
+  "info": {
+    "coverage": "Available for pharmacies in <strong>Galicia</strong>, <strong>Madrid</strong> and <strong>Barcelona</strong>. More regions coming soon."
+  },
+  "results": {
+    "closest_one": "Nearest pharmacy",
+    "closest_many": "{{count}} nearest pharmacies",
+    "realtime": "📡 Real time",
+    "refresh": "Refresh location"
+  },
+  "empty": {
+    "title": "No duty pharmacies in your area",
+    "description": "There may not be data for today in this area yet, or there may be no pharmacies with a registered location."
+  },
+  "welcome": {
+    "title": "Where are you?",
+    "description": "Use your location or type an address to find the nearest duty pharmacy"
+  },
+  "error": {
+    "api": "Error connecting to the server. Is the API running?"
+  },
+  "card": {
+    "closest": "Nearest",
+    "rank_1": "Nearest",
+    "rank_2": "Second nearest",
+    "rank_3": "Third nearest",
+    "address": "Address",
+    "schedule": "Duty schedule",
+    "h24": "24-hour duty",
+    "directions": "Get directions",
+    "directions_to": "Get directions to {{name}} on {{app}}",
+    "call": "Call {{name}}: {{phone}}"
+  },
+  "footer": {
+    "updated_daily": "Data updated daily",
+    "privacy": "Privacy"
+  }
+}

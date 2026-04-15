@@ -1,0 +1,25 @@
+{
+  "home": {
+    "tagline_1": "Open source tools suite.",
+    "tagline_2": "No ads. No tracking. Useful data.",
+    "projects": "Projects",
+    "status_live": "Live",
+    "status_wip": "In development",
+    "status_planned": "Coming soon",
+    "more_tools": "More tools in development…",
+    "farmacias_name": "Duty Pharmacies",
+    "farmacias_desc": "Find the nearest duty pharmacies to your location in real time. Available in Galicia, Madrid and Barcelona — more provinces coming soon.",
+    "events_name": "Events",
+    "events_desc": "Create an event, share the link on WhatsApp and let people sign up. No registration, no hassle."
+  },
+  "tags": {
+    "salud": "Health",
+    "galicia": "Galicia",
+    "madrid": "Madrid",
+    "barcelona": "Barcelona",
+    "geo": "Geolocation",
+    "eventos": "Events",
+    "whatsapp": "WhatsApp",
+    "sin_registro": "No registration"
+  }
+}

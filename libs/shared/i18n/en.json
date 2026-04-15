@@ -1,0 +1,28 @@
+{
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "confirm": "Confirm",
+    "back": "Back",
+    "loading": "Loading…",
+    "error": "An error occurred",
+    "share": "Share",
+    "copy_link": "Copy link",
+    "copied": "Copied!",
+    "close": "Close",
+    "add": "Add",
+    "edit": "Edit",
+    "yes": "Yes",
+    "no": "No"
+  },
+  "footer": {
+    "open_source": "Open Source with ♥"
+  },
+  "lang": {
+    "es": "Español",
+    "gl": "Galego",
+    "ca": "Català",
+    "en": "English"
+  }
+}

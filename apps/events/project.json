@@ -16,7 +16,7 @@
         "assets": [
           { "glob": "**/*", "input": "apps/events/public" },
           { "glob": "**/*", "input": "assets", "output": "assets" },
-          { "glob": "{es,gl,ca}.json", "input": "libs/shared/i18n", "output": "i18n/shared" }
+          { "glob": "{es,gl,ca,en}.json", "input": "libs/shared/i18n", "output": "i18n/shared" }
         ],
         "styles": ["apps/events/src/styles.css"]
       },
