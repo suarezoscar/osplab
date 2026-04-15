@@ -184,12 +184,15 @@ jobs:
       - name: Build events
         run: pnpm nx build events
 
+      - name: Copy Cloudflare Functions to build output
+        run: cp -r apps/events/functions dist/apps/events/browser/functions
+
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy dist/apps/events/browser --project-name=osplab-events
+          command: pages deploy dist/apps/events/browser --project-name=osplab-events --branch=master
 
   # ── Deploy Farmacias API → Render ───────────────────────────────────
   # Render auto-deploya desde GitHub en cada push a master.
