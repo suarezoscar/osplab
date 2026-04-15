@@ -20,6 +20,7 @@ import type {
   ApexGrid,
   ApexTooltip,
   ApexStates,
+  ApexLegend,
 } from 'ng-apexcharts';
 
 @Component({
@@ -172,6 +173,12 @@ export class EventViewComponent implements OnInit, OnDestroy {
     hover: { filter: { type: 'none' } },
     active: { filter: { type: 'none' } },
   };
+
+  chartLegend = computed(
+    (): ApexLegend => ({
+      labels: { colors: [this.chartLabelColor()] },
+    }),
+  );
 
   chartXaxis = computed(
     (): ApexXAxis => ({
