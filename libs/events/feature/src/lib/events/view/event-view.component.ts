@@ -174,11 +174,7 @@ export class EventViewComponent implements OnInit, OnDestroy {
     active: { filter: { type: 'none' } },
   };
 
-  chartLegend = computed(
-    (): ApexLegend => ({
-      labels: { colors: [this.chartLabelColor()] },
-    }),
-  );
+  chartLegend: ApexLegend = { show: false };
 
   chartXaxis = computed(
     (): ApexXAxis => ({
