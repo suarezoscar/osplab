@@ -1,0 +1,73 @@
+@import 'tailwindcss';
+@import 'leaflet/dist/leaflet.css';
+@import '../../../libs/shared/ui/src/lib/styles/osp-theme.css';
+
+/* ── Tailwind dark mode via class ────────────────────────────────────── */
+@variant dark (&:where(.dark, .dark *));
+
+/* ── Global dark/light body transition ───────────────────────────────── */
+body {
+  background-color: var(--osp-bg);
+  color: var(--osp-text);
+  transition:
+    background-color var(--osp-duration-slow),
+    color var(--osp-duration-slow);
+}
+
+/* ── Events — reusable form styles ───────────────────────────────────── */
+
+.ev-input {
+  width: 100%;
+  border-radius: 0.625rem;
+  border: 1px solid var(--osp-border);
+  background-color: var(--osp-bg-surface);
+  padding: 0.75rem 1rem;
+  color: var(--osp-text);
+  font-size: 0.935rem;
+  transition:
+    border-color var(--osp-duration-fast),
+    box-shadow var(--osp-duration-fast),
+    background-color var(--osp-duration-fast);
+}
+
+.ev-input::placeholder {
+  color: var(--osp-text-faint);
+}
+
+.ev-input:hover {
+  border-color: var(--osp-border-hover);
+}
+
+.ev-input:focus {
+  border-color: var(--osp-accent);
+  outline: none;
+  box-shadow: 0 0 0 3px var(--osp-ring);
+}
+
+.ev-label {
+  display: block;
+  margin-bottom: 0.375rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--osp-info);
+}
+
+.ev-card {
+  border-radius: 1rem;
+  border: 1px solid var(--osp-border);
+  background: var(--osp-bg-surface);
+  padding: 1.5rem;
+  box-shadow: var(--osp-shadow-lg);
+  transition:
+    border-color var(--osp-duration),
+    background-color var(--osp-duration),
+    box-shadow var(--osp-duration);
+}
+
+/* ── Focus ring (accessibility) ──────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--osp-accent);
+  outline-offset: 3px;
+}
